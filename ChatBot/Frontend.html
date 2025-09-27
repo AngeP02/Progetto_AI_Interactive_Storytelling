@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestMaster - Configuratore Interattivo</title>
+    <title>QuestMaster</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: url("../static/img/SfondoChatbot1.png");
+            background-size:cover ;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -37,8 +38,8 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #7eddb2 0%, #5eb7ca 100%);
+            color: #ffffff;
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -114,16 +115,16 @@
         }
 
         .assistant-message {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: linear-gradient(135deg, #99d182 0%, #88e6cc 100%);
+            color: #000000;
             align-self: flex-start;
             border-bottom-left-radius: 5px;
             box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
         }
 
         .user-message {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
+            background: linear-gradient(135deg, #6996bc 0%, #8ad3d8 100%);
+            color: #000000;
             align-self: flex-end;
             border-bottom-right-radius: 5px;
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
@@ -165,12 +166,12 @@
         }
 
         .text-input-container input:focus {
-            border-color: #667eea;
+            border-color: #73b1e4;
         }
 
         .send-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #e4b281 0%, #dc8a3f 100%);
+            color: #ffffff;
             border: none;
             padding: 12px 20px;
             border-radius: 25px;
@@ -197,8 +198,8 @@
         }
 
         .option-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #e4b281 0%, #dc8a3f 100%);
+            color: #ffffff;
             border: none;
             padding: 12px 24px;
             border-radius: 25px;
@@ -274,7 +275,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #e4b281, #d37621);
             width: 0%;
             transition: width 0.3s ease;
             border-radius: 2px;
@@ -342,13 +343,13 @@
     <div class="container">
         <div class="header">
             <div class="connection-status" id="connectionStatus">🔴 Offline</div>
-            <h1>🎮 QuestMaster</h1>
+            <h1>QuestMaster</h1>
             <p>Generatore di Storie Interattive a Logica Aumentata</p>
         </div>
 
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
-                <!-- I messaggi verranno aggiunti dinamicamente qui -->
+
             </div>
 
             <div class="typing-indicator" id="typingIndicator">
@@ -366,7 +367,7 @@
                 <button class="send-button" id="sendButton" onclick="sendTextMessage()">Invia</button>
             </div>
             <div class="options-container" id="optionsContainer">
-                <!-- I bottoni delle opzioni verranno aggiunti dinamicamente qui -->
+
             </div>
         </div>
 
@@ -542,7 +543,7 @@
 
                 // Se quest completata
                 if (response.quest_ready) {
-                    console.log('🎉 Quest configurata:', response.config);
+                    console.log('Quest configurata:', response.config);
                     this.updateStatus('Quest pronta per essere avviata!', 100);
                 } else {
                     this.updateStatus(this.getStatusForStep(this.currentStep), this.getProgressForStep(this.currentStep));
@@ -580,7 +581,7 @@
                 await this.delay(300);
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message error-message';
-                messageDiv.innerHTML = `⚠️ ${message}`;
+                messageDiv.innerHTML = `${message}`;
                 this.elements.chatMessages.appendChild(messageDiv);
                 this.scrollToBottom();
             }
@@ -729,7 +730,7 @@
 
         // Inizializzazione quando la pagina è caricata
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Caricamento QuestMaster Frontend...');
+            console.log('Caricamento QuestMaster Frontend...');
             window.questMasterClient = new QuestMasterClient();
         });
 

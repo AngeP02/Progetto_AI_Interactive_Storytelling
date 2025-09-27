@@ -2,14 +2,15 @@ from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import requests
 import json
-import random
-import time
 import logging
+import webbrowser
+from threading import Timer
+import os
+
 
 app = Flask(__name__)
 CORS(app)
 
-# Configurazione logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,6 @@ class QuestMasterLLM:
             return "Si è verificato un errore imprevisto."
 
     def generate_welcome_message(self):
-        """Genera il messaggio di benvenuto usando Llama3"""
         system_prompt = """Sei l'assistente AI di QuestMaster, un sistema che crea storie interattive usando LLM e logica PDDL. 
 Devi essere entusiasta, coinvolgente e professionale. Il tuo ruolo è guidare l'utente nella configurazione della sua avventura personalizzata."""
 
@@ -195,26 +195,14 @@ user_sessions = {}  # Gestione sessioni utenti (semplificata)
 
 @app.route('/')
 def index():
-    """Serve il frontend HTML"""
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>QuestMaster - Reindirizza al Frontend</title>
-    </head>
-    <body>
-        <h1>QuestMaster Backend Attivo</h1>
-        <p>Il backend è in esecuzione. Apri <strong>frontend.html</strong> per utilizzare l'applicazione.</p>
-        <p>API endpoint disponibili:</p>
-        <ul>
-            <li>POST /api/welcome - Messaggio di benvenuto</li>
-            <li>POST /api/chat - Chat con l'assistente</li>
-            <li>POST /api/generate_options - Genera opzioni dinamiche</li>
-        </ul>
-    </body>
-    </html>
-    """
+    """Serve il frontend HTML principale"""
+    try:
+        # Legge il contenuto del file Frontend.html e lo restituisce
+        with open('Frontend.html', 'r', encoding='utf-8') as f:
+            content = f.read()
+        return render_template_string(content)
+    except FileNotFoundError:
+        return "<h1>Errore: Frontend.html non trovato.</h1><p>Assicurati che il file 'Frontend.html' sia nella stessa cartella dello script Python.</p>", 404
 
 
 @app.route('/api/welcome', methods=['POST'])
@@ -417,9 +405,15 @@ def health():
 
 
 if __name__ == '__main__':
-    print("🎮 Avvio QuestMaster Backend...")
-    print("📋 Assicurati che Ollama sia in esecuzione: ollama serve")
-    print("🤖 Modello richiesto: llama3")
-    print("🌐 Apri frontend.html nel browser per usare l'applicazione")
+    print("Avvio QuestMaster Backend...")
+    print("Assicurati che Ollama sia in esecuzione: ollama serve")
+    print("Modello richiesto: llama3")
+    print("Apro il frontend nel browser...")
+
+    def open_browser():
+          webbrowser.open_new_tab('http://127.0.0.1:5000')
+
+    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+        Timer(1, open_browser).start()
 
     app.run(host='0.0.0.0', port=5000, debug=True)
