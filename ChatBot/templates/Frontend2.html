@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>QuestMaster - Configurazione</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            /* Rimuovi max-width: 600px; e margin: 40px auto; dal body */
+            margin: 0; /* Rimuovi i margini di default */
+            min-height: 100vh; /* Assicura che lo sfondo sia sempre visibile */
+
+            background-image: url('../static/img/SfondoChatbot.png');
+            background-size: auto; /* Utilizziamo 'contain' per non tagliare i bordi dei libri */
+            background-repeat: no-repeat;
+            background-position: center; /* Centra l'immagine di sfondo */
+            background-attachment: fixed;
+            color: #333;
+
+            /* FLexbox per centrare VERTICALMENTE e ORIZZONTALMENTE il contenuto */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centra orizzontalmente i figli */
+            justify-content: center; /* Centra verticalmente i figli */
+        }
+
+        h1 {
+            /* Nascondi o sposta il titolo se vuoi che solo il chat-box sia al centro */
+            display: none;
+        }
+
+        .chat-box {
+            max-width: 400px; /* <--- Limita la larghezza della chatbox per stare nel libro */
+            width: 90%; /* Utile per i dispositivi più piccoli */
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            /* Rendi la chatbox semi-trasparente per vedere lo sfondo del libro */
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombra per farla risaltare */
+        }
+        .message { background: #eee; padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .option-button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Benvenuto in QuestMaster</h1>
+    <div class="chat-box">
+        <div id="chat-history">
+            {% for msg in chat_history %}
+                {% if msg.role == "assistant" %}
+                    <div class="message assistant">
+                        <p>{{ msg.message }}</p>
+                        {% if current_state == "INIT_CHOICE" and msg.options %}
+                            {% for opt in msg.options %}
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="user_message" value="{{ opt }}">
+                                    <button type="submit" class="option-button">{{ opt }}</button>
+                                </form>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="message user"><p>{{ msg.message }}</p></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if current_state == 'CONFIG_FORM' %}
+            <hr>
+            <h2>Modulo di Configurazione</h2>
+            <form method="POST" id="config-form">
+
+                <label for="genre">Genere:</label>
+                <select id="genre" name="genre" required>
+                    <option value="" disabled selected>Scegli un genere...</option>
+                    {% for genre_opt in llm_genres %}
+                        <option value="{{ genre_opt }}">{{ genre_opt }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="length">Lunghezza (Complessità PDDL):</label>
+                <select id="length" name="length" required>
+                    <option value="Corta">Corta</option>
+                    <option value="Media">Media</option>
+                    <option value="Lunga">Lunga</option>
+                </select>
+
+                <label for="theme">Trama/Tema:</label>
+                <input type="text" id="theme" name="theme" placeholder="Un gatto deve salvare la città dai topi..." required>
+
+                <label for="graphics">Modalità Grafica:</label>
+                <select id="graphics" name="graphics" required>
+                    <option value="Illustrata">Illustrata</option>
+                    <option value="Non Illustrata">Non Illustrata</option>
+                </select>
+
+                <input type="hidden" name="user_message" value="CONFIG_SUBMITTED">
+                <button type="submit" class="option-button">Analizza e Avvia Avventura</button>
+            </form>
+        {% endif %}
+
+        </div>
+</body>
+</html>
