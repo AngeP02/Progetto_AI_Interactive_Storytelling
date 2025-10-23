@@ -22,7 +22,6 @@ class QuestMasterLLM:
         self.conversation_history = []
 
     def call_ollama(self, prompt, system_prompt=""):
-        """Chiama Ollama con il prompt specificato"""
         try:
             payload = {
                 "model": self.model,
@@ -50,32 +49,24 @@ class QuestMasterLLM:
             return "Si è verificato un errore imprevisto."
 
     def generate_welcome_message(self):
-        system_prompt = """Sei l'assistente AI di QuestMaster, un sistema che crea storie interattive usando LLM e logica PDDL. 
-Devi essere entusiasta, coinvolgente e professionale. Il tuo ruolo è guidare l'utente nella configurazione della sua avventura personalizzata."""
+        system_prompt = """You are the AI assistant for QuestMaster, a system that creates interactive stories using LLM and PDDL logic. You must be enthusiastic, engaging, and professional. Your role is to guide the user in setting up their personalized adventure."""
 
-        prompt = """Genera un messaggio di benvenuto caloroso per QuestMaster, un sistema che crea avventure testuali interattive personalizzate. 
-Spiega brevemente che puoi aiutare a creare storie uniche combinando creatività e logica, e chiedi se l'utente vuole:
-1. Configurazione Manuale (scegliere ogni dettaglio)
-2. Modalità Casuale (tu decidi tutto come Game Master)
-
-Mantieni il tono entusiasta e professionale, max 150 parole."""
+        prompt = """Generate a warm welcome message for QuestMaster, a system that creates personalized interactive text adventures.
+                    Briefly explain that you can help create unique stories by combining creativity and logic, and ask if the user wants to:
+                    1. Manual Setup (choose every detail)
+                    2. Random Mode (you, as Game Master, decide everything) 
+                    Keep your tone enthusiastic and professional, max 75 words."""
 
         return self.call_ollama(prompt, system_prompt)
 
     def generate_genres(self):
-        """Genera una lista di generi dinamica usando Llama3"""
-        system_prompt = """Sei un esperto di narrativa e gaming. Conosci tutti i generi letterari e videoludici."""
-
-        prompt = """Genera una lista di 6 generi interessanti e vari per storie interattive. 
-Includi sia generi classici che combinazioni creative moderne. 
-Rispondi SOLO con una lista JSON nel formato: ["Genere 1", "Genere 2", ...]
-Esempi: Fantasy Epico, Cyberpunk Noir, Horror Cosmico, Steampunk Investigativo, etc."""
+        system_prompt = """You're a fiction and gaming expert. You know all literary and video game genres."""
+        prompt = """Generate a list of 10 classic and diverse genres for interactive stories. Include classic genres.
+                    Respond ONLY with a JSON list in the format: ["Genre 1", "Genre 2", ...]
+                    Examples: Fantasy, Noir, Horror, Drama, Romance, Crime, Adventure, etc."""
 
         response = self.call_ollama(prompt, system_prompt)
-
-        # Prova a estrarre JSON dalla risposta
         try:
-            # Trova il JSON nella risposta
             start_idx = response.find('[')
             end_idx = response.rfind(']') + 1
             if start_idx != -1 and end_idx > start_idx:
@@ -84,21 +75,14 @@ Esempi: Fantasy Epico, Cyberpunk Noir, Horror Cosmico, Steampunk Investigativo, 
                 return genres
         except:
             pass
-
-        # Fallback se non riesce a parsare il JSON
-        return ["Fantasy Epico", "Fantascienza", "Horror Psicologico",
-                "Cyberpunk", "Steampunk", "Post-Apocalittico"]
+        return ["Fantasy", "Science Fiction", "Psychological","Drama", "Romance", "Comedy", "Thriller", "Historical", "Teen", "Western"]
 
     def generate_tones(self):
-        """Genera opzioni di tono usando Llama3"""
-        system_prompt = """Sei un esperto di storytelling e conosci tutti i toni narrativi possibili."""
-
-        prompt = """Genera 4 toni narrativi diversi per storie interattive.
-Rispondi SOLO con una lista JSON: ["Tono 1", "Tono 2", "Tono 3", "Tono 4"]
-Esempi: Epico e Solenne, Ironico e Satirico, Dark e Misterioso, etc."""
-
+        system_prompt = """You are a storytelling expert and know all the possible narrative tones"""
+        prompt = """Generate 4 different narrative tones for interactive stories.
+                    Respond ONLY with a JSON list: ["Tone 1", "Tone 2", "Tone 3", "Tone 4"]
+                    Examples: Epic and Solemn, Ironic and Satirical, Dark and Mysterious, etc."""
         response = self.call_ollama(prompt, system_prompt)
-
         try:
             start_idx = response.find('[')
             end_idx = response.rfind(']') + 1
@@ -108,38 +92,28 @@ Esempi: Epico e Solenne, Ironico e Satirico, Dark e Misterioso, etc."""
                 return tones
         except:
             pass
-
-        return ["Epico e Solenne", "Ironico e Satirico", "Dark e Misterioso", "Leggero e Avventuroso"]
+        return ["Epic and Solemn", "Ironic and Satirical", "Dark and Mysterious", "Light and Adventurous"]
 
     def process_custom_genre(self, custom_genre):
-        """Elabora e commenta un genere personalizzato"""
-        system_prompt = """Sei un critico letterario esperto che apprezza la creatività nei generi narrativi."""
-
-        prompt = f"""L'utente ha scelto il genere personalizzato: "{custom_genre}"
-Scrivi un breve commento positivo e incoraggiante su questa scelta (max 50 parole).
-Spiega brevemente perché è interessante o che possibilità narrative offre."""
-
+        system_prompt = """You are an experienced literary critic who appreciates creativity in narrative genres."""
+        prompt = f"""The user has chosen the custom genre: "{custom_genre}"
+                    Write a short, positive and encouraging comment about this choice (maximum 20 words).
+                    Briefly explain why it's interesting or what narrative possibilities it offers."""
         return self.call_ollama(prompt, system_prompt)
 
     def generate_random_config(self):
-        """Genera una configurazione completamente casuale usando Llama3"""
-        system_prompt = """Sei un Game Master creativo che ama sorprendere i giocatori con configurazioni uniche e interessanti."""
-
-        prompt = """Genera una configurazione CASUALE per un'avventura interattiva. Restituisci SOLO un JSON con questa struttura:
-{
-  "genre": "un genere creativo",
-  "length": "una tra: Corta (15-30 min), Media (45-60 min), Lunga (90+ min)",
-  "tone": "un tono narrativo interessante", 
-  "graphics": "una tra: Illustrata, Solo Testo",
-  "theme": "una trama originale e coinvolgente di massimo 100 caratteri"
-}
-
-Sii creativo e sorprendente!"""
-
+        system_prompt = """You are a creative Game Master who loves to surprise players with unique and interesting setups."""
+        prompt = """Generate a RANDOM configuration for an interactive adventure. Return ONLY a JSON with this structure:
+                    {
+                    "genre": "a creative genre",
+                    "length": "one of: Short (2-5 min), Medium (5-10 min), Long (10+ min)",
+                    "tone": "an interesting narrative tone",
+                    "graphics": "one of: Illustrated, Text-Only",
+                    "theme": "an original and engaging storyline of up to 100 characters"
+                    }
+                    Be creative and surprising!"""
         response = self.call_ollama(prompt, system_prompt)
-
         try:
-            # Trova il JSON nella risposta
             start_idx = response.find('{')
             end_idx = response.rfind('}') + 1
             if start_idx != -1 and end_idx > start_idx:
@@ -147,76 +121,62 @@ Sii creativo e sorprendente!"""
                 config = json.loads(json_str)
                 return config
         except Exception as e:
-            logger.error(f"Errore parsing config casuale: {e}")
+            logger.error(f"Random config parsing error: {e}")
             pass
-
-        # Fallback
         return {
-            "genre": "Fantasy Steampunk",
-            "length": "Media (45-60 min)",
-            "tone": "Avventuroso e Ironico",
-            "graphics": "Illustrata",
-            "theme": "Un inventore deve salvare la città con le sue macchine magiche"
-        }
+                "genre": "Fantasy",
+                "length": "Medium (5 - 10 min)",
+                "tone": "Adventurous and Ironic",
+                "graphics": "Illustrated",
+                "theme": "An inventor must save the city with his magical machines."
+                }
 
     def generate_contextual_response(self, user_input, context):
-        """Genera risposte contestuali per ogni fase della configurazione"""
-        system_prompt = f"""Sei l'assistente di QuestMaster. Contesto attuale: {context}
-Mantieni un tono professionale ma entusiasta. Risposte brevi e dirette."""
+        system_prompt = f"""You are QuestMaster's assistant. Current context: {context}.
+                            Keep your tone professional but enthusiastic. Keep your answers short and direct."""
 
         context_prompts = {
-            "genre_explanation": """L'utente ha scelto il genere. Spiega brevemente cosa succede ora 
-            (selezione della lunghezza) e come la lunghezza influenza la complessità PDDL. Max 80 parole.""",
+            "genre_explanation": """The user has chosen the genre. Briefly explain what happens next (length selection) and how length affects PDDL complexity. Max 50 words.""",
 
-            "length_explanation": """L'utente ha scelto la lunghezza. Spiega ora la scelta del tono 
-            narrativo e come influenza l'atmosfera della storia. Max 60 parole.""",
+            "length_explanation": """The user has chosen the length. Now explain your choice of narrative tone and how it influences the story's atmosphere. Maximum 50 words.""",
 
-            "tone_explanation": """L'utente ha scelto il tono. Chiedi ora sulla modalità grafica 
-            (illustrata vs solo testo) spiegando brevemente la differenza. Max 60 parole.""",
+            "tone_explanation": """The user has chosen the tone. Now ask about the graphical mode (illustrated vs. text-only), briefly explaining the difference. Max 50 words.""",
 
-            "graphics_explanation": """L'utente ha scelto la modalità grafica. Ora chiedi di descrivere 
-            il tema/trama della storia. Dai esempi brevi e incoraggia la creatività. Max 80 parole.""",
+            "graphics_explanation": """The user has chosen the graphical mode. Now ask them to describe the theme/plot of the story. Give short examples and encourage creativity. Maximum 50 words.""",
 
-            "manual_mode_start": """L'utente ha scelto modalità manuale. Introduci la scelta del genere 
-            e spiega che può scegliere tra opzioni generate o inserire un genere personalizzato. Max 60 parole.""",
+            "manual_mode_start": """The user has chosen manual mode. Introduce the gender choice and explain that they can choose from generated options or enter a custom gender. Max 50 words.""",
 
-            "random_mode_intro": """L'utente ha scelto modalità casuale. Descrivi cosa stai per fare 
-            (generare tutto casualmente) con entusiasmo da Game Master. Max 50 parole."""
+            "random_mode_intro": """The user has chosen random mode. Describe what you're about to do (generate everything randomly) with Game Master enthusiasm. Max 50 words."""
         }
 
-        prompt = context_prompts.get(context, f"Rispondi all'utente nel contesto: {context}")
+        prompt = context_prompts.get(context, f"Reply to the user in context: {context}")
         return self.call_ollama(prompt, system_prompt)
 
-
-# Istanza globale del LLM
 llm = QuestMasterLLM()
-user_sessions = {}  # Gestione sessioni utenti (semplificata)
+user_sessions = {}
 
 
 @app.route('/')
 def index():
-    """Serve il frontend HTML principale"""
     try:
-        # Legge il contenuto del file Frontend.html e lo restituisce
         with open('Frontend.html', 'r', encoding='utf-8') as f:
             content = f.read()
         return render_template_string(content)
     except FileNotFoundError:
-        return "<h1>Errore: Frontend.html non trovato.</h1><p>Assicurati che il file 'Frontend.html' sia nella stessa cartella dello script Python.</p>", 404
+        return "<h1>Error: Frontend.html not found.</h1><p>Make sure the 'Frontend.html' file is in the same folder as your Python script.</p>", 404
 
 
 @app.route('/api/welcome', methods=['POST'])
 def welcome():
-    """Endpoint per il messaggio di benvenuto"""
     try:
         message = llm.generate_welcome_message()
         return jsonify({
             'success': True,
             'message': message,
-            'options': ['Configurazione Manuale', 'Modalità Casuale']
+            'options': ['Manual Setup', 'Random Mode']
         })
     except Exception as e:
-        logger.error(f"Errore welcome: {e}")
+        logger.error(f"Error welcome: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -225,72 +185,59 @@ def welcome():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Endpoint principale per la chat"""
     try:
         data = request.json
         user_choice = data.get('message', '')
         session_id = data.get('session_id', 'default')
         current_step = data.get('step', 'welcome')
-
-        # Inizializza sessione se non esiste
         if session_id not in user_sessions:
             user_sessions[session_id] = {
                 'config': {},
                 'conversation_history': []
             }
-
         session = user_sessions[session_id]
         response_data = {'success': True}
-
-        # Gestisci i diversi step della conversazione
         if current_step == 'welcome':
-            if user_choice == 'Modalità Casuale':
-                # Genera intro casuale
+            if user_choice == 'Random Mode':
                 intro_msg = llm.generate_contextual_response(user_choice, "random_mode_intro")
                 config = llm.generate_random_config()
                 session['config'] = config
-
-                config_msg = f"""🎪 Ecco la tua Quest generata casualmente:
-
-**📚 Genere:** {config['genre']}
-**⏱️ Lunghezza:** {config['length']}  
-**🎭 Tono:** {config['tone']}
-**🎨 Grafica:** {config['graphics']}
-**📖 Tema:** {config['theme']}
-
-Sei pronto a iniziare la tua quest?"""
-
+                config_msg = f"""Here's your randomly generated quest:
+                                **Genre:** {config['genre']}
+                                **Length:** {config['length']}
+                                **Tone:** {config['tone']}
+                                **Graphics:** {config['graphics']}
+                                **Theme:** {config['theme']}
+                                Are you ready to start your quest?"""
                 response_data.update({
                     'message': intro_msg + "\n\n" + config_msg,
-                    'options': ['Inizia la Quest!', 'Rigenera Configurazione'],
+                    'options': ['Quest Begins!', 'Regenerate Configuration'],
                     'next_step': 'final_confirmation'
                 })
 
-            elif user_choice == 'Configurazione Manuale':
+            elif user_choice == 'Manual Setup':
                 genres = llm.generate_genres()
                 message = llm.generate_contextual_response(user_choice, "manual_mode_start")
-
                 response_data.update({
-                    'message': message + "\n\nScegli tra questi generi:",
-                    'options': genres + ['Genere Personalizzato'],
+                    'message': message + "\n\nChoose from these genres:",
+                    'options': genres + ['Custom Genre'],
                     'next_step': 'genre_selection'
                 })
 
         elif current_step == 'genre_selection':
-            if user_choice == 'Genere Personalizzato':
+            if user_choice == 'Custom Genre':
                 response_data.update({
-                    'message': "✏️ Inserisci il genere personalizzato che desideri per la tua avventura:",
+                    'message': "Enter the custom genre you want for your adventure:",
                     'show_text_input': True,
-                    'text_placeholder': 'Scrivi il tuo genere personalizzato...',
+                    'text_placeholder': 'Write your own custom gender...',
                     'next_step': 'custom_genre'
                 })
             else:
                 session['config']['genre'] = user_choice
                 message = llm.generate_contextual_response(user_choice, "genre_explanation")
-
                 response_data.update({
                     'message': message,
-                    'options': ['Corta (15-30 min)', 'Media (45-60 min)', 'Lunga (90+ min)'],
+                    'options': ['Short (2-5 min)', 'Medium (5-10 min)', 'Long (10+ min)'],
                     'next_step': 'length_selection'
                 })
 
@@ -298,10 +245,9 @@ Sei pronto a iniziare la tua quest?"""
             session['config']['genre'] = user_choice
             comment = llm.process_custom_genre(user_choice)
             message = llm.generate_contextual_response(user_choice, "genre_explanation")
-
             response_data.update({
-                'message': f"🎨 Eccellente! \"{user_choice}\" - {comment}\n\n{message}",
-                'options': ['Corta (15-30 min)', 'Media (45-60 min)', 'Lunga (90+ min)'],
+                'message': f"Excellent! \"{user_choice}\" - {comment}\n\n{message}",
+                'options': ['Short (2-5 min)', 'Medium (5-10 min)', 'Long (10+ min)'],
                 'next_step': 'length_selection'
             })
 
@@ -309,20 +255,17 @@ Sei pronto a iniziare la tua quest?"""
             session['config']['length'] = user_choice
             tones = llm.generate_tones()
             message = llm.generate_contextual_response(user_choice, "tone_explanation")
-
             response_data.update({
                 'message': message,
                 'options': tones,
                 'next_step': 'tone_selection'
             })
-
         elif current_step == 'tone_selection':
             session['config']['tone'] = user_choice
             message = llm.generate_contextual_response(user_choice, "graphics_explanation")
-
             response_data.update({
                 'message': message,
-                'options': ['Illustrata', 'Solo Testo'],
+                'options': ['Illustrated', 'Text Only'],
                 'next_step': 'graphics_selection'
             })
 
@@ -333,45 +276,39 @@ Sei pronto a iniziare la tua quest?"""
             response_data.update({
                 'message': message,
                 'show_text_input': True,
-                'text_placeholder': 'Descrivi la trama della tua avventura...',
+                'text_placeholder': 'Describe the plot of your adventure...',
                 'next_step': 'theme_input'
             })
 
         elif current_step == 'theme_input':
             session['config']['theme'] = user_choice
             config = session['config']
-
-            final_message = f"""🎉 Configurazione completata con successo!
-
-**La tua Quest personalizzata:**
-
-**📚 Genere:** {config['genre']}
-**⏱️ Lunghezza:** {config['length']}
-**🎭 Tono:** {config['tone']}
-**🎨 Modalità:** {config['graphics']}
-**📖 Tema:** {user_choice}
-
-Il sistema PDDL analizzerà questi parametri per creare una struttura logica coerente, mentre l'LLM genererà la narrativa coinvolgente. Sei pronto per iniziare?"""
-
+            final_message = f"""Setup completed successfully!
+                                **Your Custom Quest:**
+                                **Genre:** {config['genre']}
+                                **Length:** {config['length']}
+                                **Tone:** {config['tone']}
+                                **Mode:** {config['graphics']}
+                                **Theme:** {user_choice}
+                                The PDDL system will analyze these parameters to create a coherent logical structure, while the LLM will generate the engaging narrative. Ready to get started?"""
             response_data.update({
                 'message': final_message,
-                'options': ['Inizia la Quest!', 'Modifica Configurazione'],
+                'options': ['Start the Quest!', 'Edit Configuration'],
                 'next_step': 'final_confirmation'
             })
 
         elif current_step == 'final_confirmation':
-            if user_choice == 'Rigenera Configurazione' or user_choice == 'Modifica Configurazione':
-                # Reset e riavvio
+            if user_choice == 'Regenerate Configuration' or user_choice == 'Edit Configuration':
                 session['config'] = {}
                 welcome_msg = llm.generate_welcome_message()
                 response_data.update({
                     'message': welcome_msg,
-                    'options': ['Configurazione Manuale', 'Modalità Casuale'],
+                    'options': ['Manual Setup', 'Random Mode'],
                     'next_step': 'welcome'
                 })
             else:
                 response_data.update({
-                    'message': "🚀 Quest avviata! (Qui si integrerebbe il sistema PDDL e la generazione della storia)",
+                    'message': "Quest started! (This is where the PDDL system and story generation would be integrated.)",
                     'options': [],
                     'quest_ready': True,
                     'config': session['config']
@@ -380,7 +317,7 @@ Il sistema PDDL analizzerà questi parametri per creare una struttura logica coe
         return jsonify(response_data)
 
     except Exception as e:
-        logger.error(f"Errore chat: {e}")
+        logger.error(f"Error chat: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -389,9 +326,7 @@ Il sistema PDDL analizzerà questi parametri per creare una struttura logica coe
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    """Endpoint per verificare lo stato del server"""
     try:
-        # Test connessione Ollama
         test_response = requests.get("http://localhost:11434/api/tags", timeout=5)
         ollama_status = "online" if test_response.status_code == 200 else "offline"
     except:
