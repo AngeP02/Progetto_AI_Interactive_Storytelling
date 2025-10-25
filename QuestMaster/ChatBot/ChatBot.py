@@ -7,6 +7,7 @@ import webbrowser
 from threading import Timer
 import os
 
+from QuestMaster.Lore.Lore import generate_lore_document
 
 app = Flask(__name__)
 CORS(app)
@@ -297,21 +298,45 @@ def chat():
                 'next_step': 'final_confirmation'
             })
 
+
+
         elif current_step == 'final_confirmation':
-            if user_choice == 'Regenerate Configuration' or user_choice == 'Edit Configuration':
-                session['config'] = {}
-                welcome_msg = llm.generate_welcome_message()
+            if user_choice == 'Start the Quest!' or 'Quest Begins!':
+                try:
+                    lore_path = generate_lore_document(session['config'])
+                    print("DEBUG LORE PATH:", lore_path)
+                    response_data.update({
+                        'message': f"Quest started! Lore Document saved in {lore_path}.",
+                        'quest_ready': True,
+                        'config': session['config']
+                    })
+                except Exception as e:
+                    print("ERROR generating lore:", e)
+                    response_data.update({
+                        'message': f"Failed to generate lore: {e}",
+                        'quest_ready': False,
+                        'config': session['config']
+                    })
+
+            elif user_choice == 'Regenerate Configuration':
+                config = llm.generate_random_config()
+                session['config'] = config
                 response_data.update({
-                    'message': welcome_msg,
-                    'options': ['Manual Setup', 'Random Mode'],
-                    'next_step': 'welcome'
+                    'message': f"""New configuration generated:
+                                    **Genre:** {config['genre']}
+                                    **Length:** {config['length']}
+                                    **Tone:** {config['tone']}
+                                    **Graphics:** {config['graphics']}
+                                    **Theme:** {config['theme']}
+                                    Are you ready to start your quest?""",
+                    'options': ['Quest Begins!', 'Regenerate Configuration'],
+                    'next_step': 'final_confirmation'
                 })
             else:
                 response_data.update({
-                    'message': "Quest started! (This is where the PDDL system and story generation would be integrated.)",
+                    'message': "Quest cancelled or configuration incomplete.",
                     'options': [],
-                    'quest_ready': True,
-                    'config': session['config']
+                    'quest_ready': False
                 })
 
         return jsonify(response_data)
@@ -344,7 +369,6 @@ if __name__ == '__main__':
     print("Assicurati che Ollama sia in esecuzione: ollama serve")
     print("Modello richiesto: llama3")
     print("Apro il frontend nel browser...")
-
     def open_browser():
           webbrowser.open_new_tab('http://127.0.0.1:5000')
 
