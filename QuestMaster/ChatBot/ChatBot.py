@@ -9,7 +9,13 @@ import os
 
 from QuestMaster.Lore.Lore import generate_lore_document
 
-app = Flask(__name__)
+from flask import Flask, render_template
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent  # vai da ChatBot a QuestMaster
+app = Flask(__name__,
+            static_folder=str(BASE_DIR / "static"),
+            template_folder=str(BASE_DIR / "ChatBot"))
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)

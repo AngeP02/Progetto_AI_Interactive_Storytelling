@@ -120,13 +120,37 @@ def generate_pddl_from_lore(lore_text, theme="Cyberpunk Noir"):
 )
 """
 
-    # ==== ESTRAZIONE ENTITÀ DAL LORE ====
-    characters = ' '.join([c.lower() for c in parsed['entities']['characters']])
-    locations = ' '.join([l.lower() for l in parsed['entities']['locations']])
-    ai_entities = 'ai1 ai2'  # puoi aggiungere dinamicamente se vuoi
-    agents = 'agent1 agent2'
-    obstacles = 'firewall security-system ice-wall'
-    codes = 'lost-code'
+    # ==== ESTRAZIONE ENTITÀ DAL LORE (con pulizia) ====
+    STOPWORDS = {
+        "the", "a", "an", "of", "in", "on", "at", "for", "your", "you",
+        "goal", "context", "description", "quest", "find", "lost", "code",
+        "background", "initial", "state", "maximum", "minimum", "constraints",
+        "depth", "branching", "factor", "megacorps", "uncover", "corrupt",
+        "obstacles", "world"
+    }
+
+    def clean_name(name):
+        name = name.strip().lower()
+        name = re.sub(r"[^a-z0-9\- ]", "", name)
+        name = name.replace(" ", "-")
+        return name
+
+    def filter_entities(entities):
+        cleaned = []
+        for e in entities:
+            e = clean_name(e)
+            if e and e not in STOPWORDS:
+                cleaned.append(e)
+        # rimuove duplicati mantenendo l’ordine
+        seen = set()
+        return [x for x in cleaned if not (x in seen or seen.add(x))]
+
+    characters = ' '.join(filter_entities(parsed['entities']['characters']))
+    locations = ' '.join(filter_entities(parsed['entities']['locations']))
+    ai_entities = 'ai1 ai2 - ai'
+    agents = 'agent1 agent2 - agent'
+    obstacles = 'firewall security-system ice-wall - obstacle'
+    codes = 'lost-code - code'
 
     # ==== INIZIALIZZAZIONE BASE ====
     init_statements = "\n    ".join([
@@ -201,12 +225,17 @@ def validate_with_fastdownward(domain_path, problem_path):
 
 # ========== MAIN ==========
 if __name__ == "__main__":
-    with open(
-            "/QuestMaster/Lore/Generated_Lore/Lore_In_a_gritty_hightech_city_youre_a_rogue_.txt",
-            "r", encoding="utf-8") as f:
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).resolve().parent.parent  # vai due livelli su (fino a QuestMaster)
+    lore_path = BASE_DIR / "Lore" / "Generated_Lore" / "Lore.txt"
+
+    with open(lore_path, "r", encoding="utf-8") as f:
         lore_text = f.read()
 
-    domain_path, problem_path = generate_pddl_from_lore(lore_text, theme="Cyberpunk Noir")
+    #domain_path, problem_path = generate_pddl_from_lore(lore_text, theme="Cyberpunk Noir")
+    domain_path = OUTPUT_DIR / "domain.pddl"
+    problem_path = OUTPUT_DIR / "problem.pddl"
 
     if domain_path and problem_path:
         validate_with_fastdownward(domain_path, problem_path)

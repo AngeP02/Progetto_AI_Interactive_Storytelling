@@ -2,14 +2,14 @@
 (define (problem lost-code-problem)
   (:domain lost-code)
 
-  (:objects
-    the lost code you megacorps initial state in uncover maximum find minimum your rival goal world background obstacles quest description branching factor echo depth constraints the corrupt context
-    
-    ai1 ai2
-    agent1 agent2
-    firewall security-system ice-wall
-    lost-code
-  )
+ (:objects
+  ai1 ai2 - ai
+  agent1 agent2 - agent
+  firewall security-system ice-wall - obstacle
+  lost-code - code
+  alleyway street rooftop lab underground - location
+)
+
 
   (:init
     (at ai1 alleyway)
