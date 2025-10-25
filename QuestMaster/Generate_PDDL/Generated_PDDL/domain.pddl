@@ -1,47 +1,70 @@
-
-(define (domain lost-code)
+(define (domain narrative-domain)
   (:requirements :strips :typing)
 
-  (:types location ai agent code obstacle)
-
-  (:predicates
-    (at ?a - ai ?l - location)
-    (has-code ?a - ai)
-    (code-found ?c - code)
-    (obstacle-present ?o - obstacle ?l - location)
-    (rival-ai-present ?r - ai ?l - location)
-    (corporate-agent-present ?ag - agent ?l - location)
-    (safe ?l - location)
+  (:types 
+    character location object - thing
   )
 
-  ;; Azioni
+  (:predicates 
+    (at ?c - character ?l - location)
+    (has ?c - character ?o - object)
+    (connected ?l1 - location ?l2 - location)
+    (accessible ?o - object ?l - location)
+    (visited ?l - location)
+    (unlocked ?l - location)
+  )
+
   (:action move
-    :parameters (?a - ai ?from - location ?to - location)
-    :precondition (and (at ?a ?from) (safe ?to))
-    :effect (and (not (at ?a ?from)) (at ?a ?to))
+    :parameters (?c - character ?from - location ?to - location)
+    :precondition (and 
+      (at ?c ?from) 
+      (connected ?from ?to)
+      (unlocked ?to)
+    )
+    :effect (and 
+      (not (at ?c ?from)) 
+      (at ?c ?to)
+      (visited ?to)
+    )
   )
 
-  (:action hack
-    :parameters (?a - ai ?o - obstacle ?l - location)
-    :precondition (and (at ?a ?l) (obstacle-present ?o ?l))
-    :effect (not (obstacle-present ?o ?l))
+  (:action take
+    :parameters (?c - character ?o - object ?l - location)
+    :precondition (and 
+      (at ?c ?l) 
+      (accessible ?o ?l)
+    )
+    :effect (and 
+      (has ?c ?o) 
+      (not (accessible ?o ?l))
+    )
   )
 
-  (:action confront-rival
-    :parameters (?a - ai ?r - ai ?l - location)
-    :precondition (and (at ?a ?l) (rival-ai-present ?r ?l))
-    :effect (not (rival-ai-present ?r ?l))
+  (:action use
+    :parameters (?c - character ?o - object ?l - location)
+    :precondition (and 
+      (at ?c ?l) 
+      (has ?c ?o)
+    )
+    :effect (unlocked ?l)
   )
 
-  (:action evade-corporate
-    :parameters (?a - ai ?ag - agent ?l - location)
-    :precondition (and (at ?a ?l) (corporate-agent-present ?ag ?l))
-    :effect (not (corporate-agent-present ?ag ?l))
+  (:action interact
+    :parameters (?c1 - character ?c2 - character ?l - location)
+    :precondition (and 
+      (at ?c1 ?l) 
+      (at ?c2 ?l)
+    )
+    :effect ()
   )
 
-  (:action recover-code
-    :parameters (?a - ai ?c - code ?l - location)
-    :precondition (and (at ?a ?l) (safe ?l))
-    :effect (and (has-code ?a) (code-found ?c))
+  (:action combine
+    :parameters (?c - character ?o1 - object ?o2 - object ?l - location)
+    :precondition (and 
+      (at ?c ?l) 
+      (has ?c ?o1) 
+      (has ?c ?o2)
+    )
+    :effect (not (accessible ?o1 ?l)) 
   )
 )
