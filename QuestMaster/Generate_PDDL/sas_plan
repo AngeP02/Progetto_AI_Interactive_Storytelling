@@ -1,0 +1,4 @@
+(move minimum entrance corridor)
+(take minimum code corridor)
+(move minimum corridor exit)
+; cost = 3 (unit cost)

@@ -1,33 +1,43 @@
 (define (problem narrative-problem)
   (:domain narrative-domain)
-
   (:objects
-    the_lost_code minimum you - character
-    secretroom entrance laboratory storage mainhall - location
-    system key code - object
+    minimum rival obstacles - character
+    entrance corridor chamber vault exit - location
+    code key system - object
   )
-
-  (:init
-    (at the_lost_code secretroom)
-    (connected secretroom entrance)
-    (connected entrance secretroom)
-    (accessible system entrance)
-    (unlocked secretroom)
-    (visited secretroom)
-    (connected entrance laboratory)
-    (connected laboratory storage)
-    (connected storage mainhall)
-    (connected mainhall entrance)
-    (at minimum laboratory)
-    (at you mainhall)
-    (unlocked laboratory)
-    (visited mainhall)
-    (accessible key secretroom)
-    (accessible code storage)
+    (:init
+    (at minimum entrance)
+    (connected entrance corridor)
+    (at-obj code corridor)
+    (visited entrance)
+    (connected entrance corridor)
+    (connected corridor chamber)
+    (connected chamber vault)
+    (connected vault exit)
+    (at minimum entrance)
+    (at rival entrance)
+    (at obstacles corridor)
+    (at system corridor)
+    (at key corridor)
+    (connected entrance chamber)
+    (connected entrance exit)
+    (connected vault corridor)
+    (connected vault entrance)
+    (connected chamber exit)
+    (connected exit corridor)
+    (connected chamber corridor)
+    (connected exit chamber)
+    (connected corridor vault)
+    (connected exit entrance)
+    (connected exit vault)
+    (connected entrance vault)
+    (connected corridor entrance)
+    (connected vault chamber)
+    (connected corridor exit)
+    (connected chamber entrance)
   )
-
   (:goal (and
-    (at the_lost_code mainhall)
-    (has the_lost_code system)
+    (at minimum exit)
+    (has minimum code)
   ))
 )
