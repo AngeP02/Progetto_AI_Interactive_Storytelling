@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 import logging
 
@@ -7,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3"
+
 
 def call_ollama(prompt, system_prompt=""):
     """Utility per chiamare Ollama e restituire il testo generato"""
@@ -23,7 +23,7 @@ def call_ollama(prompt, system_prompt=""):
             }
         }
 
-        response = requests.post(OLLAMA_URL, json=payload, timeout=180)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=300)
         response.raise_for_status()
         result = response.json()
         return result.get('response', '').strip()
@@ -43,31 +43,76 @@ def generate_lore_document(config):
     tone = config.get("tone", "Neutral")
     graphics = config.get("graphics", "Text Only")
     theme = config.get("theme", "An adventure full of mystery.")
+    print("genre:", genre)
+    print("length:", length)
+    print("tone:", tone)
+    print("graphics:", graphics)
+    print("theme:", theme)
 
     # System prompt: spiega al modello cosa deve produrre
-    system_prompt = """You are a professional narrative designer and PDDL expert.
-You must generate a complete Lore Document for an interactive quest. 
-Follow this exact structure and formatting:
+    system_prompt = """You are a narrative design professional and a PDDL expert.
+    You must generate a complete Lore Document for an interactive quest, strictly following the structure provided by the template.
+    Use an epic and mysterious narrative style, focused on exploration and puzzle-solving.
+    Respond ONLY with the final formatted structure.
 
-=== LORE DOCUMENT ===
-**Quest Description:**
-- Initial State:
-- Goal:
-- Obstacles:
-- Context and World Background:
+    Structure to follow scrupulously:
 
-**Branching Factor:**
-- Minimum number of possible actions per state.
-- Maximum number of possible actions per state.
+    # Title: [Evocative Title]
 
-**Depth Constraints:**
-- Minimum number of narrative steps to reach the goal.
-- Maximum number of narrative steps to reach the goal.
+    ## 1. Mission Description
+    [Brief description of the plot, the protagonist, and the central objective.]
 
-Keep the tone coherent with the genre and theme.
-Use concise but vivid prose (max 300 words total).
-Return only the final formatted document, no explanations."""
+    ## 2. Setting and Context
+    Key Locations:
+    - [Location A]
+    - [Location B]
+    - [Location C]
+    - [Location D]
 
+    Key Items:
+    - [Item 1 (Essential for progress)]
+    - [Item 2 (Key to an obstacle)]
+    - [Item 3 (Source of energy/power)]
+
+    Characters:
+    - [Protagonist (Role)]
+    - [Antagonist/Enemy (Role)]
+    - [Ally/Neutral (Role)]
+
+    ## 3. Initial State and Objective
+    - Initial State: [Protagonist's starting position and state of key elements.]
+    - Mission Objective: [Final action and desired outcome.]
+
+    ## 4. Obstacles and Progress Conditions
+    - Obstacle 1: [Condition for overcoming the obstacle.]
+    - Obstacle 2: [Condition for overcoming the obstacle.]
+    - Crucial Progression: [Crucial element or action that advances the plot (Puzzle).]
+
+    ## 5. Technical Constraints (PDDL)
+    Suggested Actions:
+    - move(from, to)
+    - take(item)
+    - use(item, location)
+    - disable(enemy)
+    - solve(puzzle)
+
+    Branching Factor (Decision complexity):
+    - min = [integer]
+    - max = [integer]
+
+    Depth Constraints (Quest duration):
+    - min = [integer]
+    - max = [integer]
+
+    At the end of the Lore Document, append two sections:
+
+## 7. Logical Representation (for PDDL)
+List initial and goal facts in parenthesis form.
+
+## 8. Object Mappings
+List all unique objects by category (locations, items, characters).
+
+    """
     # Prompt specifico per la storia configurata
     prompt = f"""
 Generate a Lore Document for a quest with the following setup:

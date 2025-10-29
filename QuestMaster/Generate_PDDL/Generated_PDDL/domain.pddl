@@ -21,18 +21,20 @@
     :effect (and (has ?c ?o) (not (at-obj ?o ?l)))
   )
   (:action unlock
-    :parameters (?k - key ?l - location)
-    :precondition (and (key-for ?k ?l) (locked ?l))
-    :effect (and (not (locked ?l)) (at-obj ?k ?l))
+    :parameters (?c - character ?l - location ?k - object)
+    :precondition (and (at ?c ?l) (locked ?l) (key-for ?k ?l))
+    :effect (and (not (locked ?l)) (has ?c ?k))
   )
   (:action interact
     :parameters (?c1 - character ?c2 - character)
     :precondition (and (at ?c1 ?l) (at ?c2 ?l))
-    :effect (and (has ?c1 ?o) (has ?c2 ?o))
+    :effect ()
   )
   (:action use
     :parameters (?c - character ?o - object ?l - location)
-    :precondition (and (at ?c ?l) (at-obj ?o ?l))
-    :effect (and (visited ?l) (not (at-obj ?o ?l)))
+    :precondition (and (at ?c ?l) (has ?c ?o) (at-obj ?o ?l))
+    :effect (and (not (at-obj ?o ?l)) (visited ?l))
   )
 )
+
+Domain:

@@ -164,13 +164,15 @@ def extract_goal_from_pddl(problem_content):
     return goal_loc, goal_obj
 
 
-def fix_problem_connectivity(problem_content):
+def fix_problem_connectivity(problem_content, depth_min=7):
     """
     CRITICO: Corregge il problem PDDL per garantire risolvibilità
-    - Aggiunge connessioni mancanti per creare un grafo connesso
-    - Assicura che il percorso dal punto iniziale al goal sia raggiungibile
+    CON VINCOLO DI PROFONDITÀ MINIMA
+    - Crea un percorso che richiede ALMENO depth_min azioni
+    - Aggiunge ostacoli intermedi (location bloccate, oggetti richiesti)
+    - Connessioni limitate (NO grafo completo, solo percorso lineare + branch)
     """
-    print("🔧 Fixing problem connectivity...")
+    print(f"🔧 Fixing problem connectivity (min depth: {depth_min})...")
 
     # Estrai entità
     entities = extract_entities_from_pddl(problem_content)
@@ -194,7 +196,7 @@ def fix_problem_connectivity(problem_content):
     init_section = init_match.group(1)
     init_statements = [line.strip() for line in init_section.split('\n') if line.strip()]
 
-    # Trova location iniziale del personaggio principale
+    # Trova location iniziale
     start_loc = None
     for stmt in init_statements:
         if f'(at {chars[0]}' in stmt:
@@ -206,15 +208,13 @@ def fix_problem_connectivity(problem_content):
     if not start_loc:
         start_loc = locs[0]
         init_statements.insert(0, f"(at {chars[0]} {start_loc})")
-        print(f"   + Added initial position: {chars[0]} at {start_loc}")
 
     if not goal_loc:
         goal_loc = locs[-1]
 
-    # STEP 1: Crea percorso lineare garantito da start a goal
-    print(f"   Building path: {start_loc} -> {goal_loc}")
+    print(f"   Building constrained path: {start_loc} -> {goal_loc}")
 
-    # Trova indici
+    # STEP 1: Crea SOLO percorso LINEARE (no shortcuts)
     try:
         start_idx = locs.index(start_loc)
         goal_idx = locs.index(goal_loc)
@@ -222,81 +222,104 @@ def fix_problem_connectivity(problem_content):
         print("   ⚠️ Start/goal location not in list")
         return problem_content
 
-    # Aggiungi connessioni lungo il percorso
+    # Rimuovi TUTTE le connessioni esistenti e ricrea da zero
+    init_statements = [s for s in init_statements if '(connected' not in s]
+
     new_connections = set()
-    existing_connections = set()
 
-    # Trova connessioni esistenti
-    for stmt in init_statements:
-        conn_match = re.search(r'\(connected\s+(\S+)\s+(\S+)\)', stmt)
-        if conn_match:
-            existing_connections.add((conn_match.group(1), conn_match.group(2)))
-
-    # Crea percorso
+    # Percorso lineare sequenziale SENZA scorciatoie
     if start_idx < goal_idx:
-        path_range = range(start_idx, goal_idx)
-    else:
-        path_range = range(start_idx, goal_idx, -1)
-
-    for i in path_range:
-        if i + 1 < len(locs):
+        for i in range(start_idx, goal_idx):
             loc_a, loc_b = locs[i], locs[i + 1]
+            new_connections.add((loc_a, loc_b))
+            new_connections.add((loc_b, loc_a))  # Bidirezionale
+    else:
+        for i in range(start_idx, goal_idx, -1):
+            loc_a, loc_b = locs[i], locs[i - 1]
+            new_connections.add((loc_a, loc_b))
+            new_connections.add((loc_b, loc_a))
 
-            # Bidirezionale
-            if (loc_a, loc_b) not in existing_connections:
-                new_connections.add((loc_a, loc_b))
-            if (loc_b, loc_a) not in existing_connections:
-                new_connections.add((loc_b, loc_a))
+    # Aggiungi MAX 2 connessioni extra per branching limitato
+    if len(locs) >= 4:
+        # Collega location non adiacenti (ma non crea shortcut al goal)
+        mid1 = len(locs) // 3
+        mid2 = 2 * len(locs) // 3
+        if mid1 < len(locs) - 1 and mid2 < len(locs) - 1:
+            new_connections.add((locs[mid1], locs[mid2]))
+            new_connections.add((locs[mid2], locs[mid1]))
 
-    # Aggiungi anche connessioni tra tutte le location per sicurezza
-    for i in range(len(locs) - 1):
-        for j in range(i + 1, len(locs)):
-            loc_a, loc_b = locs[i], locs[j]
-            if (loc_a, loc_b) not in existing_connections:
-                new_connections.add((loc_a, loc_b))
-            if (loc_b, loc_a) not in existing_connections:
-                new_connections.add((loc_b, loc_a))
+    print(f"   ✓ Created linear path with {len(new_connections)} connections")
 
-    # STEP 2: Assicura che oggetti richiesti siano disponibili
+    # STEP 2: Aggiungi OSTACOLI per aumentare profondità
+    obstacles_added = 0
+
+    # 2a. Location bloccate (richiedono chiavi)
+    if len(objs) >= 2 and len(locs) >= 3:
+        # Blocca location intermedie
+        locked_locs = []
+        for i in range(1, min(3, len(locs) - 1)):  # Blocca max 2 location
+            locked_loc = locs[start_idx + i] if start_idx < goal_idx else locs[start_idx - i]
+            if locked_loc != goal_loc:
+                locked_locs.append(locked_loc)
+                init_statements.append(f"(locked {locked_loc})")
+                obstacles_added += 1
+
+        # Crea chiavi per sbloccare
+        for i, locked_loc in enumerate(locked_locs):
+            if i < len(objs):
+                key = objs[i]
+                # Posiziona chiave PRIMA della location bloccata
+                key_loc_idx = max(0, locs.index(locked_loc) - 1)
+                key_loc = locs[key_loc_idx]
+                init_statements.append(f"(at-obj {key} {key_loc})")
+                init_statements.append(f"(key-for {key} {locked_loc})")
+                print(f"   + Obstacle: {locked_loc} locked, key '{key}' at {key_loc}")
+                obstacles_added += 2  # take + unlock
+
+    # 2b. Oggetto richiesto dal goal
     if goal_obj and goal_obj in objs:
-        # Trova se l'oggetto è già posizionato
-        obj_placed = False
-        for stmt in init_statements:
-            if f'{goal_obj}' in stmt and ('at-obj' in stmt or 'accessible' in stmt):
-                obj_placed = True
-                break
+        obj_placed = any(goal_obj in s for s in init_statements if 'at-obj' in s)
 
         if not obj_placed:
-            # Posiziona l'oggetto in una location intermedia
-            mid_idx = len(locs) // 2
-            mid_loc = locs[mid_idx] if mid_idx < len(locs) else locs[1]
-            init_statements.append(f"(at-obj {goal_obj} {mid_loc})")
-            print(f"   + Placed {goal_obj} at {mid_loc}")
+            # Posiziona oggetto goal in location intermedia (non vicino a start)
+            obj_loc_idx = min(len(locs) - 2, start_idx + len(locs) // 2)
+            obj_loc = locs[obj_loc_idx]
+            init_statements.append(f"(at-obj {goal_obj} {obj_loc})")
+            print(f"   + Goal object '{goal_obj}' at {obj_loc}")
+            obstacles_added += 1  # take action
 
-    # STEP 3: Rimuovi lock problematici
-    filtered_statements = []
-    for stmt in init_statements:
-        if '(locked' not in stmt or '(key-for' in init_statements:
-            filtered_statements.append(stmt)
-        else:
-            print(f"   - Removed problematic lock: {stmt}")
+    # 2c. Se ancora troppo corto, aggiungi più location bloccate
+    estimated_depth = len(locs) - 1 + obstacles_added
+    if estimated_depth < depth_min and len(objs) > 2:
+        remaining = depth_min - estimated_depth
+        print(f"   ! Path too short ({estimated_depth} < {depth_min}), adding {remaining} obstacles")
 
-    init_statements = filtered_statements
+        # Aggiungi location bloccate extra
+        for i in range(min(remaining // 2, len(locs) - 3)):
+            extra_loc_idx = start_idx + i + 2 if start_idx < goal_idx else start_idx - i - 2
+            if 0 <= extra_loc_idx < len(locs):
+                extra_loc = locs[extra_loc_idx]
+                if f"(locked {extra_loc})" not in init_statements and extra_loc != goal_loc:
+                    init_statements.append(f"(locked {extra_loc})")
+                    # Usa oggetto disponibile come chiave
+                    if len([s for s in init_statements if 'key-for' in s]) < len(objs):
+                        extra_key = objs[len([s for s in init_statements if 'key-for' in s])]
+                        key_loc = locs[max(0, extra_loc_idx - 1)]
+                        init_statements.append(f"(at-obj {extra_key} {key_loc})")
+                        init_statements.append(f"(key-for {extra_key} {extra_loc})")
+                        print(f"   + Extra obstacle: {extra_loc} locked, key '{extra_key}' at {key_loc}")
 
-    # STEP 4: Aggiungi nuove connessioni
+    # STEP 3: Aggiungi connessioni
     for loc_a, loc_b in new_connections:
         init_statements.append(f"(connected {loc_a} {loc_b})")
 
-    print(f"   ✓ Added {len(new_connections)} connections")
-
-    # STEP 5: Aggiungi visited per start location
+    # STEP 4: Aggiungi visited per start
     if f"(visited {start_loc})" not in init_statements:
         init_statements.append(f"(visited {start_loc})")
 
-    # Ricostruisci :init section
+    # Ricostruisci
     new_init = "  (:init\n    " + "\n    ".join(init_statements) + "\n  )"
 
-    # Sostituisci nel problem
     problem_fixed = re.sub(
         r'\(:init\s+.*?\s+\)',
         new_init,
@@ -497,8 +520,8 @@ Generate complete problem PDDL:"""
 
     problem_content = validate_and_fix_pddl(problem_content, "problem")
 
-    # CRITICO: Fix connettività
-    problem_content = fix_problem_connectivity(problem_content)
+    # CRITICO: Fix connettività CON vincolo di profondità
+    problem_content = fix_problem_connectivity(problem_content, lore_data['depth_min'])
 
     # Fix parentesi
     open_count = problem_content.count('(')
@@ -551,7 +574,7 @@ def validate_with_fastdownward(domain_path, problem_path):
 # ========== MAIN ==========
 if __name__ == "__main__":
     BASE_DIR = Path(__file__).resolve().parent.parent
-    lore_path = BASE_DIR / "Lore" / "Generated_Lore" / "Lore.txt"
+    lore_path = BASE_DIR / "ChatBot" / "Generated_Lore" / "Lore_document.txt"
 
     try:
         with open(lore_path, "r", encoding="utf-8") as f:

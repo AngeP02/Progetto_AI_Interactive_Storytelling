@@ -236,7 +236,7 @@ def chat():
                 response_data.update({
                     'message': "Enter the custom genre you want for your adventure:",
                     'show_text_input': True,
-                    'text_placeholder': 'Write your own custom gender...',
+                    'text_placeholder': 'Write your own custom genre...',
                     'next_step': 'custom_genre'
                 })
             else:
@@ -307,7 +307,7 @@ def chat():
 
 
         elif current_step == 'final_confirmation':
-            if user_choice == 'Start the Quest!' or 'Quest Begins!':
+            if user_choice in ['Start the Quest!', 'Quest Begins!']:
                 try:
                     lore_path = generate_lore_document(session['config'])
                     print("DEBUG LORE PATH:", lore_path)
