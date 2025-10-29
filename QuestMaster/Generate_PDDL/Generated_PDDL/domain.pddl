@@ -22,7 +22,7 @@
   )
   (:action unlock
     :parameters (?c - character ?l - location ?k - object)
-    :precondition (and (at ?c ?l) (locked ?l) (key-for ?k ?l))
+    :precondition (and (at ?c ?l) (key-for ?k ?l) (locked ?l))
     :effect (and (not (locked ?l)) (has ?c ?k))
   )
   (:action interact
@@ -37,4 +37,20 @@
   )
 )
 
-Domain:
+(:action hack
+    :parameters (?c - character ?l - location)
+    :precondition (and (at ?c ?l) (connected ?l objective))
+    :effect (and (visited ?l) (has ?c artifact))
+  )
+
+(:action puzzle
+    :parameters (?c - character ?o - object ?l - location)
+    :precondition (and (at ?c ?l) (at-obj ?o ?l))
+    :effect (and (not (at-obj ?o ?l)) (visited ?l))
+  )
+
+(:action illustrated
+    :parameters (?c - character ?l - location)
+    :precondition (and (at ?c ?l) (connected ?l summary))
+    :effect (and (visited ?l) (has ?c key-for artifact summary))
+  )

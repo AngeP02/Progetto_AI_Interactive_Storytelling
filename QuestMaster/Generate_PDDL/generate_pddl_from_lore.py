@@ -574,7 +574,7 @@ def validate_with_fastdownward(domain_path, problem_path):
 # ========== MAIN ==========
 if __name__ == "__main__":
     BASE_DIR = Path(__file__).resolve().parent.parent
-    lore_path = BASE_DIR / "ChatBot" / "Generated_Lore" / "Lore_document.txt"
+    lore_path = BASE_DIR / "ChatBot" / "Generated_Lore" / "Lore.txt"
 
     try:
         with open(lore_path, "r", encoding="utf-8") as f:

@@ -1,0 +1,99 @@
+# The Cyberpunk Noir Quest
+
+## 1. Mission Description
+In a gritty 2087 Tokyo, you're a former hacker framed for murder and must clear your name by solving the mystery behind a series of high-stakes heists.
+
+## 2. Setting and Context
+
+### Key Locations:
+- Starting Point
+- Mysterious Place
+- Dangerous Zone
+- Final Destination
+
+### Key Items:
+- Key Item
+- Power Source
+- Ancient Artifact
+
+### Characters:
+- Hero
+- Villain
+- Guide
+
+## 3. Initial State and Objective
+
+**Initial State:** 
+The protagonist begins at Starting Point, 
+with no items in their inventory. The path forward is blocked by various obstacles.
+
+**Mission Objective:** 
+Complete the quest by overcoming all obstacles, solving the central puzzle, 
+and reaching Final Destination.
+
+## 4. Obstacles and Progress Conditions
+
+**Obstacle 1:** First Challenge
+**Obstacle 2:** Second Trial
+**Obstacle 3:** Final Test
+
+**Crucial Progression (Puzzle):** 
+A mystery that must be solved to progress
+
+## 5. Technical Constraints (PDDL)
+
+### Suggested Actions:
+- move(from, to) - Navigate between locations
+- take(item) - Pick up an item
+- use(item, location) - Use an item at a specific location
+- disable(obstacle) - Remove or bypass an obstacle
+- solve(puzzle) - Complete a puzzle or challenge
+
+### Branching Factor (Decision complexity):
+- min = 2
+- max = 4
+
+### Depth Constraints (Quest duration):
+- min = 6
+- max = 10
+
+## 6. Configuration Summary
+
+- **Genre:** Cyberpunk Noir
+- **Length:** Medium (5-10 min)
+- **Tone:** Darkly Humorous
+- **Graphics:** Illustrated
+- **Theme:** In a gritty 2087 Tokyo, you're a former hacker framed for murder and must clear your name by solving the mystery behind a series of high-stakes heists.
+
+## 7. Logical Representation (for PDDL)
+
+### Initial State:
+- (at protagonist starting_point)
+- (path-clear starting_point mysterious_place)
+- (exists key_item)
+- (exists power_source)
+- (exists ancient_artifact)
+
+### Goal State:
+- (at protagonist final_destination)
+- (puzzle-solved)
+- (quest-complete)
+
+## 8. Object Mappings
+
+### Locations:
+- starting_point
+- mysterious_place
+- dangerous_zone
+- final_destination
+
+### Items:
+- key_item
+- power_source
+- ancient_artifact
+
+### Characters:
+- hero
+- villain
+- guide
+

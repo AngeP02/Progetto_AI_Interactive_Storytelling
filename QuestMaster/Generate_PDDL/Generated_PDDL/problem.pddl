@@ -1,35 +1,32 @@
 (define (problem narrative-problem)
   (:domain narrative-domain)
-  (:objects 
-    dilapidated quest characters - character
-    echo description_in_a_gritty objective branching_factor - location
-    key artifact tool - object
+  (:objects
+    hackers illustrated puzzle - character
+    objective starting_point description_hackers_and_shadow_agents_compete_in_a_high summary - location
+    artifact key - object
   )
     (:init
-    (at dilapidated echo)
-    (at-obj key description_in_a_gritty)
-    (visited echo)
-    (at characters echo)
-    (at key echo)
-    (at tool echo)
-    (at-obj key branching_factor)
-    (locked description_in_a_gritty)
-    (locked objective)
-    (at-obj key echo)
-    (key-for key description_in_a_gritty)
-    (at-obj artifact description_in_a_gritty)
-    (key-for artifact objective)
-    (connected description_in_a_gritty objective)
-    (connected objective description_in_a_gritty)
-    (connected branching_factor objective)
-    (connected echo description_in_a_gritty)
-    (connected description_in_a_gritty echo)
-    (connected objective branching_factor)
+    (at hackers objective)
+    (at-obj artifact starting_point)
+    (visited objective)
+    (at-obj key description_hackers_and_shadow_agents_compete_in_a_high)
+    (at hackers objective)
+    (at-obj artifact summary)
+    (locked starting_point)
+    (locked description_hackers_and_shadow_agents_compete_in_a_high)
+    (at-obj artifact objective)
+    (key-for artifact starting_point)
+    (at-obj key starting_point)
+    (key-for key description_hackers_and_shadow_agents_compete_in_a_high)
+    (connected starting_point description_hackers_and_shadow_agents_compete_in_a_high)
+    (connected starting_point objective)
+    (connected description_hackers_and_shadow_agents_compete_in_a_high summary)
+    (connected objective starting_point)
+    (connected summary description_hackers_and_shadow_agents_compete_in_a_high)
+    (connected description_hackers_and_shadow_agents_compete_in_a_high starting_point)
   )
-  (:goal 
-    (and 
-      (at dilapidated branching_factor)
-      (has dilapidated key)
-    )
-  )
+  (:goal (and
+    (at hackers summary)
+    (has hackers artifact)
+  ))
 )
