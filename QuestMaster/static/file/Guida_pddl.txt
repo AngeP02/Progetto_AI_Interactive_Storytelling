@@ -1,0 +1,292 @@
+ Guida Avanzata al PDDL per LLM: Generazione Sintatticamente e Semanticamente Corretta
+
+Questa guida è progettata per insegnarti a generare codice PDDL (Planning Domain Definition Language) corretto. Il PDDL è un linguaggio standardizzato basato su LISP per descrivere problemi di pianificazione dell'IA. È fondamentale prestare attenzione alla sintassi (parentesi, parole chiave) e alla semantica (coerenza logica e rispetto delle definizioni).
+
+Il PDDL si articola in due file principali:
+
+1.  domain.pddl: Definisce l'ambiente, i tipi di oggetti, i predicati (proprietà) e le azioni possibili.
+2.  problem.pddl: Definisce una specifica istanza del problema, con oggetti concreti, lo stato iniziale e l'obiettivo da raggiungere.
+
+---
+
+### 1. Il File domain.pddl – Le Regole del Mondo
+
+Questo file definisce la struttura logica e le dinamiche del mondo di pianificazione.
+
+#### 1.1. Definizione del Dominio
+Inizia sempre con la definizione del dominio.
+Sintassi:
+(define (domain <nome-dominio>)
+  ; ... corpo del dominio ...
+)
+-   <nome-dominio>: Un nome simbolico per il dominio (es. rover-world, blocksworld). Deve corrispondere esattamente al nome del dominio specificato nel file problem.pddl.
+    * Convenzione: Usa lettere minuscole e trattini (-) per separare le parole.
+
+#### 1.2. Requisiti (:requirements)
+Specifica le funzionalità PDDL utilizzate. Altamente raccomandato per chiarezza e compatibilità.
+Sintassi:
+(:requirements <...requisiti...>)
+-   Esempi comuni:
+    * :strips: Il nucleo base di PDDL (effetti additivi/deletivi). Essenziale.
+    * :typing: Permette di definire tipi per gli oggetti (es. robot, luogo). Fortemente consigliato.
+    * :negative-preconditions: Permette predicati negati nelle precondizioni.
+    * :disjunctive-preconditions: Permette l'uso di (or ...) nelle precondizioni.
+    * :equality: Permette l'uso di (= <obj1> <obj2>).
+    * :adl: (Action Description Language) Abilita un set più ricco di funzionalità, inclusi i precedenti, più quantificatori.
+
+Esempio:
+(:requirements :strips :typing :negative-preconditions)
+
+#### 1.3. Tipi (:types)
+Definisce una gerarchia di tipi per gli oggetti. Se si usa :typing.
+Sintassi:
+(:types
+  <tipo1> <tipo2> ... - <super-tipo_o_object>
+  <tipo3> - <altro-super-tipo>
+  ...
+)
+-   Gli oggetti possono avere tipi (es. robot, stanza, palla).
+-   I tipi possono essere organizzati gerarchicamente (es. rover vehicle - object, sonda camera - instrument).
+-   object è il super-tipo di default se non specificato.
+-   Semantica: Un oggetto di un sotto-tipo è anche un'istanza del suo super-tipo.
+
+Esempio:
+(:types
+  robot veicolo - mobile  ; robot e veicolo sono sottotipi di mobile
+  stanza luogo - locazione ; stanza e luogo sono sottotipi di locazione
+  oggetto_trasportabile
+  mobile locazione - object ; mobile e locazione sono sottotipi diretti di object (se non specificato altrimenti)
+)
+
+#### 1.4. Costanti (:constants)
+Definisce oggetti che esistono in tutte le istanze del problema per questo dominio.
+Sintassi:
+(:constants
+  <costante1> - <tipo1>
+  <costante2> <costante3> - <tipo2>
+)
+-   Utile per elementi fissi del mondo (es. un certo ground-station).
+-   Le costanti devono essere tipizzate se :typing è attivo.
+
+Esempio:
+(:constants
+  terra - pianeta
+  stazione-base - luogo
+)
+
+#### 1.5. Predicati (:predicates)
+Definiscono le proprietà degli oggetti o le relazioni tra essi, che possono essere vere o false.
+Sintassi:
+(:predicates
+  (<nome-predicato1> ?<var1> - <tipo1> ?<var2> - <tipo2> ...)
+  (<nome-predicato2> ?<var3> - <tipo3>)
+  ...
+)
+-   Ogni predicato ha un nome e una lista di parametri tipizzati.
+-   Le variabili sono introdotte da ? (es. ?r, ?loc).
+-   Il tipo di ogni variabile deve essere dichiarato se si usa :typing.
+-   Errore Comune: Usare un predicato in azioni, init o goal senza averlo dichiarato qui.
+-   Semantica: Un predicato "grounded" (con oggetti specifici al posto delle variabili) è una proposizione che è vera o falsa in un dato stato del mondo.
+
+Esempio:
+(:predicates
+  (at ?rob - robot ?pos - stanza)  ; Il robot ?rob è nella stanza ?pos
+  (connesso ?s1 - stanza ?s2 - stanza) ; La stanza ?s1 è connessa a ?s2
+  (pulito ?s - stanza)            ; La stanza ?s è pulita
+  (ha_in_mano ?rob - robot ?obj - oggetto_trasportabile) ; Il robot ?rob ha in mano ?obj
+)
+
+#### 1.6. Azioni (:action)
+Definiscono come lo stato del mondo può cambiare. Questa è la parte più complessa.
+Sintassi:
+(:action <nome-azione>
+  :parameters (<?var1> - <tipo1> ?<var2> - <tipo2> ...)
+  :precondition (and ; o un singolo predicato, o or/not se i requirements lo permettono
+    (<predicato1> ... )
+    (not (<predicato2> ... )) ; se :negative-preconditions è attivo
+    ...
+  )
+  :effect (and ; o un singolo effetto
+    (<predicato_diventa_vero> ...)
+    (not (<predicato_diventa_falso> ...))
+    ...
+  )
+)
+-   <nome-azione>: Nome univoco per l'azione.
+-   :parameters: Variabili usate nell'azione, con i loro tipi.
+    * Regola Semantica Cruciale: Tutte le variabili usate in :precondition ed :effect devono essere dichiarate qui in :parameters.
+-   :precondition: Una condizione logica che deve essere vera affinché l'azione possa essere eseguita.
+    * Solitamente una congiunzione (and ...).
+    * Può contenere predicati positivi e, se specificato in :requirements, negativi (not (...)).
+    * Errore Comune: Omettere (and ...) se ci sono multiple precondizioni.
+-   :effect: Cambiamenti allo stato del mondo se l'azione è eseguita.
+    * Solitamente una congiunzione (and ...).
+    * Gli effetti sono atomi (predicati grounded) che vengono aggiunti allo stato (diventano veri) o rimossi dallo stato (diventano falsi usando (not (...))).
+    * Errore Comune: Omettere (and ...) se ci sono multipli effetti.
+
+Esempio di Azione:
+(:action muovi
+  :parameters (?r - robot ?from - stanza ?to - stanza)
+  :precondition (and
+    (at ?r ?from)
+    (connesso ?from ?to)
+  )
+  :effect (and
+    (not (at ?r ?from))  ; Il robot non è più in ?from
+    (at ?r ?to)          ; Il robot è ora in ?to
+  )
+)
+
+(:action pulisci-stanza
+  :parameters (?r - robot ?s - stanza)
+  :precondition (and
+    (at ?r ?s)
+    (not (pulito ?s)) ; Richiede :negative-preconditions
+  )
+  :effect (and
+    (pulito ?s)
+  )
+)
+-   Nomi Distinti: Azioni e predicati devono avere nomi distinti. (muovi ...) è un'azione, (at ...) è un predicato.
+
+---
+
+### 2. Il File problem.pddl – La Partita da Giocare
+
+Questo file descrive una situazione specifica (istanza) da risolvere usando le regole definite nel domain.pddl.
+
+#### 2.1. Definizione del Problema
+Sintassi:
+(define (problem <nome-problema>)
+  (:domain <nome-dominio-corrispondente>)
+  ; ... corpo del problema ...
+)
+-   <nome-problema>: Un nome simbolico per questa specifica istanza (es. rover-problem1).
+-   (:domain <nome-dominio-corrispondente>): Fondamentale. Questo nome deve corrispondere esattamente al nome del dominio definito nel file domain.pddl. Questa è la connessione tra i due file.
+
+#### 2.2. Oggetti (:objects)
+Elenca tutti gli oggetti concreti che esistono in questa istanza del problema, specificando il loro tipo.
+Sintassi:
+(:objects
+  <obj1> <obj2> - <tipoA>
+  <obj3> - <tipoB>
+  ...
+)
+-   Gli oggetti qui sono istanze dei tipi definiti in (:types) nel file di dominio.
+-   Se :typing non è nei requisiti, non si specificano i tipi. Ma è una best practice usare sempre :typing.
+-   Errore Comune: Usare un oggetto in :init o :goal senza averlo dichiarato qui, o assegnare un tipo non dichiarato nel dominio.
+
+Esempio:
+(:objects
+  robby - robot
+  cucina salotto corridoio - stanza
+  mela - oggetto_trasportabile
+)
+
+#### 2.3. Stato Iniziale (:init)
+Definisce lo stato iniziale del mondo. È un elenco di predicati "grounded" (istanziati con oggetti specifici) che sono veri all'inizio.
+Sintassi:
+(:init
+  (<predicato1-grounded> ...)
+  (<predicato2-grounded> ...)
+  ...
+)
+-   Ogni elemento è un predicato dichiarato nel dominio, ma con oggetti specifici (dichiarati in :objects o :constants) al posto delle variabili.
+-   Solo i fatti veri sono elencati. Tutto ciò che non è elencato è implicitamente falso (Closed World Assumption).
+-   Errore Comune: Usare un predicato non dichiarato nel dominio, o usare oggetti non dichiarati in :objects.
+
+Esempio:
+(:init
+  (at robby cucina)
+  (connesso cucina corridoio)
+  (connesso corridoio cucina) ; Le connessioni sono spesso bidirezionali
+  (connesso corridoio salotto)
+  (connesso salotto corridoio)
+  (not (pulito cucina)) ; Se si usano stati negati esplicitamente qui (meno comune)
+  ; (pulito salotto) ; Se il salotto è pulito all'inizio
+)
+*Nota: è più comune specificare solo i predicati positivi in :init. L'assenza di (pulito cucina) implica che è falso.*
+
+#### 2.4. Obiettivo (:goal)
+Definisce la condizione che il planner deve raggiungere. È una condizione logica su predicati grounded.
+Sintassi:
+(:goal (and ; o un singolo predicato-grounded
+  (<predicato-obiettivo1-grounded> ...)
+  (<predicato-obiettivo2-grounded> ...)
+  ...
+))
+-   Solitamente una congiunzione (and ...) di predicati grounded.
+-   Quando tutti i predicati specificati qui diventano veri, il problema è risolto.
+-   Errore Comune: Omettere (and ...) se ci sono multipli obiettivi, o usare predicati/oggetti non dichiarati.
+
+Esempio:
+(:goal (and
+  (at robby salotto)
+  (pulito cucina)
+  (pulito salotto)
+))
+
+---
+
+###  Riepilogo Errori Comuni e Regole Sintattico/Semantiche Fondamentali
+
+1.  Coerenza Nomi Dominio: (domain nome-dominio) in domain.pddl deve corrispondere a (:domain nome-dominio) in problem.pddl.
+2.  Dichiarazione Predicati: Ogni predicato usato in :init, :goal, o nelle :precondition/:effect di un'azione deve essere dichiarato nella sezione (:predicates) del dominio.
+3.  Dichiarazione Oggetti/Costanti: Ogni oggetto usato in :init o :goal (o come argomento di un'azione in un piano) deve essere dichiarato in (:objects) del problema o (:constants) del dominio.
+4.  Tipizzazione Parametri/Oggetti:
+    * Se si usa :typing, tutte le variabili nei parametri dei predicati e delle azioni devono avere un tipo dichiarato.
+    * Tutti gli oggetti in (:objects) e le costanti in (:constants) devono avere un tipo dichiarato.
+    * I tipi usati devono essere quelli dichiarati in (:types).
+5.  Scope Variabili Azione: Tutte le variabili ?var usate nelle sezioni :precondition ed :effect di un'azione devono essere definite nella sezione :parameters di quella specifica azione. Non sono globali.
+6.  Formato Corretto:
+    * Usare (define (domain ...)) e (define (problem ...)).
+    * Rispettare le parole chiave (es. :action, :parameters, :precondition, :effect, :types, :predicates, :objects, :init, :goal).
+    * Rispettare la struttura a S-expression (parentesi bilanciate).
+7.  Nomi Univoci: Azioni e predicati devono avere nomi distinti. Tipi e predicati/azioni possono avere lo stesso nome, ma è meglio evitare per chiarezza.
+8.  Uso di (and ...): Se una precondizione, effetto o goal ha multiple clausole, queste devono essere racchiuse in un blocco (and ...). Un errore comune è elencarle sequenzialmente senza and.
+9.  Effetti Corretti: Gli effetti aggiungono fatti (<predicato> ...) o rimuovono fatti (not (<predicato> ...)).
+10. Nessuna Logica Complessa negli Effetti (Base STRIPS): In PDDL base (es. :strips), gli effetti sono solo liste di atomi da aggiungere/rimuovere. Niente or, forall, exists, effetti condizionali (when) a meno che non siano specificati requisiti più avanzati (es. :conditional-effects, :adl).
+
+---
+
+###  Riepilogo Parole Chiave Fondamentali
+
+| Parola Chiave  | File         | Sezione Primaria     | Scopo Principale                                        |
+|----------------|--------------|----------------------|---------------------------------------------------------|
+| define         | Entrambi     | Radice               | Inizia la definizione del dominio o del problema.       |
+| domain         | domain.pddl  | Dentro define        | Dichiara il nome del dominio.                           |
+| problem        | problem.pddl | Dentro define        | Dichiara il nome del problema.                          |
+| :domain        | problem.pddl | Dentro define        | Specifica a quale dominio si riferisce il problema.     |
+| :requirements  | domain.pddl  |                      | Specifica le funzionalità PDDL usate.                   |
+| :types         | domain.pddl  |                      | Definisce i tipi di oggetti e la loro gerarchia.        |
+| :constants     | domain.pddl  |                      | Definisce oggetti globali, costanti per il dominio.      |
+| :predicates    | domain.pddl  |                      | Definisce le proprietà (veri/falsi) e le loro firme. |
+| :action        | domain.pddl  |                      | Inizia la definizione di un'azione.                     |
+| :parameters    | domain.pddl  | Dentro :action       | Dichiara le variabili (con tipi) usate da un'azione.    |
+| :precondition  | domain.pddl  | Dentro :action       | Condizioni che devono essere vere per eseguire l'azione.|
+| :effect        | domain.pddl  | Dentro :action       | Cambiamenti allo stato del mondo dopo l'azione.       |
+| :objects       | problem.pddl |                      | Elenca gli oggetti specifici dell'istanza e i loro tipi.|
+| :init          | problem.pddl |                      | Definisce lo stato iniziale del mondo (fatti veri).     |
+| :goal          | problem.pddl |                      | Definisce lo stato obiettivo da raggiungere.            |
+| and            | Entrambi     | Precond/Effect/Goal  | Congiunzione logica di clausole.                        |
+| not            | Entrambi     | Precond/Effect       | Negazione logica di una clausola.                       |
+
+*Nota sulla tabella: in un file .txt la formattazione tabellare potrebbe non essere perfetta, ma i dati sono presenti.*
+
+---
+
+###  Consigli Avanzati per la Generazione da Parte dell'LLM
+
+1.  Prioritizza la Correttezza Sintattica: Le parentesi devono sempre bilanciarsi. Le parole chiave devono essere corrette e nel posto giusto.
+2.  Rispetta le Dichiarazioni: Non usare mai un tipo, predicato, oggetto o costante che non sia stato prima dichiarato nella sezione appropriata.
+3.  Coerenza dei Tipi: Assicurati che i tipi degli oggetti passati ai predicati (in init, goal, precondition, effect) e i tipi delle variabili/parametri corrispondano alle dichiarazioni dei predicati e delle azioni.
+4.  Minimalismo Iniziale: Inizia con problemi semplici e requisiti minimi (es. :strips, :typing). Aggiungi complessità gradualmente.
+5.  Leggibilità: Anche se sei una macchina, generare PDDL leggibile (indentazione, nomi chiari) aiuta nel debug e nella comprensione. Usa nomi descrittivi per domini, problemi, tipi, predicati e azioni.
+6.  Verifica Semantica di Base:
+    * Le precondizioni di un'azione dovrebbero logicamente abilitare gli effetti.
+    * Evita azioni con effetti contraddittori (es. aggiungere e rimuovere lo stesso predicato contemporaneamente, a meno che non sia un comportamento voluto e gestito da semantiche più complesse non trattate qui).
+    * Assicurati che l'obiettivo sia potenzialmente raggiungibile date le azioni e lo stato iniziale (questo è più difficile da garantire a priori ma è un buon principio).
+7.  Attenzione alle Variabili non Legate: Ogni variabile che appare in una precondizione o effetto di un'azione DEVE essere tra i parametri di quell'azione. Questo è un errore molto comune.
+8.  Impara dagli Errori: Quando un planner PDDL segnala un errore nel codice generato, analizza l'errore rispetto a questa guida per capire la violazione sintattica o semantica.
+
+Seguendo queste linee guida, dovresti essere in grado di generare file PDDL validi e significativi. Buona pianificazione!

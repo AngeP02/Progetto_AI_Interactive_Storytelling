@@ -42,17 +42,25 @@ def parse_lore_document(lore_text):
     if d:
         data["depth_min"], data["depth_max"] = map(int, d.groups())
 
-    # Locations: cerca la sezione Locations (Nodes) o la lista di nodi tra backticks
-    locs = re.findall(r"-\s*(_[a-z0-9_]+_)", lore_text, re.I)
-    if locs:
-        data["locations"] = [l.strip() for l in locs]
+    # Locations: cerca il blocco "### Locations (Nodes):" e cattura solo i nomi all'interno
+    locs_block = re.search(r"### Locations \(Nodes\):(.*?)(?:###|\Z)", lore_text, re.S)
+    if locs_block:
+        # Modifica 1: La regex è ora limitata al blocco "Locations (Nodes):" e cerca solo i nomi senza underscore
+        data["locations"] = re.findall(r"-\s*([a-z0-9_]+)", locs_block.group(1), re.I)
+        # Pulisci e rimuovi duplicati, mantenendo l'ordine
+        data["locations"] = [l.strip().strip('_') for l in data["locations"] if l.strip()]
+        data["locations"] = list(dict.fromkeys(data["locations"]))
+
 
     # Items: cerca blocco "## 3. Items & Acquisition Logic" fino alla sezione successiva
     items_block = re.search(r"## 3\.\s*Items & Acquisition Logic(.*?)(?:## 4\.|$)", lore_text, re.S)
     if items_block:
         block = items_block.group(1)
-        # pattern: **name**\n  - Found at: _location_\n  - Requires: ...
-        for m in re.finditer(r"\*\*(\w+)\*\*.*?Found at:\s*(_[a-z0-9_]+_).*?Requires:\s*(.*?)\n\s*- Effect:\s*(.*?)\n", block, re.S|re.I):
+        # Modifica 2: Nuova regex più robusta, rimuovendo l'obbligo di underscore per la location in "Found at:"
+        for m in re.finditer(
+            r"\*\*(\w+)\*\*[\s\S]*?- Found at:\s*([a-z0-9_]+)[\s\S]*?- Requires:\s*([^-\n]+)[\s\S]*?- Effect:\s*([^\n]+)",
+            block, re.S|re.I
+        ):
             name, found_at, requires, effect = m.groups()
             data["items"][name.lower()] = {
                 "found_at": found_at.strip(),
@@ -64,7 +72,8 @@ def parse_lore_document(lore_text):
     obs_block = re.search(r"## 4\.\s*Obstacles & Bypass Conditions(.*?)(?:## 5\.|$)", lore_text, re.S)
     if obs_block:
         block = obs_block.group(1)
-        for m in re.finditer(r"\*\*(.*?)\*\*.*?Blocks:\s*([^\n]+).*?Requires to overcome:\s*(.*?)\n\s*- Effect when solved:\s*(.*?)\n", block, re.S|re.I):
+        # Modifica 3: Nuova regex più robusta per Ostacoli
+        for m in re.finditer(r"\*\*(.*?)\*\*[\s\S]*?Blocks:\s*([^\n]+)[\s\S]*?Requires to overcome:\s*([^-\n]+)[\s\S]*?- Effect when solved:\s*([^\n]+)", block, re.S|re.I):
             name, blocks, requires, effect = m.groups()
             # blocks might be " _start_->_forest_path_ " -> keep as text
             data["obstacles"][name.strip().lower()] = {
@@ -86,7 +95,6 @@ def parse_lore_document(lore_text):
         data["win_condition"] = win_block.group(1).strip()
 
     return data
-
 
 
 # ========== FUNZIONE REST API ==========

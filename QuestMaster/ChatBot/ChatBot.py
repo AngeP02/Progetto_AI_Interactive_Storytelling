@@ -7,7 +7,7 @@ import webbrowser
 from threading import Timer
 import os
 
-from QuestMaster.Lore.Lore import generate_lore_document
+from QuestMaster.Lore.Lore2 import generate_lore_document
 
 from flask import Flask, render_template
 from pathlib import Path
