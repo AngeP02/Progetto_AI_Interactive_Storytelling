@@ -1,4 +1,5 @@
 # File: PDDL_Generation_Script.py
+import os
 
 import requests
 import json
@@ -35,7 +36,7 @@ def call_ollama(prompt, system_prompt):
         }
 
         logger.info("Chiamata ad Ollama per la generazione PDDL...")
-        response = requests.post(OLLAMA_URL, json=payload, timeout=300)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=500)
         response.raise_for_status()
 
         result = response.json()
@@ -154,27 +155,20 @@ class PDDLGeneratorValidator:
         Valida i file PDDL generati e tenta di risolverli con Fast Downward.
         """
         logger.info(f"Avvio la validazione e la risoluzione con Fast Downward...")
+        domain_path = self.domain_path.resolve()
+        problem_path = self.problem_path.resolve()
 
-        # Comando Fast Downward: cerca una soluzione ottimale (A* + LM-cut)
-        # Sostituisci 'fast-downward.py' con il percorso completo se non è nel tuo PATH
-        fast_downward_command = [
-            "fast-downward.py",
-            "--sas-file", "output.sas",  # Nome del file di traduzione
-            "--plan-file", "plan.out",  # Nome del file di piano
-            self.domain_path.resolve(),
-            self.problem_path.resolve(),
-            "--search", "astar(lmcut())"  # Strategia di ricerca standard ed efficiente
-        ]
+        fast_downward_path = r"C:\Users\ANGELICA\Desktop\SOFTWARE\FASTDOWNWARD\fast-downward-24.06.1\fast-downward.py"
+        if not os.path.exists(fast_downward_path):
+            print("⚠️ Fast Downward not found")
+            return False
+
+        cmd = ["python", fast_downward_path, str(domain_path), str(problem_path),
+               "--search", "astar(lmcut())"]
 
         try:
-            # Esegui il comando
-            result = subprocess.run(
-                fast_downward_command,
-                cwd=self.output_dir,  # Esegui nella directory di output per pulizia
-                capture_output=True,
-                text=True,
-                timeout=240  # Timeout di 4 minuti per il planner
-            )
+            print("▶️ Running Fast Downward...")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
             # Analisi dell'output
             if result.returncode == 0:
