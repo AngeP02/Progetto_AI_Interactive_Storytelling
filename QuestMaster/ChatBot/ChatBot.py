@@ -143,7 +143,7 @@ class QuestMasterLLM:
                             Keep your tone professional but enthusiastic. Keep your answers short and direct."""
 
         context_prompts = {
-            "genre_explanation": """The user has chosen the genre. Briefly explain what happens next (length selection) and how length affects PDDL complexity. Max 50 words.""",
+            "genre_explanation": """The user has chosen the genre (not gender). Briefly explain what happens next (length selection) and how length affects PDDL complexity. Max 50 words.""",
 
             "length_explanation": """The user has chosen the length. Now explain your choice of narrative tone and how it influences the story's atmosphere. Maximum 50 words.""",
 
@@ -151,7 +151,7 @@ class QuestMasterLLM:
 
             "graphics_explanation": """The user has chosen the graphical mode. Now ask them to describe the theme/plot of the story. Give short examples and encourage creativity. Maximum 50 words.""",
 
-            "manual_mode_start": """The user has chosen manual mode. Introduce the gender choice and explain that they can choose from generated options or enter a custom gender. Max 50 words.""",
+            "manual_mode_start": """The user has chosen manual mode. Introduce the genre choice and explain that they can choose from generated options or enter a custom gender. Max 50 words.""",
 
             "random_mode_intro": """The user has chosen random mode. Describe what you're about to do (generate everything randomly) with Game Master enthusiasm. Max 50 words."""
         }

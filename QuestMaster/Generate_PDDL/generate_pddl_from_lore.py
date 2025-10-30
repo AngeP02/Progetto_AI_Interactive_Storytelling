@@ -13,24 +13,80 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # ========== PARSING DEL LORE ==========
 def parse_lore_document(lore_text):
-    branching = re.findall(r"Branching Factor.*?(\d+).*?(\d+)", lore_text, re.S)
-    branching_min, branching_max = map(int, branching[0]) if branching else (2, 4)
-
-    depth = re.findall(r"Depth Constraints.*?(\d+).*?(\d+)", lore_text, re.S)
-    depth_min, depth_max = map(int, depth[0]) if depth else (5, 10)
-
-    entities = {}
-    entities["characters"] = list(set(re.findall(r"\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*", lore_text)))
-    entities["locations"] = list(set(re.findall(r"(?:in|at|on|within)\s+([A-Z][a-zA-Z\s]+)", lore_text)))
-    entities["objects"] = list(set(re.findall(r"\b(?:code|device|artifact|weapon|system|file|key)\b", lore_text, re.I)))
-
-    return {
-        "branching_min": branching_min,
-        "branching_max": branching_max,
-        "depth_min": depth_min,
-        "depth_max": depth_max,
-        "entities": entities
+    """
+    Estrae strutture dal file lore fornito:
+    - locations: lista di nomi
+    - items: dict {item_name: {found_at, requires, effect}}
+    - obstacles: dict {obs_name: {blocks, requires, effect}}
+    - dependencies: dict (es. BEFORE enter_castle: must have ...)
+    - win_condition: testo
+    - branching/depth (fallback sui valori esistenti nel file)
+    """
+    import re
+    data = {
+        "branching_min": 2, "branching_max": 4,
+        "depth_min": 5, "depth_max": 10,
+        "locations": [],
+        "items": {},
+        "obstacles": {},
+        "dependencies": {},
+        "win_condition": None
     }
+
+    # branching / depth (se presenti)
+    b = re.search(r"Branching Factor.*?(\d+).*?(\d+)", lore_text, re.S)
+    if b:
+        data["branching_min"], data["branching_max"] = map(int, b.groups())
+
+    d = re.search(r"Quest Depth.*?(\d+).*?(\d+)", lore_text, re.S)
+    if d:
+        data["depth_min"], data["depth_max"] = map(int, d.groups())
+
+    # Locations: cerca la sezione Locations (Nodes) o la lista di nodi tra backticks
+    locs = re.findall(r"-\s*(_[a-z0-9_]+_)", lore_text, re.I)
+    if locs:
+        data["locations"] = [l.strip() for l in locs]
+
+    # Items: cerca blocco "## 3. Items & Acquisition Logic" fino alla sezione successiva
+    items_block = re.search(r"## 3\.\s*Items & Acquisition Logic(.*?)(?:## 4\.|$)", lore_text, re.S)
+    if items_block:
+        block = items_block.group(1)
+        # pattern: **name**\n  - Found at: _location_\n  - Requires: ...
+        for m in re.finditer(r"\*\*(\w+)\*\*.*?Found at:\s*(_[a-z0-9_]+_).*?Requires:\s*(.*?)\n\s*- Effect:\s*(.*?)\n", block, re.S|re.I):
+            name, found_at, requires, effect = m.groups()
+            data["items"][name.lower()] = {
+                "found_at": found_at.strip(),
+                "requires": [r.strip() for r in re.split(r"and|,|AND|AND ", requires) if r.strip() and r.strip().lower() not in ("none", "none\n")],
+                "effect": effect.strip()
+            }
+
+    # Obstacles: sezione 4
+    obs_block = re.search(r"## 4\.\s*Obstacles & Bypass Conditions(.*?)(?:## 5\.|$)", lore_text, re.S)
+    if obs_block:
+        block = obs_block.group(1)
+        for m in re.finditer(r"\*\*(.*?)\*\*.*?Blocks:\s*([^\n]+).*?Requires to overcome:\s*(.*?)\n\s*- Effect when solved:\s*(.*?)\n", block, re.S|re.I):
+            name, blocks, requires, effect = m.groups()
+            # blocks might be " _start_->_forest_path_ " -> keep as text
+            data["obstacles"][name.strip().lower()] = {
+                "blocks": [b.strip() for b in re.split(r',|\band\b', blocks) if b.strip()],
+                "requires": [r.strip() for r in re.split(r'AND|and|,', requires) if r.strip()],
+                "effect": effect.strip()
+            }
+
+    # Dependencies & win condition
+    dep_block = re.search(r"## 5\.\s*Causal Dependency Chain(.*?)(?:## 6\.|$)", lore_text, re.S)
+    if dep_block:
+        for line in dep_block.group(1).splitlines():
+            if ':' in line:
+                k, v = line.split(':',1)
+                data["dependencies"][k.strip()] = v.strip()
+
+    win_block = re.search(r"## 6\.\s*Win Condition(.*?)(?:##|\Z)", lore_text, re.S)
+    if win_block:
+        data["win_condition"] = win_block.group(1).strip()
+
+    return data
+
 
 
 # ========== FUNZIONE REST API ==========
@@ -61,57 +117,15 @@ def normalize_name(name):
     name = name.strip('_').lower()
     if name and not name[0].isalpha():
         name = 'e_' + name
-    return name if len(name) >= 2 else None
-
+    return name
 
 def get_normalized_entities(lore_data):
-    common_words = {'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'but',
-                    'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does'}
-
-    chars_set = set()
-    for c in lore_data['entities']['characters']:
-        if c.lower() not in common_words and len(c) >= 3:
-            normalized = normalize_name(c)
-            if normalized:
-                chars_set.add(normalized)
-        if len(chars_set) >= 3:
-            break
-    chars = list(chars_set)[:3]
-    if len(chars) < 2:
-        chars.extend(['hero', 'villain'][:2 - len(chars)])
-
-    locs_set = set()
-    for l in lore_data['entities'].get('locations', []):
-        normalized = normalize_name(l)
-        if normalized:
-            locs_set.add(normalized)
-        if len(locs_set) >= 5:
-            break
-    locs = list(locs_set)[:5]
-    if len(locs) < 3:
-        defaults = ['entrance', 'corridor', 'chamber', 'vault', 'exit']
-        for default in defaults:
-            if default not in locs:
-                locs.append(default)
-            if len(locs) >= 5:
-                break
-
-    objs_set = set()
-    for o in lore_data['entities'].get('objects', []):
-        normalized = normalize_name(o)
-        if normalized:
-            objs_set.add(normalized)
-        if len(objs_set) >= 3:
-            break
-    objs = list(objs_set)[:3]
-    if len(objs) < 2:
-        defaults = ['key', 'artifact', 'tool']
-        for default in defaults:
-            if default not in objs:
-                objs.append(default)
-            if len(objs) >= 3:
-                break
-
+    # locations
+    locs = [normalize_name(l) for l in lore_data.get("locations", []) if l]
+    # items keys
+    objs = [normalize_name(k) for k in lore_data.get("items", {}).keys()]
+    # characters: keep protagonist default
+    chars = ['protagonist']
     return chars, locs, objs
 
 
@@ -396,28 +410,41 @@ def generate_pddl_from_lore(lore_text):
 CRITICAL: Every predicate must be used with the EXACT number of parameters defined in :predicates."""
 
     domain_template = """(define (domain narrative-domain)
-  (:requirements :strips :typing)
-  (:types character location object - thing)
-  (:predicates 
-    (at ?c - character ?l - location)
-    (has ?c - character ?o - object)
-    (connected ?l1 - location ?l2 - location)
-    (at-obj ?o - object ?l - location)
-    (visited ?l - location)
-    (locked ?l - location)
-    (key-for ?o - object ?l - location)
-  )
-  (:action move
-    :parameters (?c - character ?from - location ?to - location)
-    :precondition (and (at ?c ?from) (connected ?from ?to) (not (locked ?to)))
-    :effect (and (not (at ?c ?from)) (at ?c ?to) (visited ?to))
-  )
-  (:action take
-    :parameters (?c - character ?o - object ?l - location)
-    :precondition (and (at ?c ?l) (at-obj ?o ?l))
-    :effect (and (has ?c ?o) (not (at-obj ?o ?l)))
-  )
-)"""
+      (:requirements :strips :typing)
+      (:types character location object obstacle - thing)
+      (:predicates 
+        (at ?c - character ?l - location)
+        (has ?c - character ?o - object)
+        (connected ?l1 - location ?l2 - location)
+        (at-obj ?o - object ?l - location)
+        (visited ?l - location)
+        (locked ?l - location)
+        (key-for ?o - object ?l - location)
+        (obstacle-active ?obs - obstacle)
+        (obstacle-solved ?obs - obstacle)
+        (quest-complete)
+      )
+      (:action move
+        :parameters (?c - character ?from - location ?to - location)
+        :precondition (and (at ?c ?from) (connected ?from ?to) (not (locked ?to)))
+        :effect (and (not (at ?c ?from)) (at ?c ?to) (visited ?to))
+      )
+      (:action take
+        :parameters (?c - character ?o - object ?l - location)
+        :precondition (and (at ?c ?l) (at-obj ?o ?l))
+        :effect (and (has ?c ?o) (not (at-obj ?o ?l)))
+      )
+      (:action unlock
+        :parameters (?c - character ?k - object ?loc - location)
+        :precondition (and (has ?c ?k) (key-for ?k ?loc))
+        :effect (and (not (locked ?loc)))
+      )
+      (:action solve-obstacle
+        :parameters (?c - character ?obs - obstacle ?req - object)
+        :precondition (and (at ?c ?l) (obstacle-active ?obs))
+        :effect (and (obstacle-solved ?obs) (not (obstacle-active ?obs)))
+      )
+    )"""
 
     domain_prompt = f"""Expand this PDDL domain by adding 2-3 new actions based on the lore:
 
@@ -474,23 +501,41 @@ Domain:"""
 Use EXACT entity names provided. Create a solvable problem."""
 
     problem_template = f"""(define (problem narrative-problem)
-  (:domain narrative-domain)
-  (:objects
-    {' '.join(chars)} - character
-    {' '.join(locs)} - location
-    {' '.join(objs)} - object
-  )
-  (:init
-    (at {chars[0]} {locs[0]})
-    (connected {locs[0]} {locs[1]})
-    (at-obj {objs[0]} {locs[1]})
-    (visited {locs[0]})
-  )
-  (:goal (and
-    (at {chars[0]} {locs[-1]})
-    (has {chars[0]} {objs[0]})
-  ))
-)"""
+      (:domain narrative-domain)
+      (:objects
+        {' '.join(chars)} - character
+        {' '.join(locs)} - location
+        {' '.join(objs)} - object
+        {' '.join([normalize_name(o) + '_obs' for o in lore_data.get("obstacles", {})])} - obstacle
+      )
+      (:init
+        (at {chars[0]} {locs[0]})
+        (visited {locs[0]})
+    """
+    # aggiungiamo connettività lineare tra locs (bidirezionale)
+    for i in range(len(locs) - 1):
+        problem_template += f"    (connected {locs[i]} {locs[i + 1]})\n    (connected {locs[i + 1]} {locs[i]})\n"
+
+    # posiziona oggetti come dal lore: items -> found_at
+    for item_name, info in lore_data.get("items", {}).items():
+        obj = normalize_name(item_name)
+        found_at = normalize_name(info.get("found_at", locs[0]))
+        problem_template += f"    (at-obj {obj} {found_at})\n"
+
+    # ostacoli: marcarli attivi e blocks se presenti
+    for obs_name, info in lore_data.get("obstacles", {}).items():
+        obs = normalize_name(obs_name) + "_obs"
+        problem_template += f"    (obstacle-active {obs})\n"
+        # se blocks contiene pattern like _start_->_forest_path_, potremmo add un predicato custom (omesso qui)
+
+    # goal: seguendo il file lore (treasure_vault, has golden_artifact, quest_complete)
+    problem_template += f"""  )
+      (:goal (and
+        (at {chars[0]} {normalize_name('_treasure_vault_')})
+        (has {chars[0]} {normalize_name('golden_artifact')})
+        (quest-complete)
+      ))
+    )"""
 
     problem_prompt = f"""Expand this PDDL problem to create a narrative with {lore_data['depth_min']}-{lore_data['depth_max']} steps:
 
@@ -536,6 +581,37 @@ Generate complete problem PDDL:"""
 
     return domain_path, problem_path
 
+# ========== REFLECTION AGENT ==========
+def reflection_generate_pddl(lore_text, max_attempts=3):
+    """
+    Mini reflection agent:
+    tenta più volte di generare un PDDL risolvibile.
+    Se FastDownward fallisce, rigenera aggiungendo feedback al prompt.
+    """
+    for attempt in range(1, max_attempts + 1):
+        print(f"\n🧠 Reflection attempt {attempt}/{max_attempts}")
+        domain_path, problem_path = generate_pddl_from_lore(lore_text)
+
+        # Verifica con Fast Downward (usa la tua funzione già esistente)
+        success = validate_with_fastdownward(domain_path, problem_path)
+        if success:
+            print("✅ Reflection agent: PDDL valido e risolvibile!")
+            return domain_path, problem_path
+
+        # Se fallisce, aggiunge feedback testuale al lore per il prossimo tentativo
+        print("🔁 Rigenero con feedback di correzione...")
+        feedback = (
+            f"\n\n# Reflection feedback (tentativo {attempt}):\n"
+            "Il PDDL precedente non è stato risolvibile. "
+            "Rivedi le precondizioni e gli effetti per assicurare che il problema sia valido e risolvibile. "
+            "Assicurati che il goal sia raggiungibile e che tutte le parentesi siano bilanciate."
+        )
+        lore_text += feedback
+
+    print("❌ Reflection agent: fallimento dopo tutti i tentativi.")
+    return None, None
+
+
 
 # ========== VALIDAZIONE ==========
 def validate_with_fastdownward(domain_path, problem_path):
@@ -549,7 +625,7 @@ def validate_with_fastdownward(domain_path, problem_path):
 
     try:
         print("▶️ Running Fast Downward...")
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
         if "Solution found!" in result.stdout or result.returncode == 0:
             print("✅ PROBLEM IS SOLVABLE!")
@@ -574,13 +650,13 @@ def validate_with_fastdownward(domain_path, problem_path):
 # ========== MAIN ==========
 if __name__ == "__main__":
     BASE_DIR = Path(__file__).resolve().parent.parent
-    lore_path = BASE_DIR / "ChatBot" / "Generated_Lore" / "Lore.txt"
+    lore_path = BASE_DIR / "Lore" / "Generated_Lore" / "Lore_Logical.txt"
 
     try:
         with open(lore_path, "r", encoding="utf-8") as f:
             lore_text = f.read()
 
-        domain_path, problem_path = generate_pddl_from_lore(lore_text)
+        domain_path, problem_path = reflection_generate_pddl(lore_text, max_attempts=4)
 
         if domain_path and problem_path:
             print("\n" + "=" * 60)
