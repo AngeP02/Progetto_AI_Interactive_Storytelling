@@ -520,7 +520,8 @@ class FastDownwardValidator:
         if not self.fd_path.exists():
             raise FileNotFoundError(f"Fast Downward non trovato: {fd_path}")
 
-    def validate(self, domain_path: Path, problem_path: Path) -> Tuple[bool, str, str]:
+    def validate(self, domain_path: Path, problem_path: Path, save_plan_to: Optional[Path] = None) -> Tuple[
+        bool, str, str]:
         """Valida con Fast Downward"""
         python_exe = sys.executable
 
@@ -554,11 +555,42 @@ class FastDownwardValidator:
             output = result.stdout + "\n" + result.stderr
 
             if "Solution found!" in output:
-                plan_path = self.fd_path.parent / "sas_plan"
-                if plan_path.exists():
-                    with open(plan_path, 'r') as f:
-                        plan = f.read()
-                    return True, "Piano trovato!", plan
+                # Cerca il piano in diverse posizioni possibili
+                possible_locations = [
+                    self.fd_path.parent / "sas_plan",
+                    Path.cwd() / "sas_plan",
+                    domain_path.parent / "sas_plan"
+                ]
+
+                plan_content = None
+                plan_found_at = None
+
+                for plan_path in possible_locations:
+                    if plan_path.exists():
+                        with open(plan_path, 'r') as f:
+                            plan_content = f.read()
+                        plan_found_at = plan_path
+                        break
+
+                if plan_content:
+                    # Copia il piano nella directory output se richiesto
+                    if save_plan_to:
+                        output_plan_path = save_plan_to / "sas_plan"
+                        with open(output_plan_path, 'w') as f:
+                            f.write(plan_content)
+                        logger.info(f"✓ Piano salvato in: {output_plan_path}")
+
+                        # Crea anche una versione human-readable
+                        readable_plan_path = save_plan_to / "plan_readable.txt"
+                        readable_plan = self._make_plan_readable(plan_content)
+                        with open(readable_plan_path, 'w') as f:
+                            f.write(readable_plan)
+                        logger.info(f"✓ Piano leggibile salvato in: {readable_plan_path}")
+
+                    return True, plan_content, output
+                else:
+                    logger.warning("⚠️ Soluzione trovata ma file sas_plan non trovato")
+                    return True, "Soluzione trovata (file piano non disponibile)", output
 
             return False, self._extract_errors(output), output
 
@@ -579,6 +611,27 @@ class FastDownwardValidator:
                     error_lines.append(line.strip())
 
         return '\n'.join(error_lines[:10]) if error_lines else "Errore sconosciuto"
+
+    def _make_plan_readable(self, plan_content: str) -> str:
+        """Converte il piano in formato leggibile"""
+        lines = plan_content.strip().split('\n')
+        readable = ["=" * 60, "PIANO DI AZIONI", "=" * 60, ""]
+
+        step = 1
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith(';'):
+                # Rimuovi parentesi e formatta
+                action = line.strip('()')
+                readable.append(f"Step {step}: {action}")
+                step += 1
+
+        readable.append("")
+        readable.append("=" * 60)
+        readable.append(f"Piano completato in {step - 1} passi")
+        readable.append("=" * 60)
+
+        return '\n'.join(readable)
 
 
 # =============================================================================
@@ -640,11 +693,12 @@ def generate_valid_pddl_v2(
     domain_path = output_dir / "domain.pddl"
     problem_path = output_dir / "problem.pddl"
 
-    success, message, output = validator.validate(domain_path, problem_path)
+    success, message, output = validator.validate(domain_path, problem_path, save_plan_to=output_dir)
 
     if success:
         logger.info("\n✅ SUCCESSO! PDDL valido generato")
-        logger.info(f"📋 Piano:\n{message}")
+        logger.info(f"📂 File salvati in: {output_dir}")
+        logger.info(f"📋 Piano trovato - vedi: {output_dir / 'plan_readable.txt'}")
         return True, "PDDL valido"
     else:
         logger.error(f"\n❌ Validazione fallita: {message}")
@@ -680,5 +734,10 @@ if __name__ == '__main__':
 
     if success:
         print(f"\n🎉 {message}")
+        print(f"📂 File generati:")
+        print(f"   - Domain: {OUTPUT_FOLDER / 'domain.pddl'}")
+        print(f"   - Problem: {OUTPUT_FOLDER / 'problem.pddl'}")
+        print(f"   - Piano originale: {OUTPUT_FOLDER / 'sas_plan'}")
+        print(f"   - Piano leggibile: {OUTPUT_FOLDER / 'plan_readable.txt'}")
     else:
         print(f"\n😞 {message}")
