@@ -128,7 +128,7 @@ Impossibile connettersi a Ollama. Questa è una lore di fallback.
     # Aggiungo un identificatore per evitare sovrascritture in caso di temi simili
     import time
     timestamp = int(time.time())
-    file_name = f"lore_{safe_theme.replace(' ', '_')}_{timestamp}.md"
+    file_name = f"Lore.md"
     file_path = output_dir / file_name
 
     try:

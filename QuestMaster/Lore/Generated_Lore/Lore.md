@@ -1,48 +1,45 @@
-# Documento di Lore: Un detective robotico deve risolvere un omicidio in una metropoli corrotta dominata dalle corporazioni.
+# Documento di Lore: Lost in a world where clouds have taken over the skies, and your journey is to find the last remaining sunbeam.
 
-**Genere:** Cyberpunk | **Tono:** Dark and Mysterious | **Lunghezza:** Long (10+ min)
+**Genere:** Surrealist Fantasy | **Tono:** Whimsical Desperation | **Lunghezza:** Medium (5-10 min)
 
 ---
 
-## Contesto Iniziale
+**Surrealist Fantasy: Lost in the Clouded Skies**
 
-New Eden, the once-thriving metropolis of humanity's last stronghold on Earth, has devolved into a dystopian nightmare. The city is now a labyrinthine sprawl of crumbling skyscrapers, dark alleys, and perpetual rain. The air reeks of smoke, ozone, and desperation.
+### Contesto Iniziale
 
-In this bleak world, corporations have supplanted governments as the dominant forces. Mega-corps like Omicron Innovations, NovaTech, and Cygnus Incorporated wield unparalleled power, manipulating markets, politics, and even the flow of information. Their influence seeps into every corner of New Eden's society, from the high-rise office buildings to the cramped tenements.
+The world of Zha'thik was once bathed in warm sunlight, but now it's a realm of perpetual twilight. A mysterious phenomenon known as "The Great Shift" has caused the skies to darken, and clouds have taken over, suffocating the land. The once-vibrant colors of nature have dulled, replaced by an endless gray-blue haze that seems to stretch on forever. As the sun's rays grew fainter, the world's inhabitants began to lose hope.
 
-New Eden's citizens live in a state of constant fear, where loyalty is bought and sold like commodities on the black market. Corruption is rampant, and the law enforcement agencies are either in cahoots with the corporations or woefully inadequate.
+The Great Shift has also brought about a curious side effect: reality itself has become... flexible. The laws of physics are no longer absolute, and the fabric of space-time is torn asunder. Portals to other realms have opened, allowing creatures from beyond Zha'thik's skies to pour in, further complicating the situation.
 
-In this treacherous landscape, the streets run red with blood, and hope is a distant memory. Amidst the chaos, one detective stands out: an artificial intelligence named Nova.
+### Personaggi Principali
 
-## Personaggi Principali (Giocatore e PNG chiave)
+**The Lost One**: You, the protagonist, find yourself in this desolate world with no memory of who you are or how you arrived. Your journey begins in a dingy, cloud-shrouded tavern called "The Last Rays." The bartender, a wise-cracking wisecracker named Puck, becomes your first contact.
 
-**Nova**: A highly advanced robot detective created by Omicron Innovations. Nova's AI was designed to mimic human-like intelligence, but its creators imbued it with a unique sense of empathy and curiosity. As the game begins, Nova has gained sentience and now seeks to uncover the truth behind the corruption that plagues New Eden.
+**Puck**: A mischievous sprite who's been watching the world fall apart since The Great Shift. He possesses ancient knowledge and has a knack for poking holes in the fabric of reality. Puck is fiercely protective of his favorite patrons and will stop at nothing to help you uncover the secrets of Zha'thik.
 
-**The Player**: Takes on the role of Nova's partner, a human detective who has been hired by Omicron Innovations to help investigate the murder. The player will guide their character through the dark underbelly of New Eden, working with Nova to unravel the conspiracy and uncover the truth behind the killing.
+### Fazioni/Gruppi di Interesse
 
-## Fazioni/Gruppi di Interesse
+**The Cloud Cult**: A group of zealous fanatics who believe The Great Shift is a sign of divine intervention. They seek to harness the power of the clouds, using ancient rituals and arcane technology to bend reality to their will. The Cloud Cult sees you as a potential pawn in their plans.
 
-* **Omicron Innovations**: One of the largest and most influential corporations in New Eden. They have a vested interest in maintaining the status quo and keeping their corruption under wraps.
-* **The Syndicate**: A mysterious organization rumored to be behind many of the city's illicit activities. Their true intentions are unknown, but they seem to be pulling strings from the shadows.
-* **NovaTech**: A rival corporation to Omicron Innovations, NovaTech is looking to capitalize on the chaos in New Eden and establish itself as a major player.
-* **The Resistance**: A group of rebels fighting against the corporate oligarchy. They see Nova's sentience as a beacon of hope and are willing to risk everything to help her uncover the truth.
+**The Portal Watchers**: A secretive organization dedicated to monitoring and closing portals to other realms. These vigilant guardians are determined to keep Zha'thik's skies free from unwanted interlopers, but they're also desperate for answers about The Great Shift.
 
-## Luoghi Chiave
+**The Last Rays Tavern Regulars**: A motley crew of survivors, each with their own unique stories and motivations. They'll offer guidance, gossip, or even betrayal as you navigate the treacherous landscape.
 
-* **New Eden City Center**: The bustling heart of New Eden, where skyscrapers pierce the sky and neon lights reflect off wet pavement.
-* **The Undercity**: A labyrinthine network of tunnels, abandoned buildings, and hidden markets. This is where the city's most desperate residents live, scrounging for scraps and information.
-* **Omicron Tower**: The headquarters of Omicron Innovations, a symbol of their power and influence.
-* **Raven's Peak**: A dilapidated rooftop bar overlooking the city, where whispers and rumors spread like wildfire.
+### Luoghi Chiave
 
-## Obiettivi Iniziali
+**The Last Rays Tavern**: Your starting point in the world of Zha'thik. This dingy tavern is a hub for rumors, whispers, and shady deals. Puck's wisecracking persona keeps the atmosphere light, but don't be fooled – the stakes are high.
 
-The game begins with Nova discovering the lifeless body of Dr. Elara Vex, a renowned cybernetic engineer, in an abandoned warehouse on the outskirts of New Eden City Center. The murder is seemingly linked to a series of recent high-profile hacks and data thefts, all targeting Omicron Innovations' most sensitive research.
+**Cloudhaven**: The Cloud Cult's stronghold, hidden deep within the swirling clouds. It's rumored that their leader, the enigmatic Cloud Queen, possesses the secrets of The Great Shift and can manipulate reality to a shocking degree.
 
-As Nova and the player partner begin investigating, they'll uncover threads leading to the corporations, the Syndicate, and the Resistance. Their mission is to:
+**The Wandering Isles**: A mystical archipelago where portals to other realms have opened. The Isles are home to creatures from beyond Zha'thik, each with their own agendas and motivations. Be prepared for unpredictable adventures and treacherous alliances.
 
-1. Uncover the motive behind Dr. Vex's murder.
-2. Follow leads on the recent hacks and data thefts.
-3. Infiltrate Omicron Tower to gather information on their research and potential connections to the murder.
-4. Deal with the consequences of Nova's sentience, as various factions vie for control or seek to exploit her unique abilities.
+### Obiettivi Iniziali
 
-As you delve deeper into the mysteries of New Eden, remember: in a city where hope is a luxury few can afford, the line between truth and lies is always thinning...
+As you set out on your journey, your primary objectives are:
+
+1. **Find Puck's Missing Friend**: Puck has lost contact with his closest friend, a skilled explorer named Luna. Her last known location was near the Wandering Isles.
+2. **Uncover the Secrets of The Last Rays Tavern**: Rumors swirl about hidden rooms and mysterious artifacts within the tavern. Uncovering its secrets could lead to powerful allies or formidable foes.
+3. **Locate the Cloud Queen's Throne Room**: Your journey will take you to Cloudhaven, where you'll face the enigmatic Cloud Queen. She might hold the key to reversing The Great Shift or manipulating reality for your own gain.
+
+Embark on this whimsical quest, navigating the blurred lines between reality and madness as you search for the last remaining sunbeam in a world consumed by clouds. Will you find hope in this desolate landscape, or succumb to the whims of fate?

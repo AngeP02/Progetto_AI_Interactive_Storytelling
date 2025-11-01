@@ -1,0 +1,31 @@
+(define (domain keys-doors)
+  (:requirements :strips :typing)
+  (:types location key door agent)
+  (:predicates
+    (at ?a - agent ?l - location)
+    (key-at ?k - key ?l - location)
+    (has-key ?a - agent ?k - key)
+    (door-between ?d - door ?l1 ?l2 - location)
+    (locked ?d - door)
+    (unlocks ?k - key ?d - door)
+  )
+
+  (:action move
+   :parameters (?a - agent ?from ?to - location ?d - door)
+   :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
+   :effect (and (not (at ?a ?from)) (at ?a ?to))
+  )
+
+  (:action pick-key
+   :parameters (?a - agent ?k - key ?l - location)
+   :precondition (and (at ?a ?l) (key-at ?k ?l))
+   :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
+  )
+
+  (:action unlock
+   :parameters (?a - agent ?k - key ?d - door ?l - location)
+   :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
+   :effect (not (locked ?d))
+  )
+
+)

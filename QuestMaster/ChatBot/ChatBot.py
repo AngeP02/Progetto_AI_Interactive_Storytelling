@@ -7,6 +7,7 @@ import webbrowser
 from threading import Timer
 import os
 
+from QuestMaster.Generate_PDDL.Prova3 import generate_valid_pddl_v2, check_ollama_available
 from QuestMaster.Lore.Lore2 import generate_lore_document
 
 from flask import Flask, render_template
@@ -20,6 +21,12 @@ CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+
+LORE_FILE = SCRIPT_DIR.parent / "Lore" / "Generated_Lore" / "Lore.md"
+OUTPUT_FOLDER = SCRIPT_DIR / "pddl_output"
+FAST_DOWNWARD = r"C:\Users\ANGELICA\Desktop\SOFTWARE\FASTDOWNWARD\fast-downward-24.06.1\fast-downward.py"
 
 
 class QuestMasterLLM:
@@ -316,6 +323,40 @@ def chat():
                         'quest_ready': True,
                         'config': session['config']
                     })
+
+#TODO
+
+                    if not check_ollama_available():
+                        print("❌ Ollama non disponibile!")
+                        exit(1)
+
+                    if not LORE_FILE.exists():
+                        print(f"❌ Lore non trovato: {LORE_FILE}")
+                        exit(1)
+
+                    if not Path(FAST_DOWNWARD).exists():
+                        print(f"❌ Fast Downward non trovato: {FAST_DOWNWARD}")
+                        exit(1)
+
+                    # Esegui
+                    success, message = generate_valid_pddl_v2(
+                        lore_path=LORE_FILE,
+                        output_dir=OUTPUT_FOLDER,
+                        fd_path=FAST_DOWNWARD
+                    )
+
+                    if success:
+                        print(f"\n🎉 {message}")
+                        print(f"📂 File generati:")
+                        print(f"   - Domain: {OUTPUT_FOLDER / 'domain.pddl'}")
+                        print(f"   - Problem: {OUTPUT_FOLDER / 'problem.pddl'}")
+                        print(f"   - Piano originale: {OUTPUT_FOLDER / 'sas_plan'}")
+                        print(f"   - Piano leggibile: {OUTPUT_FOLDER / 'plan_readable.txt'}")
+                    else:
+                        print(f"\n😞 {message}")
+
+
+
                 except Exception as e:
                     print("ERROR generating lore:", e)
                     response_data.update({
@@ -381,4 +422,4 @@ if __name__ == '__main__':
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         Timer(1, open_browser).start()
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
