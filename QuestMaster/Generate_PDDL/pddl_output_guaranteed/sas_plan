@@ -1,0 +1,7 @@
+(pick-key hero bronze_key entrance)
+(unlock hero bronze_key main_door entrance)
+(move hero entrance hall main_door)
+(pick-key hero golden_key hall)
+(unlock hero golden_key treasure_door hall)
+(move hero hall treasure_room treasure_door)
+; cost = 6 (unit cost)

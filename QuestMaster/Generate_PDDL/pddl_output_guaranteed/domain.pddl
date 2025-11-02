@@ -1,4 +1,4 @@
-(define (domain keys-doors)
+(define (domain keys-doors-simple)
   (:requirements :strips :typing)
   (:types location key door agent)
   (:predicates
@@ -27,5 +27,4 @@
    :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
    :effect (not (locked ?d))
   )
-
 )

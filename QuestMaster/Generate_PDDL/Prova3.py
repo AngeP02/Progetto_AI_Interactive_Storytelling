@@ -181,14 +181,16 @@ Extract as JSON (use double quotes, escape internal quotes):
   "connections": [["loc1", "loc2"], ...],
   "initial_facts": ["entity is at location", ...],
   "goal_facts": ["desired final state", ...]
+  "branching_factor_range": "estrai il range complessivo da Min a Max (es. 3-8)",
+  "depth_constraints_range": "estrai il range complessivo da Min a Max (es. 3-6)"
 }}
 
 IMPORTANT: 
 - Be concrete and specific. Extract actual names from the lore.
+- For branching_factor_range, use the overall MINIMUM and overall MAXIMUM from the narrative (e.g., if it says Min 3-4 and Max 6-8, use "3-8").
+- For depth_constraints_range, use the overall MINIMUM and overall MAXIMUM (e.g., if it says Min 3-4 and Max 5-6, use "3-6").
 - Use ONLY double quotes in JSON
-- Replace single quotes with double quotes if needed
 OUTPUT ONLY JSON:"""
-
         response = call_ollama(prompt, system_prompt)
 
         if not response:

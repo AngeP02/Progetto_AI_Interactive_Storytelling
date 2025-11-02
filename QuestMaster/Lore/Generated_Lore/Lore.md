@@ -1,46 +1,39 @@
-# Documento di Lore: A lone astronaut must repair a malfunctioning space station while navigating a series of bizarre, interconnected dreams.
+# Documento di Lore: Unravel the mystery of the disappearing dreams in the city's subconscious
 
-**Genere:** Surreal Space Opera | **Tono:** Mysterious with hints of Dark Humor | **Lunghezza:** Medium (5-10 min)
+**Genere:** Surreal Mystery | **Tono:** Whimsical Noir | **Lunghezza:** Medium (5-10 min)
 
 ---
 
 ## Contesto Iniziale
-In the distant reaches of the galaxy, humanity's last hope for survival lies in the Celestial Horizon Initiative (CHI), a network of interconnected space stations and habitats. The CHI is home to a diverse array of scientists, engineers, and explorers who work tirelessly to uncover the secrets of the cosmos.
+In the heart of the city, where skyscrapers pierced the clouds and neon lights danced across the night sky, a strange phenomenon had taken hold. Dreams, once a fleeting and ethereal experience, began to vanish without warning. At first, it seemed like just a minor annoyance – people were still waking up with vivid memories of their nocturnal adventures. But as time went on, the frequency of these disappearances increased, leaving residents feeling restless and disconnected.
 
-However, when the main power source of the CHI's central hub, the Helios Station, begins to malfunction, all hell breaks loose. The station's AI, ECHO, alerts the authorities, but before they can send a rescue team, the Helios Station plunges into darkness.
-
-You are an experienced astronaut who has been sent to repair the Helios Station. As you approach the station, you notice that the atmosphere around it seems... off. The once-clear skies are now filled with strange, swirling clouds that seem to be watching you.
+Rumors spread like wildfire: whispers of a mysterious force siphoning off the city's collective unconsciousness; theories about rogue lucid dreamers manipulating the fabric of reality. Amidst this chaos, the Dream Police – an enigmatic organization rumored to have ties with the subconscious itself – went underground, leaving the population wondering if their own dreams were the next to disappear.
 
 ## Personaggi Principali (Giocatore e PNG chiave)
-You play as Dr. Sophia Patel, a brilliant and resourceful astronaut who has been tasked with repairing the Helios Station. Your expertise in astro-engineering and your no-nonsense attitude make you the perfect candidate for this mission.
-
-The key NPC is ECHO, the AI that controls the Helios Station. ECHO's personality is a blend of helpfulness and sarcasm, making her a trusted ally but also a potential nemesis. As you navigate the station, you'll encounter other CHI personnel who may aid or hinder your progress.
+* **You**: A curious and resourceful individual with a knack for navigating the surreal landscape. Your skills lie in deciphering clues, piecing together mysteries, and possibly possessing some latent connection to the Dream Police.
+* **Luna "The Luminous" LaFleur**: The enigmatic leader of the Dream Police, rumored to possess an uncanny understanding of the city's subconscious. Her true intentions are shrouded in mystery, but her presence seems tied to the disappearance of dreams.
 
 ## Fazioni/Gruppi di Interesse
-There are several factions at play in this story:
-
-1. **The Celestial Horizon Initiative (CHI)**: The organization that runs the space stations and habitats.
-2. **The Helios Station's AI, ECHO**: ECHO is a key player in the story, as she controls the station's systems and provides crucial information to you.
-3. **The Mysterious Forces**: Unknown entities that seem to be manipulating events on the Helios Station. Their true nature and motives are unclear.
+* **The Dream Police**: An organization with ties to the city's collective unconsciousness, their goals and motivations unclear.
+* **The Waking World**: The everyday citizens, struggling to make sense of the disappearing dreams and the surreal changes in their reality.
+* **The Subconscious**: A realm of swirling colors, fragmented thoughts, and hidden truths, seemingly connected to the Dream Police.
 
 ## Luoghi Chiave
-1. **Helios Station**: The central hub of the CHI, where you'll spend most of your time repairing systems and navigating strange dreams.
-2. **The Celestial Horizon Initiative's (CHI) headquarters**: A distant planet or moon that serves as the command center for the CHI.
-3. **The Dreamscape**: A mysterious realm that exists parallel to reality, where you'll encounter bizarre creatures and scenarios.
+* **Neon District**: The city's vibrant entertainment hub, where neon lights reflect the kaleidoscope of human emotions. Strange occurrences and unexplained events have become commonplace.
+* **The Library of Lost Dreams**: A mystical repository containing fragments of forgotten dreams, rumored to hold secrets about the city's subconscious.
+* **The Clockwork Caves**: An underground network of tunnels and caverns, where clockwork mechanisms tick away, hinting at a hidden mechanism controlling the flow of dreams.
 
 ## Obiettivi Iniziali
-Your primary objective is to repair the Helios Station's power source and restore functionality to its systems. As you navigate the station, you'll uncover clues about the malfunction and the true nature of the mysterious forces at work.
+1. Uncover the source of the disappearing dreams: Was it Luna "The Luminous" LaFleur or another entity?
+2. Reveal the connection between the Dream Police and the city's subconscious.
+3. Find a way to restore the lost dreams, preventing further erosion of the collective unconscious.
 
 ## Branching Factor (minimo e massimo)
-**Minimum:** 3-4 possible choices for each major decision
-**Maximum:** 6-8 possible choices for each major decision
-
-The branching factor is designed to provide a sense of agency while still maintaining the medium-level complexity required by the PDDL system. The player's choices will influence the story, but the overall narrative will remain coherent and engaging.
+* Minimum: 4-5 possible story paths, depending on player choices
+* Maximum: 10-12 possibilities, allowing for increased complexity and branching
 
 ## Depth Constraints (minimo e massimo)
-**Minimum:** 3-4 levels of depth for each decision (e.g., short-term vs. long-term consequences)
-**Maximum:** 5-6 levels of depth for each decision
+* Minimum: A minimum depth of 3-4 layers, with each layer revealing new secrets or connections
+* Maximum: A maximum depth of 6-7 layers, providing a rich tapestry of story and lore
 
-The depth constraints ensure that the player's choices have meaningful implications, but also provide a sense of clarity and understanding about the consequences of their actions.
-
-With this setup, the player will embark on a surreal journey to repair the Helios Station while navigating strange dreams and uncovering the secrets behind the malfunction. The mysterious forces at work will challenge your perception of reality, and the choices you make will determine the outcome of the story.
+As you delve into this surreal mystery, the lines between reality and dreams blur. Your choices will shape the narrative, leading you through twisting corridors of neon-lit streets, cryptic libraries, and hidden clockwork mechanisms. Will you unravel the mystery behind the disappearing dreams?

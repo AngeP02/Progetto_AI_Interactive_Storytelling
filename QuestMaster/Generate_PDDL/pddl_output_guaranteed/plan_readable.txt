@@ -1,0 +1,14 @@
+============================================================
+PIANO DI AZIONI
+============================================================
+
+Step 1: pick-key hero bronze_key entrance
+Step 2: unlock hero bronze_key main_door entrance
+Step 3: move hero entrance hall main_door
+Step 4: pick-key hero golden_key hall
+Step 5: unlock hero golden_key treasure_door hall
+Step 6: move hero hall treasure_room treasure_door
+
+============================================================
+Piano completato in 6 passi
+============================================================
