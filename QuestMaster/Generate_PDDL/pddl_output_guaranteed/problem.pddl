@@ -1,26 +1,26 @@
-(define (problem quest-medium)
-  (:domain keys-doors-simple)
+(define (problem delivery-medium)
+  (:domain logistics-simple)
   (:objects
-    entrance hall treasure_room secret_chamber - location
-    hero - agent
-    bronze_key golden_key - key
-    main_door treasure_door - door
+    warehouse depot shop home - location
+    truck - vehicle
+    package1 package2 - package
   )
   (:init
-    (at hero entrance)
-    (key-at bronze_key entrance)
-    (key-at golden_key hall)
+    (at-vehicle truck warehouse)
+    (at-package package1 warehouse)
+    (at-package package2 depot)
 
-    (door-between main_door entrance hall)
-    (door-between treasure_door hall treasure_room)
-
-    (locked main_door)
-    (locked treasure_door)
-
-    (unlocks bronze_key main_door)
-    (unlocks golden_key treasure_door)
+    (connected warehouse depot)
+    (connected depot warehouse)
+    (connected depot shop)
+    (connected shop depot)
+    (connected shop home)
+    (connected home shop)
   )
   (:goal
-    (at hero treasure_room)
+    (and
+      (at-package package1 home)
+      (at-package package2 shop)
+    )
   )
 )

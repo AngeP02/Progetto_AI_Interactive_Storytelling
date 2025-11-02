@@ -429,14 +429,30 @@ class SmartPDDLSelector:
         """Analizza il lore per estrarre constraint"""
         lore_lower = self.lore.lower()
 
-        # Rileva genere
-        genre = 'fantasy'
-        if any(w in lore_lower for w in ['robot', 'cyber', 'tech', 'sci-fi', 'space']):
-            genre = 'scifi'
-        elif any(w in lore_lower for w in ['deliver', 'transport', 'package', 'cargo']):
-            genre = 'logistics'
-        elif any(w in lore_lower for w in ['mystery', 'detective', 'crime']):
-            genre = 'mystery'
+        match = re.search(r'genere[:\s]*([^\n|]+)', self.lore, re.IGNORECASE)
+        if match:
+            genre = match.group(1).strip()
+            logger.info(f"🎭 Genere rilevato dal testo: {genre}")
+        else:
+            # === 2️⃣ Fallback: uso LLM per classificarlo ===
+            prompt = f"""
+            Read the following story and identify its genre.
+            Choose exactly one from this list:
+            ["Fantasy", "Romance", "Drama", "Horror", "Comedy", "Science Fiction", "Mystery", "Historical", "Adventure"].
+            Respond only with the single word of the genre.
+        
+            STORY:
+            {self.lore}
+            """
+            system_prompt = "You are a text classification model that identifies the literary genre of a given story."
+            result = call_ollama(prompt, system_prompt)
+
+            if result:
+                genre = result.strip().lower()
+                logger.info(f"🎭 Genere rilevato da LLM: {genre}")
+            else:
+                genre = "generic"
+                logger.warning("⚠️ Nessuna risposta valida da Ollama, uso 'generic'.")
 
         # Estrai depth constraint
         depth_min, depth_max = 5, 10  # Default
@@ -650,13 +666,104 @@ class FastDownwardValidator:
                 else:
                     return True, "Soluzione trovata", output
 
-            return False, "Nessuna soluzione trovata", output
+# nessuna soluzione trovata, uso reflection agent
+
+            logger.warning("⚠️ Nessuna soluzione trovata — avvio Reflection Agent per rigenerare il piano...")
+
+            try:
+                reflection_result = self.run_reflection_agent(domain_path, problem_path)
+                if reflection_result:
+                    # Dopo il reflection, riesegui Fast Downward
+                    logger.info("🔁 Riprovo la validazione dopo Reflection Agent...")
+                    return self.validate(domain_path, problem_path, save_plan_to)
+                else:
+                    logger.error("❌ Reflection Agent non ha generato un nuovo piano valido.")
+                    return False, "Reflection fallita: nessuna soluzione trovata", output
+
+            except Exception as e:
+                logger.exception("Errore durante il reflection agent")
+                return False, f"Errore reflection: {e}", output
 
         except subprocess.TimeoutExpired:
             return False, "Timeout (60s)", ""
         except Exception as e:
             logger.exception("Errore validazione")
             return False, f"Errore: {e}", ""
+
+    def run_reflection_agent(self, domain_path: Path, problem_path: Path) -> bool:
+        """
+        Esegue il Reflection Agent:
+        - Analizza i file PDDL esistenti
+        - Usa LLM per identificare problemi di validità
+        - Propone e applica correzioni
+        - Restituisce True se è riuscito a rigenerare un piano plausibile
+        """
+        try:
+            logger.info("🧠 Avvio Reflection Agent per analizzare i file PDDL...")
+
+            # 1️⃣ Leggi i file
+            with open(domain_path, "r", encoding="utf-8") as f:
+                domain_content = f.read()
+            with open(problem_path, "r", encoding="utf-8") as f:
+                problem_content = f.read()
+
+            # 2️⃣ Costruisci il prompt per Ollama o LLM
+            system_prompt = (
+                "You are a PDDL expert. Your task is to analyze a domain and problem definition "
+                "that failed to produce a valid plan in Fast Downward. You must identify structural "
+                "or logical issues (missing preconditions, inconsistent goals, impossible actions) "
+                "and produce a corrected version that is still faithful to the original scenario."
+            )
+
+            user_prompt = f"""
+            The following PDDL domain and problem did not yield any valid plan.
+
+            === DOMAIN ===
+            {domain_content}
+
+            === PROBLEM ===
+            {problem_content}
+
+            Please:
+            1. Identify the most likely issue preventing plan generation.
+            2. Modify the PDDL minimally to fix the issue.
+            3. Keep the syntax strictly valid and consistent with Fast Downward requirements.
+            4. Return only the corrected domain and problem, formatted as:
+               ---DOMAIN---
+               <corrected domain>
+               ---PROBLEM---
+               <corrected problem>
+            """
+
+            # 3️⃣ Chiamata all’LLM locale (Ollama)
+            response = call_ollama(user_prompt, system_prompt)
+
+            # 4️⃣ Estrai le nuove sezioni
+            domain_fixed, problem_fixed = None, None
+
+            match_domain = re.search(r"---DOMAIN---(.*?)---PROBLEM---", response, re.DOTALL)
+            match_problem = re.search(r"---PROBLEM---(.*)", response, re.DOTALL)
+
+            if match_domain and match_problem:
+                domain_fixed = match_domain.group(1).strip()
+                problem_fixed = match_problem.group(1).strip()
+
+            if not domain_fixed or not problem_fixed:
+                logger.error("❌ Il Reflection Agent non ha restituito un PDDL valido.")
+                return False
+
+            # 5️⃣ Sovrascrivi i file
+            with open(domain_path, "w", encoding="utf-8") as f:
+                f.write(domain_fixed)
+            with open(problem_path, "w", encoding="utf-8") as f:
+                f.write(problem_fixed)
+
+            logger.info("✨ Reflection Agent completato: file PDDL aggiornati.")
+            return True
+
+        except Exception as e:
+            logger.exception("Errore nel Reflection Agent")
+            return False
 
     def _make_plan_readable(self, plan_content: str) -> str:
         """Converte il piano in formato leggibile"""

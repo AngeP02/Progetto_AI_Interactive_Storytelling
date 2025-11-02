@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>QuestMaster - Revisione</title>
+    <style>
+        /* Usa lo stesso stile del tuo Frontend.html */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .review-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .name-editor {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .name-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .name-item input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+        }
+
+        .pddl-viewer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .suggestions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .suggestions h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        .suggestion-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <h1>🎨 Revisione Quest</h1>
+        <p>Rivedi e perfeziona la tua storia prima di iniziare l'avventura!</p>
+
+        <!-- LORE EDITOR -->
+        <div class="section">
+            <h2>📜 Editor Lore</h2>
+            <div id="loreEditor"></div>
+        </div>
+
+        <!-- NAME EDITOR -->
+        <div class="section">
+            <h2>✏️ Modifica Nomi</h2>
+            <p>Puoi rinominare i personaggi e i luoghi (solo i nomi, non la struttura):</p>
+            <div class="name-editor" id="nameEditor"></div>
+        </div>
+
+        <!-- PDDL VIEWER -->
+        <div class="section">
+            <h2>🧠 Visualizza PDDL (con commenti)</h2>
+            <details>
+                <summary style="cursor: pointer; font-weight: bold;">Domain PDDL</summary>
+                <div class="pddl-viewer" id="domainViewer"></div>
+            </details>
+            <details>
+                <summary style="cursor: pointer; font-weight: bold;">Problem PDDL</summary>
+                <div class="pddl-viewer" id="problemViewer"></div>
+            </details>
+        </div>
+
+        <!-- REFLECTION SUGGESTIONS -->
+        <div id="reflectionSuggestions" class="suggestions" style="display: none;">
+            <h3>💡 Suggerimenti del Reflection Agent</h3>
+            <div id="suggestionsList"></div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">← Indietro</button>
+            <button class="btn btn-primary" onclick="regenerate()">🔄 Rigenera Piano</button>
+            <button class="btn btn-primary" onclick="startQuest()">▶️ Inizia Quest!</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let sessionId = new URLSearchParams(window.location.search).get('session') || 'default';
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadLore();
+            await loadPDDL();
+        });
+
+        async function loadLore() {
+            const response = await fetch(`${API_BASE}/api/get-lore`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({session_id: sessionId})
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                renderLoreEditor(data.sections);
+            }
+        }
+
+        function renderLoreEditor(sections) {
+            const container = document.getElementById('loreEditor');
+            container.innerHTML = '';
+
+            for (const [title, content] of Object.entries(sections)) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <h3>${title}</h3>
+                    <textarea class="lore-section" data-section="${title}">${content}</textarea>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        async function loadPDDL() {
+            const response = await fetch(`${API_BASE}/api/get-pddl`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({session_id: sessionId})
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('domainViewer').textContent = data.domain;
+                document.getElementById('problemViewer').textContent = data.problem;
+                renderNameEditor(data.editable_names);
+            }
+        }
+
+        function renderNameEditor(names) {
+            const container = document.getElementById('nameEditor');
+            container.innerHTML = '';
+
+            names.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'name-item';
+                div.innerHTML = `
+                    <label>${name}</label>
+                    <input type="text" data-old-name="${name}" placeholder="Nuovo nome..." />
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function regenerate() {
+            // Collect updated data
+            const loreSections = {};
+            document.querySelectorAll('.lore-section').forEach(textarea => {
+                loreSections[textarea.dataset.section] = textarea.value;
+            });
+
+            const nameChanges = {};
+            document.querySelectorAll('.name-item input').forEach(input => {
+                if (input.value.trim()) {
+                    nameChanges[input.dataset.oldName] = input.value.trim();
+                }
+            });
+
+            // Reconstruct full lore
+            let fullLore = '';
+            for (const [title, content] of Object.entries(loreSections)) {
+                fullLore += `## ${title}\n${content}\n\n`;
+            }
+
+            // Send to backend
+            const response = await fetch(`${API_BASE}/api/update-and-regenerate`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    lore: fullLore,
+                    names: nameChanges
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ Piano rigenerato con successo!');
+                location.reload();
+            } else if (data.validation_failed) {
+                showReflectionSuggestions(data.reflection_suggestions);
+            } else {
+                alert('❌ Errore: ' + data.error);
+            }
+        }
+
+        function showReflectionSuggestions(suggestions) {
+            const container = document.getElementById('reflectionSuggestions');
+            const list = document.getElementById('suggestionsList');
+
+            list.innerHTML = '';
+            suggestions.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${s.issue}:</strong> ${s.suggestion}`;
+                list.appendChild(div);
+            });
+
+            container.style.display = 'block';
+        }
+
+        function startQuest() {
+            window.location.href = '/game?session=' + sessionId;
+        }
+
+        function goBack() {
+            window.location.href = '/?session=' + sessionId;
+        }
+    </script>
+</body>
+</html>

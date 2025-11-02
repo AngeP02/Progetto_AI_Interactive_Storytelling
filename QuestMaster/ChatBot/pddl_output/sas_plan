@@ -1,0 +1,5 @@
+(load parcel truck warehouse)
+(move truck warehouse shop)
+(move truck shop home)
+(unload parcel truck home)
+; cost = 4 (unit cost)

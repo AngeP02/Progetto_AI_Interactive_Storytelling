@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import requests
@@ -8,6 +10,7 @@ from threading import Timer
 import os
 
 from QuestMaster.Generate_PDDL.Prova3 import generate_valid_pddl_v2, check_ollama_available
+from QuestMaster.Generate_PDDL.no_LLM_2 import generate_valid_pddl_guaranteed
 from QuestMaster.Lore.Lore2 import generate_lore_document
 
 from flask import Flask, render_template
@@ -339,12 +342,12 @@ def chat():
                         exit(1)
 
                     # Esegui
-                    success, message = generate_valid_pddl_v2(
+                    success, message = generate_valid_pddl_guaranteed(
                         lore_path=LORE_FILE,
                         output_dir=OUTPUT_FOLDER,
-                        fd_path=FAST_DOWNWARD
+                        fd_path=FAST_DOWNWARD,
+                        personalize=True  # Cambia a False per usare template puri
                     )
-
                     if success:
                         print(f"\n🎉 {message}")
                         print(f"📂 File generati:")
@@ -355,6 +358,19 @@ def chat():
                     else:
                         print(f"\n😞 {message}")
 
+                    if success:
+                        # ✅ INVECE di "quest_ready", redirect alla pagina di revisione
+                        response_data.update({
+                            'message': "🎉 Quest configurata con successo! Ora puoi revisionare il lore e i PDDL prima di iniziare.",
+                            'redirect_to_review': True,
+                            'session_id': session_id
+                        })
+                    else:
+                        response_data.update({
+                            'message': f"⚠️ Generazione completata con warning: {message}\n\nPuoi comunque procedere alla revisione.",
+                            'redirect_to_review': True,
+                            'session_id': session_id
+                        })
 
 
                 except Exception as e:
@@ -409,6 +425,267 @@ def health():
         'ollama': ollama_status,
         'model': llm.model
     })
+
+
+# ============================================================================
+# NUOVE API PER LA GUI DI REVISIONE
+# ============================================================================
+
+@app.route('/review.html')
+def review_page():
+    """Serve la pagina di revisione"""
+    try:
+        review_path = BASE_DIR / "HumanInTheLoop" / "Frontend.html"
+        with open(review_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return render_template_string(content)
+    except FileNotFoundError:
+        return "<h1>Error: Review page not found.</h1>", 404
+
+
+@app.route('/api/get-lore', methods=['POST'])
+def get_lore():
+    """Restituisce il contenuto del lore generato"""
+    try:
+        session_id = request.json.get('session_id', 'default')
+
+        if LORE_FILE.exists():
+            with open(LORE_FILE, 'r', encoding='utf-8') as f:
+                lore_content = f.read()
+
+            # Parsing delle sezioni
+            sections = parse_lore_sections(lore_content)
+
+            return jsonify({
+                'success': True,
+                'lore': lore_content,
+                'sections': sections
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Lore non trovato'})
+    except Exception as e:
+        logger.error(f"Error get-lore: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/get-pddl', methods=['POST'])
+def get_pddl():
+    """Restituisce i PDDL commentati"""
+    try:
+        # Usa la cartella garantita
+        pddl_folder = SCRIPT_DIR.parent / "Generate_PDDL" / "pddl_output_guaranteed"
+
+        domain_path = pddl_folder / "domain_commented.pddl"
+        problem_path = pddl_folder / "problem_commented.pddl"
+
+        # Fallback se i commentati non esistono
+        if not domain_path.exists():
+            domain_path = pddl_folder / "domain.pddl"
+        if not problem_path.exists():
+            problem_path = pddl_folder / "problem.pddl"
+
+        if domain_path.exists() and problem_path.exists():
+            with open(domain_path, 'r', encoding='utf-8') as f:
+                domain = f.read()
+            with open(problem_path, 'r', encoding='utf-8') as f:
+                problem = f.read()
+
+            # Estrai nomi modificabili
+            editable_names = extract_pddl_names(problem)
+
+            return jsonify({
+                'success': True,
+                'domain': domain,
+                'problem': problem,
+                'editable_names': editable_names
+            })
+        else:
+            return jsonify({'success': False, 'error': 'PDDL non trovati'})
+    except Exception as e:
+        logger.error(f"Error get-pddl: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/update-and-regenerate', methods=['POST'])
+def update_and_regenerate():
+    """Aggiorna lore/PDDL e rigenera il piano"""
+    try:
+        data = request.json
+        session_id = data.get('session_id', 'default')
+        updated_lore = data.get('lore')
+        updated_names = data.get('names', {})
+
+        logger.info(f"Rigenerazione richiesta per session {session_id}")
+
+        # 1. Salva il nuovo lore
+        if updated_lore:
+            with open(LORE_FILE, 'w', encoding='utf-8') as f:
+                f.write(updated_lore)
+            logger.info("✓ Lore aggiornato")
+
+        # 2. Applica le modifiche ai nomi nei PDDL
+        pddl_folder = SCRIPT_DIR.parent / "Generate_PDDL" / "pddl_output_guaranteed"
+        problem_path = pddl_folder / "problem.pddl"
+
+        if updated_names and problem_path.exists():
+            apply_name_changes(problem_path, updated_names)
+            logger.info(f"✓ Nomi aggiornati: {updated_names}")
+
+        # 3. Rigenera il piano con Fast Downward
+        from QuestMaster.Generate_PDDL.Prova3 import generate_valid_pddl_guaranteed
+
+        success, message = generate_valid_pddl_guaranteed(
+            lore_path=LORE_FILE,
+            output_dir=pddl_folder,
+            fd_path=FAST_DOWNWARD,
+            personalize=True
+        )
+
+        if success:
+            logger.info("✅ Piano rigenerato con successo")
+            return jsonify({
+                'success': True,
+                'message': 'Piano rigenerato con successo!',
+                'plan_path': str(pddl_folder / 'plan_readable.txt')
+            })
+        else:
+            logger.warning("⚠️ Validazione fallita, avvio reflection...")
+
+            # 4. Se fallisce, usa Reflection Agent
+            suggestions = run_reflection_for_gui(pddl_folder)
+
+            return jsonify({
+                'success': False,
+                'validation_failed': True,
+                'reflection_suggestions': suggestions,
+                'error_message': message
+            })
+
+    except Exception as e:
+        logger.exception("Errore update-and-regenerate")
+        return jsonify({'success': False, 'error': str(e)})
+
+
+# ============================================================================
+# FUNZIONI HELPER
+# ============================================================================
+
+def parse_lore_sections(lore_content):
+    """Divide il lore in sezioni editabili basate sui titoli ##"""
+    sections = {}
+    current_section = None
+    current_content = []
+
+    for line in lore_content.split('\n'):
+        if line.strip().startswith('##'):
+            # Salva la sezione precedente
+            if current_section:
+                sections[current_section] = '\n'.join(current_content).strip()
+
+            # Inizia nuova sezione
+            current_section = line.strip('# ').strip()
+            current_content = []
+        else:
+            current_content.append(line)
+
+    # Salva l'ultima sezione
+    if current_section:
+        sections[current_section] = '\n'.join(current_content).strip()
+
+    return sections
+
+
+def extract_pddl_names(problem_content):
+    """Estrae i nomi modificabili dal problem PDDL"""
+    import re
+
+    names = []
+
+    # Estrai dalla sezione (:objects ...)
+    objects_match = re.search(r'\(:objects(.*?)\)', problem_content, re.DOTALL)
+    if objects_match:
+        objects_text = objects_match.group(1)
+        # Trova pattern "nome - tipo"
+        found_names = re.findall(r'(\w+)\s*-\s*\w+', objects_text)
+        names.extend(found_names)
+
+    # Rimuovi duplicati
+    return list(set(names))
+
+
+def apply_name_changes(pddl_path, name_mapping):
+    """Applica le modifiche ai nomi nel PDDL preservando la struttura"""
+    import re
+
+    with open(pddl_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Per ogni coppia old_name -> new_name
+    for old_name, new_name in name_mapping.items():
+        # Sostituisci solo occorrenze complete (word boundary)
+        content = re.sub(r'\b' + re.escape(old_name) + r'\b', new_name, content)
+
+    with open(pddl_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    logger.info(f"Applicati {len(name_mapping)} cambiamenti di nomi in {pddl_path.name}")
+
+
+def run_reflection_for_gui(pddl_folder):
+    """Esegue Reflection Agent e restituisce suggerimenti per la GUI"""
+    domain_path = pddl_folder / "domain.pddl"
+    problem_path = pddl_folder / "problem.pddl"
+
+    if not domain_path.exists() or not problem_path.exists():
+        return [{"issue": "File mancanti", "suggestion": "Rigenera i file PDDL"}]
+
+    with open(domain_path, 'r', encoding='utf-8') as f:
+        domain = f.read()
+    with open(problem_path, 'r', encoding='utf-8') as f:
+        problem = f.read()
+
+    system_prompt = """You are a PDDL expert. Analyze the failed PDDL and provide SPECIFIC suggestions for the user.
+    Focus on issues the user can fix in the LORE or by renaming entities.
+
+    Return ONLY a valid JSON array like this:
+    [
+      {"issue": "Short description of the problem", "suggestion": "Concrete action for the user to take"},
+      {"issue": "Another problem", "suggestion": "Another fix"}
+    ]
+
+    Examples:
+    - {"issue": "Unreachable goal location", "suggestion": "Add a connection to 'throne_room' in the lore"}
+    - {"issue": "Missing key", "suggestion": "Ensure 'golden_key' is mentioned in the starting location"}
+    """
+
+    prompt = f"""The following PDDL failed validation. Provide user-friendly suggestions:
+
+DOMAIN:
+{domain[:500]}...
+
+PROBLEM:
+{problem[:500]}...
+
+Return ONLY the JSON array, no other text."""
+
+    response = llm.call_ollama(prompt, system_prompt)
+
+    # Parse JSON response
+    try:
+        # Estrai JSON dalla risposta (anche se contiene altro testo)
+        json_match = re.search(r'\[.*\]', response, re.DOTALL)
+        if json_match:
+            suggestions = json.loads(json_match.group(0))
+            return suggestions
+        else:
+            raise ValueError("No JSON found")
+    except:
+        logger.warning("Reflection Agent non ha restituito JSON valido")
+        return [
+            {"issue": "Validazione fallita", "suggestion": response[:200]},
+            {"issue": "Suggerimento generico",
+             "suggestion": "Rivedi il lore per garantire che tutti gli obiettivi siano raggiungibili"}
+        ]
 
 
 if __name__ == '__main__':

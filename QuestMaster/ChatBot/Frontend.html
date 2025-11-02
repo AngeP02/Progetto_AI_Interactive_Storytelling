@@ -519,6 +519,18 @@
             }
 
             async processResponse(response) {
+                 if (response.redirect_to_review) {
+                    await this.showAssistantMessage(response.message);
+
+                    this.updateStatus('Reindirizzamento alla pagina di revisione...', 100);
+
+                    // Attendi 2 secondi e poi redirect
+                    setTimeout(() => {
+                        window.location.href = `/review.html?session=${response.session_id}`;
+                    }, 2000);
+
+                    return; // Stop qui
+                 }
                 // Mostra il messaggio dell'assistente
                 await this.showAssistantMessage(response.message);
 

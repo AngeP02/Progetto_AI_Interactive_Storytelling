@@ -1,43 +1,36 @@
 Here is the annotated PDDL file:
 
-(define (domain keys-doors-simple)
-; defines a domain named "keys-doors-simple"
-(:requirements :strips :typing)
-; specifies that this domain uses STRIPS and typing
+(define (domain logistics-simple)
+  (:requirements ; specifies the necessary features for the domain, in this case, STRIPS and TYING
+    :strips :typing)
+  (:types ; defines the types of objects in the domain
+    location vehicle package)
+  (:predicates ; declares the predicates or facts that are true in the domain
+    (at-vehicle ?v - vehicle ?l - location) ; describes an object at a specific location
+    (at-package ?p - package ?l - location) ; describes a package at a specific location
+    (in-vehicle ?p - package ?v - vehicle) ; describes a package inside a vehicle
+    (connected ?from ?to - location) ; describes two locations being connected
+  )
 
-(:types location key door agent)
-; declares four types: location, key, door, and agent
-
-(:predicates
-  (at ?a - agent ?l - location)
-; defines a predicate "at" that says an agent is at a location
-  (key-at ?k - key ?l - location)
-; defines a predicate "key-at" that says a key is at a location
-  (has-key ?a - agent ?k - key)
-; defines a predicate "has-key" that says an agent has a key
-  (door-between ?d - door ?l1 ?l2 - location)
-; defines a predicate "door-between" that says a door connects two locations
-  (locked ?d - door)
-; defines a predicate "locked" that says a door is locked
-  (unlocks ?k - key ?d - door)
-; defines a predicate "unlocks" that says a key unlocks a door
+(:action move ; defines an action that can be performed in the domain
+  :parameters (?v - vehicle ?from ?to - location) ; specifies the parameters for this action
+  :precondition (and ; specifies the conditions that must be true before this action can be executed
+    (at-vehicle ?v ?from) ; the vehicle is at the from location
+    (connected ?from ?to)) ; the from and to locations are connected
+  :effect (and ; specifies the effects of this action when it is executed
+    (not (at-vehicle ?v ?from)) ; the vehicle is no longer at the from location
+    (at-vehicle ?v ?to)) ; the vehicle is now at the to location
 )
 
-(:action move
- ; defines an action named "move"
- :parameters (?a - agent ?from ?to - location ?d - door)
- ; parameters: an agent, from and to locations, and a door
- :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
- ; preconditions: the agent is at the from location, the door connects the from and to locations, and the door is not locked
- :effect (and (not (at ?a ?from)) (at ?a ?to))
- ; effects: the agent is no longer at the from location, and the agent is now at the to location
+(:action load ; defines an action that can be performed in the domain
+  :parameters (?p - package ?v - vehicle ?l - location) ; specifies the parameters for this action
+  :precondition (and ; specifies the conditions that must be true before this action can be executed
+    (at-package ?p ?l) ; the package is at the location
+    (at-vehicle ?v ?l)) ; the vehicle is also at the location
+  :effect (and ; specifies the effects of this action when it is executed
+    (not (at-package ?p ?l)) ; the package is no longer at the location
+    (in-vehicle ?p ?v)) ; the package is now inside the vehicle
 )
 
-(:action pick-key
- ; defines an action named "pick-key"
- :parameters (?a - agent ?k - key ?l - location)
- ; parameters: an agent, a key, and a location
- :precondition (and (at ?a ?l) (key-at ?k ?l))
- ; preconditions: the agent is at the location, and the key is at the location
- :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
- ; effects: the key is no longer at
+(:action unload ; defines an action that can be performed in the domain
+  :parameters (?p - package ?v - vehicle ?

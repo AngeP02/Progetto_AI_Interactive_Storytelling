@@ -1,0 +1,12 @@
+============================================================
+PIANO DI AZIONI
+============================================================
+
+Step 1: load parcel truck warehouse
+Step 2: move truck warehouse shop
+Step 3: move truck shop home
+Step 4: unload parcel truck home
+
+============================================================
+Piano completato in 4 passi
+============================================================
