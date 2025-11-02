@@ -297,6 +297,54 @@
         .loading-overlay.active {
             display: flex;
         }
+        .progress-tracker {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .progress-step.running {
+            background: rgba(255, 193, 7, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        .progress-step.complete {
+            background: rgba(40, 167, 69, 0.2);
+        }
+
+        .progress-step.error {
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        .step-icon {
+            font-size: 2em;
+        }
+
+        .step-label {
+            font-weight: bold;
+        }
+
+        .step-status {
+            font-size: 1.5em;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
         .loading-spinner {
             width: 50px;
@@ -491,6 +539,14 @@
                 if (this.isLoading) return;
 
                 this.addUserMessage(choice);
+
+                // ✅ NUOVO: Gestione speciale per l'avvio della quest
+                if (choice === 'Start the Quest!' || choice === 'Quest Begins!') {
+                    this.startQuestGeneration();
+                    return; // Esci subito, il resto è gestito da SSE
+                }
+
+                // Comportamento normale per altre scelte
                 this.showTyping();
                 this.setLoading(true);
 
@@ -517,6 +573,90 @@
                     this.setLoading(false);
                 }
             }
+
+            // ========== NUOVO CODICE: Gestione Progress Tracker ==========
+
+            startQuestGeneration() {
+                this.setLoading(true);
+                this.showProgressTracker();
+
+                const eventSource = new EventSource(`${API_BASE_URL}/api/generate-quest-stream?session=${this.sessionId}`);
+
+                eventSource.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.updateProgressStep(data);
+
+                    if (data.step === 'done') {
+                        eventSource.close();
+                        this.setLoading(false);
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 2000);
+                    }
+                };
+
+                eventSource.onerror = (error) => {
+                    console.error('SSE Error:', error);
+                    eventSource.close();
+                    this.setLoading(false);
+                    this.showErrorMessage('Errore nella generazione della quest. Riprova più tardi.');
+                };
+            }
+
+            showProgressTracker() {
+                const tracker = `
+                    <div class="progress-tracker">
+                        <div class="progress-step" id="step-lore">
+                            <span class="step-icon">📜</span>
+                            <span class="step-label">Lore</span>
+                            <span class="step-status">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-pddl">
+                            <span class="step-icon">🧠</span>
+                            <span class="step-label">PDDL</span>
+                            <span class="step-status">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-comments">
+                            <span class="step-icon">💬</span>
+                            <span class="step-label">Commenti</span>
+                            <span class="step-status">⏳</span>
+                        </div>
+                    </div>
+                `;
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message assistant-message';
+                messageDiv.innerHTML = tracker;
+                this.elements.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            updateProgressStep(data) {
+                const stepEl = document.getElementById(`step-${data.step}`);
+                if (!stepEl && data.step !== 'done') return;
+
+                if (stepEl) {
+                    const statusSpan = stepEl.querySelector('.step-status');
+
+                    if (data.status === 'running') {
+                        statusSpan.textContent = '⏳';
+                        stepEl.classList.add('running');
+                    } else if (data.status === 'complete') {
+                        statusSpan.textContent = '✅';
+                        stepEl.classList.remove('running');
+                        stepEl.classList.add('complete');
+                    } else if (data.status === 'error') {
+                        statusSpan.textContent = '❌';
+                        stepEl.classList.add('error');
+                    }
+                }
+
+                // Mostra messaggio sotto il tracker
+                if (data.message) {
+                    this.showAssistantMessage(data.message);
+                }
+            }
+
 
             async processResponse(response) {
                  if (response.redirect_to_review) {

@@ -2,11 +2,14 @@
 PIANO DI AZIONI
 ============================================================
 
-Step 1: load parcel truck warehouse
-Step 2: move truck warehouse shop
-Step 3: move truck shop home
-Step 4: unload parcel truck home
+Step 1: load package1 truck warehouse
+Step 2: move truck warehouse depot
+Step 3: load package2 truck depot
+Step 4: move truck depot shop
+Step 5: unload package2 truck shop
+Step 6: move truck shop home
+Step 7: unload package1 truck home
 
 ============================================================
-Piano completato in 4 passi
+Piano completato in 7 passi
 ============================================================

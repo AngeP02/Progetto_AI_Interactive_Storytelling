@@ -314,72 +314,21 @@ def chat():
                 'next_step': 'final_confirmation'
             })
 
-
-
         elif current_step == 'final_confirmation':
+
             if user_choice in ['Start the Quest!', 'Quest Begins!']:
-                try:
-                    lore_path = generate_lore_document(session['config'])
-                    print("DEBUG LORE PATH:", lore_path)
-                    response_data.update({
-                        'message': f"Quest started! Lore Document saved in {lore_path}.",
-                        'quest_ready': True,
-                        'config': session['config']
-                    })
 
-#TODO
+                # Non fare nulla qui, verrà gestito da /api/generate-quest-stream
 
-                    if not check_ollama_available():
-                        print("❌ Ollama non disponibile!")
-                        exit(1)
+                response_data.update({
 
-                    if not LORE_FILE.exists():
-                        print(f"❌ Lore non trovato: {LORE_FILE}")
-                        exit(1)
+                    'message': "Preparazione della quest in corso...",
 
-                    if not Path(FAST_DOWNWARD).exists():
-                        print(f"❌ Fast Downward non trovato: {FAST_DOWNWARD}")
-                        exit(1)
+                    'next_step': 'generating',
 
-                    # Esegui
-                    success, message = generate_valid_pddl_guaranteed(
-                        lore_path=LORE_FILE,
-                        output_dir=OUTPUT_FOLDER,
-                        fd_path=FAST_DOWNWARD,
-                        personalize=True  # Cambia a False per usare template puri
-                    )
-                    if success:
-                        print(f"\n🎉 {message}")
-                        print(f"📂 File generati:")
-                        print(f"   - Domain: {OUTPUT_FOLDER / 'domain.pddl'}")
-                        print(f"   - Problem: {OUTPUT_FOLDER / 'problem.pddl'}")
-                        print(f"   - Piano originale: {OUTPUT_FOLDER / 'sas_plan'}")
-                        print(f"   - Piano leggibile: {OUTPUT_FOLDER / 'plan_readable.txt'}")
-                    else:
-                        print(f"\n😞 {message}")
+                    'options': []
 
-                    if success:
-                        # ✅ INVECE di "quest_ready", redirect alla pagina di revisione
-                        response_data.update({
-                            'message': "🎉 Quest configurata con successo! Ora puoi revisionare il lore e i PDDL prima di iniziare.",
-                            'redirect_to_review': True,
-                            'session_id': session_id
-                        })
-                    else:
-                        response_data.update({
-                            'message': f"⚠️ Generazione completata con warning: {message}\n\nPuoi comunque procedere alla revisione.",
-                            'redirect_to_review': True,
-                            'session_id': session_id
-                        })
-
-
-                except Exception as e:
-                    print("ERROR generating lore:", e)
-                    response_data.update({
-                        'message': f"Failed to generate lore: {e}",
-                        'quest_ready': False,
-                        'config': session['config']
-                    })
+            })
 
             elif user_choice == 'Regenerate Configuration':
                 config = llm.generate_random_config()
@@ -532,7 +481,7 @@ def update_and_regenerate():
             logger.info(f"✓ Nomi aggiornati: {updated_names}")
 
         # 3. Rigenera il piano con Fast Downward
-        from QuestMaster.Generate_PDDL.Prova3 import generate_valid_pddl_guaranteed
+        from QuestMaster.Generate_PDDL.no_LLM_2 import generate_valid_pddl_guaranteed
 
         success, message = generate_valid_pddl_guaranteed(
             lore_path=LORE_FILE,
@@ -686,6 +635,97 @@ Return ONLY the JSON array, no other text."""
             {"issue": "Suggerimento generico",
              "suggestion": "Rivedi il lore per garantire che tutti gli obiettivi siano raggiungibili"}
         ]
+
+
+from flask import Response, stream_with_context
+import time
+
+
+@app.route('/api/generate-quest-stream', methods=['GET'])
+def generate_quest_stream():
+    """Genera la quest con aggiornamenti di stato in tempo reale (SSE)"""
+
+    def generate():
+        try:
+            # Recupera session_id dalla query string
+            session_id = request.args.get('session', 'default')
+
+            if session_id not in user_sessions:
+                yield f"data: {json.dumps({'step': 'error', 'status': 'error', 'message': '❌ Sessione non trovata'})}\n\n"
+                return
+
+            session = user_sessions[session_id]
+
+            # ========== STEP 1: LORE ==========
+            yield f"data: {json.dumps({'step': 'lore', 'status': 'running', 'message': '📜 Generazione della lore in corso...'})}\n\n"
+
+            try:
+                lore_path = generate_lore_document(session['config'])
+                logger.info(f"Lore generata: {lore_path}")
+                yield f"data: {json.dumps({'step': 'lore', 'status': 'complete', 'message': '✅ Lore generata con successo!'})}\n\n"
+            except Exception as e:
+                logger.error(f"Errore generazione lore: {e}")
+                yield f"data: {json.dumps({'step': 'lore', 'status': 'error', 'message': f'❌ Errore lore: {str(e)}'})}\n\n"
+                return
+
+            # ========== STEP 2: PDDL ==========
+            yield f"data: {json.dumps({'step': 'pddl', 'status': 'running', 'message': '🧠 Generazione e validazione PDDL...'})}\n\n"
+
+            try:
+                # Verifica prerequisiti
+                if not check_ollama_available():
+                    yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': '❌ Ollama non disponibile'})}\n\n"
+                    return
+
+                if not LORE_FILE.exists():
+                    yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': f'❌ Lore non trovato: {LORE_FILE}'})}\n\n"
+                    return
+
+                if not Path(FAST_DOWNWARD).exists():
+                    yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': f'❌ Fast Downward non trovato'})}\n\n"
+                    return
+
+                # Genera PDDL
+                success, message = generate_valid_pddl_guaranteed(
+                    lore_path=LORE_FILE,
+                    output_dir=OUTPUT_FOLDER,
+                    fd_path=FAST_DOWNWARD,
+                    personalize=True
+                )
+
+                if success:
+                    logger.info(f"PDDL validato: {message}")
+                    yield f"data: {json.dumps({'step': 'pddl', 'status': 'complete', 'message': '✅ PDDL validato con successo!'})}\n\n"
+                else:
+                    logger.warning(f"PDDL con warning: {message}")
+                    yield f"data: {json.dumps({'step': 'pddl', 'status': 'complete', 'message': f'⚠️ {message}'})}\n\n"
+
+            except Exception as e:
+                logger.error(f"Errore generazione PDDL: {e}")
+                yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': f'❌ Errore PDDL: {str(e)}'})}\n\n"
+                return
+
+            # ========== STEP 3: COMMENTI ==========
+            yield f"data: {json.dumps({'step': 'comments', 'status': 'running', 'message': '💬 Aggiunta commenti ai PDDL...'})}\n\n"
+
+            try:
+                # I commenti vengono già aggiunti da generate_valid_pddl_guaranteed
+                # ma possiamo confermare qui
+                time.sleep(0.5)  # Piccola pausa per feedback visivo
+                yield f"data: {json.dumps({'step': 'comments', 'status': 'complete', 'message': '✅ Commenti aggiunti!'})}\n\n"
+            except Exception as e:
+                logger.error(f"Errore aggiunta commenti: {e}")
+                yield f"data: {json.dumps({'step': 'comments', 'status': 'error', 'message': f'⚠️ Commenti non aggiunti: {str(e)}'})}\n\n"
+                # Non blocchiamo qui, possiamo continuare
+
+            # ========== COMPLETO ==========
+            yield f"data: {json.dumps({'step': 'done', 'status': 'complete', 'message': '🎉 Quest pronta per la revisione!', 'redirect': f'/review.html?session={session_id}'})}\n\n"
+
+        except Exception as e:
+            logger.exception("Errore generate-quest-stream")
+            yield f"data: {json.dumps({'step': 'error', 'status': 'error', 'message': f'❌ Errore imprevisto: {str(e)}'})}\n\n"
+
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
 if __name__ == '__main__':

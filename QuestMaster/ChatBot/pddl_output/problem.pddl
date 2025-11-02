@@ -1,20 +1,26 @@
-(define (problem delivery-easy)
+(define (problem delivery-medium)
   (:domain logistics-simple)
   (:objects
-    warehouse shop home - location
+    warehouse depot shop home - location
     truck - vehicle
-    parcel - package
+    package1 package2 - package
   )
   (:init
     (at-vehicle truck warehouse)
-    (at-package parcel warehouse)
+    (at-package package1 warehouse)
+    (at-package package2 depot)
 
-    (connected warehouse shop)
-    (connected shop warehouse)
+    (connected warehouse depot)
+    (connected depot warehouse)
+    (connected depot shop)
+    (connected shop depot)
     (connected shop home)
     (connected home shop)
   )
   (:goal
-    (at-package parcel home)
+    (and
+      (at-package package1 home)
+      (at-package package2 shop)
+    )
   )
 )

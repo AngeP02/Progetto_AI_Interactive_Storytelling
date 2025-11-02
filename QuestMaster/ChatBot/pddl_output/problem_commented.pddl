@@ -1,18 +1,47 @@
-(define (problem delivery-easy) ; defines a problem named "delivery-easy"
-(:domain logistics-simple) ; specifies the domain as "logistics-simple"
-(:objects ; declares objects in the domain
-  warehouse shop home - location ; declares locations: warehouse, shop, and home
-  truck - vehicle ; declares a vehicle (truck)
-  parcel - package ; declares a package (parcel)
-)
-(:init ; initializes the problem with certain facts
-  (at-vehicle truck warehouse) ; truck is initially at the warehouse
-  (at-package parcel warehouse) ; parcel is initially at the warehouse
+Here is the annotated PDDL file:
 
-  (connected warehouse shop) ; warehouse and shop are connected
-  (connected shop warehouse) ; shop and warehouse are connected
-  (connected shop home) ; shop and home are connected
-  (connected home shop) ; home and shop are connected
+(define (problem delivery-medium)
+; Defines a problem named "delivery-medium" within the logistics-simple domain.
+
+(:domain logistics-simple)
+; Specifies that this problem uses the logistics-simple planning domain.
+
+(:objects
+  warehouse depot shop home - location
+  truck - vehicle
+  package1 package2 - package
 )
-(:goal ; specifies the goal of the problem
-  (at-package parcel home) ; move parcel to be at home
+; Declares objects in the problem: locations (warehouse, depot, shop, and home) and a vehicle (truck), as well as packages (package1 and package2).
+
+(:init
+  (at-vehicle truck warehouse)
+; Initializes the problem by stating that the truck is located at the warehouse.
+  (at-package package1 warehouse)
+; Initializes the problem by stating that package1 is located at the warehouse.
+  (at-package package2 depot)
+; Initializes the problem by stating that package2 is located at the depot.
+
+  (connected warehouse depot)
+; Specifies that there is a connection between the warehouse and the depot.
+  (connected depot warehouse)
+; Specifies that there is a connection between the depot and the warehouse.
+  (connected depot shop)
+; Specifies that there is a connection between the depot and the shop.
+  (connected shop depot)
+; Specifies that there is a connection between the shop and the depot.
+  (connected shop home)
+; Specifies that there is a connection between the shop and the home.
+  (connected home shop)
+; Specifies that there is a connection between the home and the shop.
+)
+; Initializes the problem by stating the initial connections between locations.
+
+(:goal
+  (and
+    (at-package package1 home)
+; States that the goal is to have package1 at the home location.
+    (at-package package2 shop)
+; States that the goal is to have package2 at the shop location.
+  )
+)
+; Specifies the goal of the problem: to move packages to their respective destinations.
