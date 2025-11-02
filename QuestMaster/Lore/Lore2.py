@@ -46,6 +46,25 @@ class LoreGeneratorLLM:
             logger.error(f"Errore generico in LoreGeneratorLLM: {e}")
             return "Errore imprevisto durante la generazione della lore."
 
+def get_pddl_constraints(length: str) -> dict:
+    """Restituisce i vincoli logici (Branching e Depth) in base alla lunghezza della storia."""
+    length_map = {
+        "Short": {
+            "branching": "2-3",  # Meno scelte per stato
+            "depth": "3-6"      # Percorso breve
+        },
+        "Medium": {
+            "branching": "3-4",
+            "depth": "7-12"
+        },
+        "Long": {
+            "branching": "4-5",  # Più scelte e complessità per stato
+            "depth": "13-25"     # Percorso lungo e profondo
+        }
+        # Aggiungi altri livelli se la tua variabile length lo prevede
+    }
+    # Usa 'Medium' come fallback se 'length' non è nel dizionario
+    return length_map.get(length, length_map["Medium"])
 
 # --- Funzione Principale di Generazione Lore ---
 
@@ -70,13 +89,16 @@ def generate_lore_document(config: dict) -> str:
     theme = config.get('theme', 'A simple quest.')
 
     # 1. Preparazione del Prompt
-    system_prompt = f"""Sei un autore di fantasy e un Game Master esperto. Il tuo compito è creare un'ambientazione (lore) ricca, coerente e affascinante per una storia interattiva, che sarà poi utilizzata da un sistema di pianificazione logica (PDDL) e da un LLM narrativo.
+    system_prompt = f"""Sei un autore di storie classiche e non e un Game Master esperto. Il tuo compito è creare un'ambientazione (lore) ricca, coerente e affascinante per una storia interattiva, che sarà poi utilizzata da un sistema di pianificazione logica (PDDL) e da un LLM narrativo.
 
 Le specifiche della storia sono:
 - **Genere:** {genre}
 - **Lunghezza/Complessità:** {length}
 - **Tono Narrativo:** {tone}
 - **Tema/Trama Principale:** {theme}
+I vincoli di pianificazione logica che definiscono la complessità del PDDL devono essere **integrati nel tuo testo narrativo e nel riepilogo finale** in modo che siano coerenti con la storia che stai creando:
+- **Fattore di Ramificazione (Branching Factor):** Deve rispettare la length della storia.
+- **Vincoli di Profondità (Depth Constraints):**  Deve rispettare la length della storia.
 
 Struttura la tua risposta in sezioni chiare con i seguenti titoli Markdown:
 ## Contesto Iniziale
@@ -84,7 +106,8 @@ Struttura la tua risposta in sezioni chiare con i seguenti titoli Markdown:
 ## Fazioni/Gruppi di Interesse
 ## Luoghi Chiave
 ## Obiettivi Iniziali
-
+## Branching Factor (minimo e massimo)
+## Depth Constraints (minimo e massimo)
 Assicurati che il tono sia {tone} e che la descrizione sia appropriata per un gioco {genre}. Fornisci dettagli sufficienti per creare un mondo coinvolgente.
 """
 

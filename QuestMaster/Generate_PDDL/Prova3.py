@@ -165,14 +165,15 @@ class LoreAnalyzer:
         """Usa LLM per estrarre entità strutturate"""
 
         system_prompt = """You are a domain analyzer. Extract structured entities from narrative text.
-Output ONLY valid JSON, no explanations."""
+Output ONLY valid JSON, no explanations.
+IMPORTANT: Use double quotes for strings, not single quotes. Escape any quotes inside strings."""
 
         prompt = f"""Analyze this narrative and extract:
 
 LORE:
 {self.lore}
 
-Extract as JSON:
+Extract as JSON (use double quotes, escape internal quotes):
 {{
   "agents": ["list of characters/robots/entities that can act"],
   "locations": ["list of places"],
@@ -182,7 +183,10 @@ Extract as JSON:
   "goal_facts": ["desired final state", ...]
 }}
 
-IMPORTANT: Be concrete and specific. Extract actual names from the lore.
+IMPORTANT: 
+- Be concrete and specific. Extract actual names from the lore.
+- Use ONLY double quotes in JSON
+- Replace single quotes with double quotes if needed
 OUTPUT ONLY JSON:"""
 
         response = call_ollama(prompt, system_prompt)
@@ -196,6 +200,12 @@ OUTPUT ONLY JSON:"""
             response = re.sub(r'```json\n?', '', response)
             response = re.sub(r'```\n?', '', response)
 
+            # FIX: Gestisci apostrofi e quote problematiche
+            # Sostituisci apostrofi singoli con escaped se dentro stringhe JSON
+            response = response.replace("\\'", "'")  # Rimuovi escape già presenti
+            response = response.replace("'", "\\'")  # Re-escape per JSON
+
+            # Prova parsing
             data = json.loads(response)
 
             # Valida struttura
@@ -204,17 +214,56 @@ OUTPUT ONLY JSON:"""
                 return self._fallback_extraction()
 
             # Log per debug
-            logger.info(f"Entità estratte dall'LLM: {json.dumps(data, indent=2)}")
+            logger.info(f"✓ JSON parsato correttamente")
+            logger.debug(f"Entità estratte: {json.dumps(data, indent=2)}")
 
             return data
 
         except json.JSONDecodeError as e:
             logger.warning(f"JSON parsing fallito: {e}")
             logger.warning(f"Response LLM: {response[:200]}...")
+
+            # Prova fix automatico per JSON malformato
+            try:
+                fixed_json = self._try_fix_json(response)
+                if fixed_json:
+                    logger.info("✓ JSON riparato con successo")
+                    return fixed_json
+            except:
+                pass
+
             return self._fallback_extraction()
         except Exception as e:
             logger.error(f"Errore inaspettato: {e}")
             return self._fallback_extraction()
+
+    def _try_fix_json(self, broken_json: str) -> Optional[Dict]:
+        """Tenta di riparare JSON malformato"""
+        import ast
+
+        # Rimuovi trailing comma
+        broken_json = re.sub(r',\s*([}\]])', r'\1', broken_json)
+
+        # Sostituisci apostrofi singoli con doppi (ma non quelli dentro stringhe)
+        # Questo è un fix aggressivo ma spesso funziona
+        broken_json = broken_json.replace("'", '"')
+
+        try:
+            return json.loads(broken_json)
+        except:
+            # Ultimo tentativo: eval Python (pericoloso ma controllato)
+            try:
+                # Rimuovi possibili problemi
+                broken_json = broken_json.strip()
+                if broken_json.startswith('{') and broken_json.endswith('}'):
+                    # Usa ast.literal_eval che è più sicuro di eval
+                    data = ast.literal_eval(broken_json)
+                    if isinstance(data, dict):
+                        return data
+            except:
+                pass
+
+        return None
 
     def _fallback_extraction(self) -> Dict:
         """Estrazione regex-based se LLM fallisce"""
@@ -227,30 +276,58 @@ OUTPUT ONLY JSON:"""
         seen = set()
         unique_entities = []
         for e in entities:
-            if e.lower() not in seen:
-                seen.add(e.lower())
+            e_lower = e.lower()
+            # Ignora parole comuni
+            if e_lower not in seen and e_lower not in {'the', 'a', 'an', 'i', 'you', 'he', 'she'}:
+                seen.add(e_lower)
                 unique_entities.append(e)
 
         # Estrai location keywords
-        location_keywords = ['room', 'hall', 'chamber', 'cave', 'forest', 'castle', 'town', 'village']
+        location_keywords = ['tower', 'room', 'hall', 'chamber', 'cave', 'forest',
+                             'castle', 'town', 'village', 'lab', 'laboratory', 'shop',
+                             'square', 'market', 'street', 'avenue', 'plaza']
         locations = []
+
         for keyword in location_keywords:
-            matches = re.findall(rf'\b(\w+\s+{keyword}|{keyword}\s+\w+)\b', self.lore, re.IGNORECASE)
-            locations.extend(matches[:2])
+            # Cerca pattern "Nome + keyword" o "keyword + Nome"
+            pattern = rf'\b([A-Z][\w\s]*{keyword}|{keyword}[\w\s]*[A-Z]\w*)\b'
+            matches = re.findall(pattern, self.lore, re.IGNORECASE)
+            for match in matches[:2]:  # Max 2 per keyword
+                cleaned = match.strip()
+                if len(cleaned) > 3 and cleaned not in locations:
+                    locations.append(cleaned)
 
+        # Se non troviamo location con pattern, usa entità come location
+        if not locations and unique_entities:
+            locations = unique_entities[:4]
+
+        # Fallback assoluto
         if not locations:
-            locations = ['location1', 'location2', 'location3', 'location4']
+            locations = ['start_location', 'middle_location', 'destination', 'secret_place']
 
-        agents = unique_entities[:2] if unique_entities else ['hero', 'character']
+        # Agenti: primi 2-3 nomi propri non usati come location
+        agents = [e for e in unique_entities if e not in locations][:3]
+        if not agents:
+            agents = ['hero', 'protagonist']
 
-        return {
+        # Connessioni: crea grafo lineare
+        connections = []
+        if len(locations) > 1:
+            connections = [[locations[i], locations[i + 1]] for i in range(min(3, len(locations) - 1))]
+
+        result = {
             "agents": agents,
-            "locations": locations[:4],
-            "objects": ["item1", "item2"],
-            "connections": [[locations[i], locations[i + 1]] for i in range(min(3, len(locations) - 1))],
+            "locations": locations[:4],  # Max 4 location
+            "objects": ["key", "map"],  # Default objects
+            "connections": connections,
             "initial_facts": [],
             "goal_facts": []
         }
+
+        logger.info(f"✓ Fallback extraction: {len(result['agents'])} agents, "
+                    f"{len(result['locations'])} locations, {len(result['connections'])} connections")
+
+        return result
 
     def match_template(self) -> DomainTemplate:
         """Seleziona il template più adatto al lore"""
@@ -329,10 +406,18 @@ class TemplatePDDLGenerator:
         locations = self._normalize_to_strings(locations)
         objects = self._normalize_to_strings(objects)
 
+        # Assicura almeno 2 location
+        if len(locations) < 2:
+            logger.warning(f"⚠️ Solo {len(locations)} location trovate, aggiungo default")
+            locations.extend([f'location{i}' for i in range(2 - len(locations))])
+
         # Sanitizza nomi (rimuovi spazi, lowercase)
         agents = [self._sanitize_name(a) for a in agents]
         locations = [self._sanitize_name(l) for l in locations]
         objects = [self._sanitize_name(o) for o in objects]
+
+        # CRITICAL: Pre-calcola connessioni (necessario per objects section)
+        self._cached_connections = self._get_connections(locations)
 
         # Costruisci :objects basato sul template
         objects_section = self._build_objects_section(agents, locations, objects)
@@ -417,12 +502,22 @@ class TemplatePDDLGenerator:
   )"""
 
         elif self.template.domain_name == "keys-doors":
-            keys = objects[:2] if objects else ["key1"]
-            doors = [f"door{i}" for i in range(len(locations) - 1)]
+            # CRITICAL FIX: genera chiavi e porte in modo intelligente
+            connections = self._get_connections(locations)
+
+            # Numero di chiavi = numero connessioni - 1 (una connessione libera)
+            keys_needed = max(1, len(set(connections)) // 2 - 1)  # Diviso 2 perché bidirezionali
+            keys = objects[:keys_needed] if len(objects) >= keys_needed else [f"key{i}" for i in range(keys_needed)]
+
+            # Numero porte = numero connessioni uniche
+            num_doors = len(set(connections)) // 2
+            doors = [f"door{i}" for i in range(num_doors)]
+
+            logger.info(f"✓ Objects: {len(locations)} locations, 1 agent, {len(keys)} keys, {len(doors)} doors")
 
             return f"""(:objects
     {' '.join(locations)} - location
-    {' '.join(agents[:1])} - agent
+    {agents[0]} - agent
     {' '.join(keys)} - key
     {' '.join(doors)} - door
   )"""
@@ -430,7 +525,7 @@ class TemplatePDDLGenerator:
         return "(:objects )"
 
     def _build_init_section(self, agents, locations, objects) -> str:
-        """Costruisce stato iniziale"""
+        """Costruisce stato iniziale usando i fatti estratti dall'LLM"""
 
         init_facts = []
 
@@ -438,72 +533,201 @@ class TemplatePDDLGenerator:
             vehicles = agents[:2] if len(agents) >= 2 else agents
             packages = objects[:3] if objects else ["package1"]
 
-            # Veicoli alle prime locations
+            # Usa initial_facts se disponibili
+            agent_positions = self._extract_agent_positions()
+
+            # Veicoli alle posizioni estratte o default
             for i, v in enumerate(vehicles):
-                init_facts.append(f"    (at {v} {locations[i % len(locations)]})")
+                pos = agent_positions.get(v, locations[i % len(locations)])
+                init_facts.append(f"    (at {v} {pos})")
 
             # Packages all'ultima location
             for p in packages:
                 init_facts.append(f"    (at {p} {locations[-1]})")
 
-            # Connessioni
-            for i in range(len(locations) - 1):
-                init_facts.append(f"    (connected {locations[i]} {locations[i + 1]})")
-                init_facts.append(f"    (connected {locations[i + 1]} {locations[i]})")
+            # Usa connessioni estratte dall'LLM
+            connections = self._get_connections(locations)
+            for from_loc, to_loc in connections:
+                init_facts.append(f"    (connected {from_loc} {to_loc})")
 
         elif self.template.domain_name == "grid-navigation":
-            # Agente alla prima posizione
-            init_facts.append(f"    (at {agents[0]} {locations[0]})")
+            agent_positions = self._extract_agent_positions()
+            start_pos = agent_positions.get(agents[0], locations[0])
 
-            # Tutte le posizioni clear tranne la prima
-            for loc in locations[1:]:
-                init_facts.append(f"    (clear {loc})")
+            # Agente alla posizione estratta
+            init_facts.append(f"    (at {agents[0]} {start_pos})")
 
-            # Goal position
-            init_facts.append(f"    (goal-pos {locations[-1]})")
+            # Tutte le altre posizioni clear
+            for loc in locations:
+                if loc != start_pos:
+                    init_facts.append(f"    (clear {loc})")
 
-            # Adiacenze
-            for i in range(len(locations) - 1):
-                init_facts.append(f"    (adjacent {locations[i]} {locations[i + 1]})")
-                init_facts.append(f"    (adjacent {locations[i + 1]} {locations[i]})")
+            # Goal position dall'LLM o default
+            goal_pos = self._extract_goal_location() or locations[-1]
+            init_facts.append(f"    (goal-pos {goal_pos})")
+
+            # Usa connessioni estratte
+            connections = self._get_connections(locations)
+            for from_loc, to_loc in connections:
+                init_facts.append(f"    (adjacent {from_loc} {to_loc})")
 
         elif self.template.domain_name == "keys-doors":
-            keys = objects[:2] if objects else ["key1"]
-            doors = [f"door{i}" for i in range(len(locations) - 1)]
+            # CRITICAL FIX: Rendi il problema SEMPRE risolvibile
 
-            # Agente alla prima location
-            init_facts.append(f"    (at {agents[0]} {locations[0]})")
+            # 1. Posizione iniziale agente
+            agent_positions = self._extract_agent_positions()
+            start_pos = agent_positions.get(agents[0], locations[0])
+            init_facts.append(f"    (at {agents[0]} {start_pos})")
 
-            # Chiavi sparse
-            for i, k in enumerate(keys):
-                init_facts.append(f"    (key-at {k} {locations[i % len(locations)]})")
+            # 2. Ottieni connessioni reali dall'LLM
+            connections = self._get_connections(locations)
 
-            # Porte tra locations
-            for i, d in enumerate(doors):
-                init_facts.append(f"    (door-between {d} {locations[i]} {locations[i + 1]})")
-                init_facts.append(f"    (locked {d})")
-                # Ogni chiave sblocca la porta corrispondente
-                if i < len(keys):
-                    init_facts.append(f"    (unlocks {keys[i]} {d})")
+            # Se non ci sono connessioni, crea una topologia semplice
+            if not connections:
+                logger.warning("⚠️ Nessuna connessione estratta, creo topologia lineare")
+                connections = [(locations[i], locations[i + 1]) for i in range(len(locations) - 1)]
+
+            # 3. Genera chiavi e porte SOLO per connessioni che ne hanno bisogno
+            # Strategia: lascia almeno UN percorso senza porte (per garantire risolvibilità)
+            keys_needed = max(1, len(connections) - 1)  # -1 per lasciare un percorso libero
+            keys = objects[:keys_needed] if objects else [f"key{i}" for i in range(keys_needed)]
+
+            # 4. Crea porte solo per ALCUNE connessioni (non tutte)
+            doors_created = 0
+            free_connection_created = False
+
+            for i, (from_loc, to_loc) in enumerate(connections):
+                door_name = f"door{i}"
+
+                # Prima connessione SEMPRE libera (senza porta) per garantire movimento iniziale
+                if not free_connection_created:
+                    init_facts.append(f"    (door-between {door_name} {from_loc} {to_loc})")
+                    # Porta NON locked (o non crearla proprio)
+                    free_connection_created = True
+                elif doors_created < keys_needed:
+                    # Aggiungi porta locked solo se abbiamo chiavi
+                    init_facts.append(f"    (door-between {door_name} {from_loc} {to_loc})")
+                    init_facts.append(f"    (locked {door_name})")
+
+                    # Associa chiave a porta
+                    key = keys[doors_created]
+                    init_facts.append(f"    (unlocks {key} {door_name})")
+
+                    # Posiziona chiave in una location accessibile
+                    # CRITICAL: la chiave deve essere raggiungibile PRIMA della porta
+                    key_location = from_loc if from_loc != start_pos else locations[0]
+                    init_facts.append(f"    (key-at {key} {key_location})")
+
+                    doors_created += 1
+                else:
+                    # Altre porte senza lock
+                    init_facts.append(f"    (door-between {door_name} {from_loc} {to_loc})")
+
+            logger.info(f"✓ Template keys-doors: {len(keys)} chiavi, {doors_created} porte locked, "
+                        f"percorso iniziale libero da {start_pos}")
 
         return "\n".join(init_facts)
 
+    def _extract_agent_positions(self) -> Dict[str, str]:
+        """Estrae posizioni iniziali agenti dai fatti LLM"""
+        positions = {}
+
+        initial_facts = self.entities.get('initial_facts', [])
+        for fact in initial_facts:
+            if isinstance(fact, dict):
+                agent = fact.get('agent', '')
+                location = fact.get('location', '')
+                if agent and location:
+                    agent_clean = self._sanitize_name(agent)
+                    loc_clean = self._sanitize_name(location)
+                    positions[agent_clean] = loc_clean
+
+        return positions
+
+    def _extract_goal_location(self) -> Optional[str]:
+        """Estrae location goal dai fatti LLM"""
+        goal_facts = self.entities.get('goal_facts', [])
+
+        for fact in goal_facts:
+            if isinstance(fact, dict):
+                # Cerca keyword di location nei goal
+                fact_text = str(fact).lower()
+                for loc in self.entities.get('locations', []):
+                    loc_name = loc if isinstance(loc, str) else loc.get('name', '')
+                    if loc_name.lower() in fact_text:
+                        return self._sanitize_name(loc_name)
+
+        return None
+
+    def _get_connections(self, locations: List[str]) -> List[Tuple[str, str]]:
+        """Estrae connessioni reali dall'LLM o genera fallback intelligente"""
+        connections_list = []
+
+        # Prova a usare connessioni estratte
+        connections_raw = self.entities.get('connections', [])
+
+        for conn in connections_raw:
+            if isinstance(conn, list) and len(conn) >= 2:
+                from_loc = conn[0] if isinstance(conn[0], str) else conn[0].get('name', '')
+                to_loc = conn[1] if isinstance(conn[1], str) else conn[1].get('name', '')
+
+                if from_loc and to_loc:
+                    from_clean = self._sanitize_name(from_loc)
+                    to_clean = self._sanitize_name(to_loc)
+
+                    # Aggiungi connessione bidirezionale
+                    connections_list.append((from_clean, to_clean))
+                    connections_list.append((to_clean, from_clean))
+
+        # Se non ci sono connessioni estratte, crea grafo connesso minimo
+        if not connections_list and len(locations) > 1:
+            logger.warning("⚠️ Creando connessioni fallback")
+            # Crea un percorso che connette tutte le location
+            for i in range(len(locations) - 1):
+                connections_list.append((locations[i], locations[i + 1]))
+                connections_list.append((locations[i + 1], locations[i]))
+
+        # Rimuovi duplicati
+        connections_list = list(set(connections_list))
+
+        logger.info(f"✓ Connessioni: {len(connections_list) // 2} bidirezionali")
+        return connections_list
+
     def _build_goal_section(self, agents, locations, objects) -> str:
-        """Costruisce goal"""
+        """Costruisce goal usando fatti estratti dall'LLM"""
 
         if self.template.domain_name == "logistics":
             packages = objects[:3] if objects else ["package1"]
-            # Goal: tutti i package alla prima location
-            goals = [f"(at {p} {locations[0]})" for p in packages]
+
+            # Cerca goal location nei fatti LLM
+            goal_location = self._extract_goal_location()
+            if not goal_location:
+                # Fallback: prima location (delivery)
+                goal_location = locations[0]
+
+            # Goal: tutti i package alla location di destinazione
+            goals = [f"(at {p} {goal_location})" for p in packages]
             return f"    (and {' '.join(goals)})"
 
         elif self.template.domain_name == "grid-navigation":
-            # Goal: agente alla goal-pos
-            return f"    (at {agents[0]} {locations[-1]})"
+            # Goal: agente alla goal-pos (già definita in init)
+            goal_location = self._extract_goal_location() or locations[-1]
+            return f"    (at {agents[0]} {goal_location})"
 
         elif self.template.domain_name == "keys-doors":
-            # Goal: agente all'ultima location
-            return f"    (at {agents[0]} {locations[-1]})"
+            # Goal: agente raggiunge location di destinazione
+            goal_location = self._extract_goal_location()
+
+            if not goal_location:
+                # Fallback intelligente: location più lontana dalla start
+                agent_positions = self._extract_agent_positions()
+                start_pos = agent_positions.get(agents[0], locations[0])
+
+                # Prendi una location diversa dalla start
+                goal_location = locations[-1] if locations[-1] != start_pos else locations[0]
+
+            logger.info(f"✓ Goal: {agents[0]} deve raggiungere {goal_location}")
+            return f"    (at {agents[0]} {goal_location})"
 
         return "    (and )"
 
@@ -543,6 +767,8 @@ class FastDownwardValidator:
 
         try:
             logger.info("⏳ Validazione Fast Downward...")
+            logger.debug(f"   Comando: {' '.join(cmd)}")
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -554,7 +780,14 @@ class FastDownwardValidator:
 
             output = result.stdout + "\n" + result.stderr
 
-            if "Solution found!" in output:
+            # Log completo per debug
+            logger.debug("=" * 60)
+            logger.debug("OUTPUT FAST DOWNWARD:")
+            logger.debug(output)
+            logger.debug("=" * 60)
+
+            # Controlla se ha trovato soluzione
+            if "Solution found!" in output or "Plan found!" in output:
                 # Cerca il piano in diverse posizioni possibili
                 possible_locations = [
                     self.fd_path.parent / "sas_plan",
@@ -566,10 +799,12 @@ class FastDownwardValidator:
                 plan_found_at = None
 
                 for plan_path in possible_locations:
+                    logger.debug(f"Cercando piano in: {plan_path}")
                     if plan_path.exists():
                         with open(plan_path, 'r') as f:
                             plan_content = f.read()
                         plan_found_at = plan_path
+                        logger.debug(f"✓ Piano trovato in: {plan_found_at}")
                         break
 
                 if plan_content:
@@ -590,14 +825,32 @@ class FastDownwardValidator:
                     return True, plan_content, output
                 else:
                     logger.warning("⚠️ Soluzione trovata ma file sas_plan non trovato")
+                    logger.warning(f"   Cercato in: {[str(p) for p in possible_locations]}")
                     return True, "Soluzione trovata (file piano non disponibile)", output
 
-            return False, self._extract_errors(output), output
+            # Non ha trovato soluzione - estrai errori
+            error_msg = self._extract_errors(output)
+
+            # Se non abbiamo estratto nulla di utile, ritorna l'output completo troncato
+            if error_msg == "Errore sconosciuto":
+                # Prendi le ultime 50 righe dell'output per avere il contesto
+                output_lines = output.split('\n')
+                relevant_output = '\n'.join(output_lines[-50:])
+                error_msg = f"Fast Downward fallito. Ultime righe output:\n{relevant_output}"
+
+                # Log completo per debug
+                logger.error("OUTPUT COMPLETO FAST DOWNWARD:")
+                logger.error(output)
+
+            return False, error_msg, output
 
         except subprocess.TimeoutExpired:
-            return False, "Timeout (120s)", ""
+            return False, "Timeout (120s) - problema troppo complesso", ""
+        except FileNotFoundError as e:
+            return False, f"Fast Downward non trovato: {e}", ""
         except Exception as e:
-            return False, f"Errore: {e}", ""
+            logger.exception("Errore durante validazione Fast Downward")
+            return False, f"Errore esecuzione: {e}", ""
 
     def _extract_errors(self, output: str) -> str:
         """Estrae errori rilevanti"""

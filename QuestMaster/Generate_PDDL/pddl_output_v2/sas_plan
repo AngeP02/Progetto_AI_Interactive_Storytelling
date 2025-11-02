@@ -1,4 +1,0 @@
-(move nova new_eden_city_center the_undercity)
-(move nova the_undercity omicron_tower)
-(move nova omicron_tower raven_s_peak)
-; cost = 3 (unit cost)

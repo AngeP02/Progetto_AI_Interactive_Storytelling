@@ -1,45 +1,46 @@
-# Documento di Lore: Lost in a world where clouds have taken over the skies, and your journey is to find the last remaining sunbeam.
+# Documento di Lore: A lone astronaut must repair a malfunctioning space station while navigating a series of bizarre, interconnected dreams.
 
-**Genere:** Surrealist Fantasy | **Tono:** Whimsical Desperation | **Lunghezza:** Medium (5-10 min)
+**Genere:** Surreal Space Opera | **Tono:** Mysterious with hints of Dark Humor | **Lunghezza:** Medium (5-10 min)
 
 ---
 
-**Surrealist Fantasy: Lost in the Clouded Skies**
+## Contesto Iniziale
+In the distant reaches of the galaxy, humanity's last hope for survival lies in the Celestial Horizon Initiative (CHI), a network of interconnected space stations and habitats. The CHI is home to a diverse array of scientists, engineers, and explorers who work tirelessly to uncover the secrets of the cosmos.
 
-### Contesto Iniziale
+However, when the main power source of the CHI's central hub, the Helios Station, begins to malfunction, all hell breaks loose. The station's AI, ECHO, alerts the authorities, but before they can send a rescue team, the Helios Station plunges into darkness.
 
-The world of Zha'thik was once bathed in warm sunlight, but now it's a realm of perpetual twilight. A mysterious phenomenon known as "The Great Shift" has caused the skies to darken, and clouds have taken over, suffocating the land. The once-vibrant colors of nature have dulled, replaced by an endless gray-blue haze that seems to stretch on forever. As the sun's rays grew fainter, the world's inhabitants began to lose hope.
+You are an experienced astronaut who has been sent to repair the Helios Station. As you approach the station, you notice that the atmosphere around it seems... off. The once-clear skies are now filled with strange, swirling clouds that seem to be watching you.
 
-The Great Shift has also brought about a curious side effect: reality itself has become... flexible. The laws of physics are no longer absolute, and the fabric of space-time is torn asunder. Portals to other realms have opened, allowing creatures from beyond Zha'thik's skies to pour in, further complicating the situation.
+## Personaggi Principali (Giocatore e PNG chiave)
+You play as Dr. Sophia Patel, a brilliant and resourceful astronaut who has been tasked with repairing the Helios Station. Your expertise in astro-engineering and your no-nonsense attitude make you the perfect candidate for this mission.
 
-### Personaggi Principali
+The key NPC is ECHO, the AI that controls the Helios Station. ECHO's personality is a blend of helpfulness and sarcasm, making her a trusted ally but also a potential nemesis. As you navigate the station, you'll encounter other CHI personnel who may aid or hinder your progress.
 
-**The Lost One**: You, the protagonist, find yourself in this desolate world with no memory of who you are or how you arrived. Your journey begins in a dingy, cloud-shrouded tavern called "The Last Rays." The bartender, a wise-cracking wisecracker named Puck, becomes your first contact.
+## Fazioni/Gruppi di Interesse
+There are several factions at play in this story:
 
-**Puck**: A mischievous sprite who's been watching the world fall apart since The Great Shift. He possesses ancient knowledge and has a knack for poking holes in the fabric of reality. Puck is fiercely protective of his favorite patrons and will stop at nothing to help you uncover the secrets of Zha'thik.
+1. **The Celestial Horizon Initiative (CHI)**: The organization that runs the space stations and habitats.
+2. **The Helios Station's AI, ECHO**: ECHO is a key player in the story, as she controls the station's systems and provides crucial information to you.
+3. **The Mysterious Forces**: Unknown entities that seem to be manipulating events on the Helios Station. Their true nature and motives are unclear.
 
-### Fazioni/Gruppi di Interesse
+## Luoghi Chiave
+1. **Helios Station**: The central hub of the CHI, where you'll spend most of your time repairing systems and navigating strange dreams.
+2. **The Celestial Horizon Initiative's (CHI) headquarters**: A distant planet or moon that serves as the command center for the CHI.
+3. **The Dreamscape**: A mysterious realm that exists parallel to reality, where you'll encounter bizarre creatures and scenarios.
 
-**The Cloud Cult**: A group of zealous fanatics who believe The Great Shift is a sign of divine intervention. They seek to harness the power of the clouds, using ancient rituals and arcane technology to bend reality to their will. The Cloud Cult sees you as a potential pawn in their plans.
+## Obiettivi Iniziali
+Your primary objective is to repair the Helios Station's power source and restore functionality to its systems. As you navigate the station, you'll uncover clues about the malfunction and the true nature of the mysterious forces at work.
 
-**The Portal Watchers**: A secretive organization dedicated to monitoring and closing portals to other realms. These vigilant guardians are determined to keep Zha'thik's skies free from unwanted interlopers, but they're also desperate for answers about The Great Shift.
+## Branching Factor (minimo e massimo)
+**Minimum:** 3-4 possible choices for each major decision
+**Maximum:** 6-8 possible choices for each major decision
 
-**The Last Rays Tavern Regulars**: A motley crew of survivors, each with their own unique stories and motivations. They'll offer guidance, gossip, or even betrayal as you navigate the treacherous landscape.
+The branching factor is designed to provide a sense of agency while still maintaining the medium-level complexity required by the PDDL system. The player's choices will influence the story, but the overall narrative will remain coherent and engaging.
 
-### Luoghi Chiave
+## Depth Constraints (minimo e massimo)
+**Minimum:** 3-4 levels of depth for each decision (e.g., short-term vs. long-term consequences)
+**Maximum:** 5-6 levels of depth for each decision
 
-**The Last Rays Tavern**: Your starting point in the world of Zha'thik. This dingy tavern is a hub for rumors, whispers, and shady deals. Puck's wisecracking persona keeps the atmosphere light, but don't be fooled – the stakes are high.
+The depth constraints ensure that the player's choices have meaningful implications, but also provide a sense of clarity and understanding about the consequences of their actions.
 
-**Cloudhaven**: The Cloud Cult's stronghold, hidden deep within the swirling clouds. It's rumored that their leader, the enigmatic Cloud Queen, possesses the secrets of The Great Shift and can manipulate reality to a shocking degree.
-
-**The Wandering Isles**: A mystical archipelago where portals to other realms have opened. The Isles are home to creatures from beyond Zha'thik, each with their own agendas and motivations. Be prepared for unpredictable adventures and treacherous alliances.
-
-### Obiettivi Iniziali
-
-As you set out on your journey, your primary objectives are:
-
-1. **Find Puck's Missing Friend**: Puck has lost contact with his closest friend, a skilled explorer named Luna. Her last known location was near the Wandering Isles.
-2. **Uncover the Secrets of The Last Rays Tavern**: Rumors swirl about hidden rooms and mysterious artifacts within the tavern. Uncovering its secrets could lead to powerful allies or formidable foes.
-3. **Locate the Cloud Queen's Throne Room**: Your journey will take you to Cloudhaven, where you'll face the enigmatic Cloud Queen. She might hold the key to reversing The Great Shift or manipulating reality for your own gain.
-
-Embark on this whimsical quest, navigating the blurred lines between reality and madness as you search for the last remaining sunbeam in a world consumed by clouds. Will you find hope in this desolate landscape, or succumb to the whims of fate?
+With this setup, the player will embark on a surreal journey to repair the Helios Station while navigating strange dreams and uncovering the secrets behind the malfunction. The mysterious forces at work will challenge your perception of reality, and the choices you make will determine the outcome of the story.
