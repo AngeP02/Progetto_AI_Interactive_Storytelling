@@ -305,6 +305,11 @@
             <h2>📜 Editor Lore</h2>
             <div id="loreEditor"></div>
         </div>
+        <div class="section">
+            <h2>✏️ Modifica Nomi</h2>
+            <p>Puoi rinominare i personaggi e i luoghi (solo i nomi, non la struttura):</p>
+            <div class="name-editor" id="nameEditor"></div>
+        </div>
 
         <!-- PDDL VIEWER -->
         <div class="section">
@@ -329,7 +334,7 @@
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="goBack()">← Indietro</button>
             <button class="btn btn-primary" onclick="regenerate()">🔄 Rigenera Piano</button>
-            <button class="btn btn-success" onclick="startQuest()">▶️ Inizia Quest!</button>
+            <button class="btn btn-success" onclick="generateGame()">🎮 Genera Gioco!</button>
         </div>
     </div>
 
@@ -469,7 +474,34 @@
                 alert('❌ Errore di connessione: ' + error.message);
             }
         }
+        async function generateGame() {
+            const confirmMsg = "Sei sicuro di voler generare il gioco? Questo processo può richiedere alcuni minuti.";
+            if (!confirm(confirmMsg)) return;
 
+            showLoading('🎮 Generazione del gioco interattivo in corso...');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/generate-game`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({session_id: sessionId})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    hideLoading();
+                    alert('✅ Gioco generato con successo!');
+                    window.location.href = data.game_url;
+                } else {
+                    hideLoading();
+                    alert('❌ Errore: ' + data.error);
+                }
+            } catch (error) {
+                hideLoading();
+                alert('❌ Errore di connessione: ' + error.message);
+            }
+        }
         function showReflectionSuggestions(suggestions) {
             const container = document.getElementById('reflectionSuggestions');
             const list = document.getElementById('suggestionsList');

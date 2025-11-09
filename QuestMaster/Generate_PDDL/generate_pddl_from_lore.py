@@ -110,7 +110,7 @@ def call_ollama(prompt, system_prompt="", temperature=0.7, num_predict=500):
         }
     }
     try:
-        response = requests.post(OLLAMA_URL, json=payload, timeout=500)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=900)
         response.raise_for_status()
         result = response.json()
         return result.get('response', '').strip()

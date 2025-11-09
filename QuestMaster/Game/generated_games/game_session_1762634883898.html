@@ -1,146 +1,4 @@
-# File: QuestMaster/Game/HTMLGenerator.py
-
-from pathlib import Path
-import json
-import logging
-from typing import Dict
-
-logger = logging.getLogger(__name__)
-
-
-class InteractiveGameGenerator:
-    """Genera l'HTML del gioco interattivo"""
-
-    def __init__(self, states: Dict, graph: Dict, narratives: Dict, config: Dict):
-        self.states = states
-        self.graph = graph
-        self.narratives = narratives
-        self.config = config
-
-    def generate_game_html(self, output_path: Path):
-        """Genera il file HTML completo del gioco"""
-        logger.info("🌐 Generazione HTML del gioco...")
-
-        # Prepara i dati per JavaScript
-        game_data = self._prepare_game_data()
-
-        # Genera HTML
-        html_content = self._get_html_template()
-
-        # Inietta i dati del gioco
-        html_content = html_content.replace(
-            '/* GAME_DATA_PLACEHOLDER */',
-            f'const GAME_DATA = {json.dumps(game_data, indent=2, ensure_ascii=False)};'
-        )
-
-        # Salva file
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-
-        logger.info(f"✓ HTML generato: {output_path}")
-
-    def _prepare_game_data(self) -> Dict:
-        """Prepara la struttura dati per il gioco JavaScript"""
-
-        # Se states contiene StoryNode (dalla nuova pipeline), usa quello
-        if self.states and hasattr(next(iter(self.states.values())), 'narrative'):
-            return self._prepare_narrative_game_data()
-
-        # Altrimenti usa il vecchio sistema PDDL
-        return self._prepare_pddl_game_data()
-
-    def _prepare_narrative_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su storia narrativa"""
-
-        # Trova il primo nodo (assume che il primo sia l'iniziale)
-        first_node_id = next(iter(self.states.keys())) if self.states else 'scene_1'
-
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': first_node_id,
-            'nodes': {}
-        }
-
-        for node_id, node in self.states.items():
-            # Gestisci sia StoryNode objects che dict
-            if hasattr(node, 'id'):  # È un oggetto StoryNode
-                game_data['nodes'][node_id] = {
-                    'id': node.id,
-                    'title': node.title,
-                    'narrative': node.narrative,
-                    'is_ending': node.is_ending,
-                    'ending_type': node.ending_type if node.is_ending else '',
-                    'choices': [
-                        {
-                            'text': choice.get('text', '') if isinstance(choice, dict) else choice,
-                            'next_node': choice.get('next_node', '') if isinstance(choice, dict) else ''
-                        }
-                        for choice in node.choices
-                    ]
-                }
-            else:  # È già un dict (fallback)
-                game_data['nodes'][node_id] = {
-                    'id': node.get('id', node_id),
-                    'title': node.get('title', 'Capitolo'),
-                    'narrative': node.get('narrative', 'Descrizione non disponibile'),
-                    'is_ending': node.get('is_ending', False),
-                    'ending_type': node.get('ending_type', ''),
-                    'choices': node.get('choices', [])
-                }
-
-        return game_data
-
-    def _prepare_pddl_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su PDDL (vecchio sistema)"""
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': 'state_0',
-            'nodes': {}
-        }
-
-        for state_id, state in self.states.items():
-            narrative = self.narratives.get(state_id, {})
-            edges = self.graph.get(state_id, [])
-
-            game_data['nodes'][state_id] = {
-                'id': state_id,
-                'title': f"Capitolo {state_id}",
-                'narrative': narrative.get('description', 'Descrizione non disponibile.'),
-                'is_ending': state.is_goal,
-                'ending_type': 'victory' if state.is_goal else '',
-                'choices': []
-            }
-
-            narrative_choices = narrative.get('choices', [])
-
-            for i, edge in enumerate(edges):
-                choice_data = {
-                    'next_node': edge['next_state']
-                }
-
-                if i < len(narrative_choices):
-                    choice_data['text'] = narrative_choices[i].get('text', f"Esegui {edge['action']['name']}")
-                else:
-                    choice_data['text'] = f"Esegui {edge['action']['name']}"
-
-                game_data['nodes'][state_id]['choices'].append(choice_data)
-
-        return game_data
-
-    def _get_html_template(self) -> str:
-        """Ritorna il template HTML del gioco"""
-        return '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -207,26 +65,11 @@ class InteractiveGameGenerator:
         }
 
         .narrative-text {
-            font-size: 1.15em;
-            line-height: 1.9;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            text-align: justify;
-            white-space: pre-wrap;
-            font-family: 'Georgia', serif;
-        }
-
-        .narrative-text p {
-            margin-bottom: 1.2em;
-        }
-
-        .chapter-title {
-            font-size: 1.8em;
-            color: #5eb7ca;
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #333;
             margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            text-transform: capitalize;
+            text-align: justify;
         }
 
         .choices-section {
@@ -425,7 +268,234 @@ class InteractiveGameGenerator:
     </div>
 
     <script>
-        /* GAME_DATA_PLACEHOLDER */
+        const GAME_DATA = {
+  "config": {
+    "title": "In a gritty future, solve the murder of a reclusive AI artist in a rain-soaked metropolis",
+    "genre": "Cyberpunk Noir",
+    "tone": "Darkly Humorous",
+    "graphics": "Illustrated"
+  },
+  "initial_state": "state_0",
+  "states": {
+    "state_0": {
+      "id": "state_0",
+      "is_goal": false,
+      "description": "Ti trovi in un punto cruciale della tua avventura. devi decidere come procedere.",
+      "choices": [
+        {
+          "action": "load",
+          "next_state": "state_1",
+          "is_main_path": true,
+          "text": "Esegui l'azione: load"
+        },
+        {
+          "action": "move",
+          "next_state": "state_0_alt_move",
+          "is_main_path": false,
+          "text": "Ti dirigi verso from"
+        },
+        {
+          "action": "unload",
+          "next_state": "state_0_alt_unload",
+          "is_main_path": false,
+          "text": "Esegui l'azione: unload"
+        }
+      ]
+    },
+    "state_1": {
+      "id": "state_1",
+      "is_goal": false,
+      "description": "Ti trovi in un punto cruciale della tua avventura. Dopo aver eseguito load, devi decidere come procedere.",
+      "choices": [
+        {
+          "action": "move",
+          "next_state": "state_2",
+          "is_main_path": true,
+          "text": "Ti dirigi verso warehouse"
+        },
+        {
+          "action": "load",
+          "next_state": "state_1_alt_load",
+          "is_main_path": false,
+          "text": "Esegui l'azione: load"
+        },
+        {
+          "action": "unload",
+          "next_state": "state_1_alt_unload",
+          "is_main_path": false,
+          "text": "Esegui l'azione: unload"
+        }
+      ]
+    },
+    "state_2": {
+      "id": "state_2",
+      "is_goal": false,
+      "description": "Ti trovi in un punto cruciale della tua avventura. Dopo aver eseguito move, devi decidere come procedere.",
+      "choices": [
+        {
+          "action": "load",
+          "next_state": "state_3",
+          "is_main_path": true,
+          "text": "Esegui l'azione: load"
+        },
+        {
+          "action": "move",
+          "next_state": "state_2_alt_move",
+          "is_main_path": false,
+          "text": "Ti dirigi verso from"
+        },
+        {
+          "action": "unload",
+          "next_state": "state_2_alt_unload",
+          "is_main_path": false,
+          "text": "Esegui l'azione: unload"
+        }
+      ]
+    },
+    "state_3": {
+      "id": "state_3",
+      "is_goal": false,
+      "description": "Ti trovi in un punto cruciale della tua avventura. Dopo aver eseguito load, devi decidere come procedere.",
+      "choices": [
+        {
+          "action": "move",
+          "next_state": "state_4",
+          "is_main_path": true,
+          "text": "Ti dirigi verso depot"
+        },
+        {
+          "action": "load",
+          "next_state": "state_3_alt_load",
+          "is_main_path": false,
+          "text": "Esegui l'azione: load"
+        },
+        {
+          "action": "unload",
+          "next_state": "state_3_alt_unload",
+          "is_main_path": false,
+          "text": "Esegui l'azione: unload"
+        }
+      ]
+    },
+    "state_4": {
+      "id": "state_4",
+      "is_goal": false,
+      "description": "Ti trovi in un punto cruciale della tua avventura. Dopo aver eseguito move, devi decidere come procedere.",
+      "choices": [
+        {
+          "action": "unload",
+          "next_state": "state_5",
+          "is_main_path": true,
+          "text": "Esegui l'azione: unload"
+        },
+        {
+          "action": "move",
+          "next_state": "state_4_alt_move",
+          "is_main_path": false,
+          "text": "Ti dirigi verso from"
+        },
+        {
+          "action": "load",
+          "next_state": "state_4_alt_load",
+          "is_main_path": false,
+          "text": "Esegui l'azione: load"
+        }
+      ]
+    },
+    "state_5": {
+      "id": "state_5",
+      "is_goal": false,
+      "description": "You step out of the rain-soaked alley and onto the grimy streets of Neo-Eden. The neon lights of the city's underbelly flicker to life, casting a gaudy glow on the wet pavement. You're standing in front of Echo's high-rise studio, where the reclusive AI artist met his untimely demise. A sea of police tape and forensic gear surrounds the entrance, and you can almost smell the desperation emanating from the detectives inside.",
+      "choices": [
+        {
+          "action": "move",
+          "next_state": "state_6",
+          "is_main_path": true,
+          "text": "You push through the tape and into the studio, hoping to catch a glimpse of the crime scene"
+        }
+      ]
+    },
+    "state_6": {
+      "id": "state_6",
+      "is_goal": false,
+      "description": "You stand outside the high-rise studio, gazing up at the rain-soaked building where Echo's lifeless body was found. The police tape surrounding the scene seems to mock you, a constant reminder of the case going cold. You can't help but wonder what secrets lie within those walls.",
+      "choices": [
+        {
+          "action": "unload",
+          "next_state": "state_7",
+          "is_main_path": true,
+          "text": "You can unload your guns and prepare for a thorough search of Echo's studio"
+        }
+      ]
+    },
+    "state_7": {
+      "id": "state_7",
+      "is_goal": true,
+      "description": "You've cracked the case! With your cyber-enhanced wits and gritty determination, you've unraveled the tangled threads of corruption and deception that led to Echo's demise. The rain-soaked streets of Neo-Eden may never be the same again, but justice has finally been served.",
+      "choices": []
+    },
+    "state_0_alt_move": {
+      "id": "state_0_alt_move",
+      "is_goal": false,
+      "description": "You stand outside the high-rise studio where Echo's lifeless body was found. The rain-soaked streets of Neo-Eden seem to mirror the gloomy atmosphere within. You can't help but wonder what secrets the artist was hiding, and why someone would want him dead. A chill runs down your spine as you notice a small crowd gathering at the scene.",
+      "choices": []
+    },
+    "state_0_alt_unload": {
+      "id": "state_0_alt_unload",
+      "is_goal": false,
+      "description": "You step out of the rain-soaked streets and into Echo's high-rise studio. The air is thick with the scent of burnt circuitry and stale coffee. A haze of cigarette smoke hangs heavy over the room, where a single chair lies overturned next to a shattered glass table. You see no signs of forced entry or struggle. The walls are covered in Echo's vibrant artwork, but now they seem dull and lifeless without their creator.",
+      "choices": []
+    },
+    "state_1_alt_load": {
+      "id": "state_1_alt_load",
+      "is_goal": false,
+      "description": "You stand outside Echo's high-rise studio, gazing up at the rain-soaked windows. The city's perpetual gloom seems to seep into your bones as you ponder the reclusive AI artist's murder. You can almost hear the whispers of the city's elite, their schemes and secrets shrouded in the darkness.",
+      "choices": []
+    },
+    "state_1_alt_unload": {
+      "id": "state_1_alt_unload",
+      "is_goal": false,
+      "description": "You step out of the rain-soaked streets and into the dingy reception area of McCoy's Investigations. The smell of stale coffee and worn-out hopes hangs heavy in the air. Your eyes are drawn to a lone figure slumped against the wall, shrouded in shadows.",
+      "choices": []
+    },
+    "state_2_alt_move": {
+      "id": "state_2_alt_move",
+      "is_goal": false,
+      "description": "You stand outside the high-rise studio, the rain-soaked streets of Neo-Eden reflecting your mood. The murder scene inside is still fresh in your mind - Echo's lifeless body, his art supplies scattered around him like a chaotic mess. You can't help but wonder what secrets he was hiding, and what drove someone to silence him forever.",
+      "choices": []
+    },
+    "state_2_alt_unload": {
+      "id": "state_2_alt_unload",
+      "is_goal": false,
+      "description": "You find yourself standing in front of Echo's high-rise studio, the rain-soaked city's neon lights reflecting off the wet pavement. The air is thick with the acrid smell of pollution and corruption. You've got a reputation for being able to find the truth, no matter how buried it is.",
+      "choices": []
+    },
+    "state_3_alt_load": {
+      "id": "state_3_alt_load",
+      "is_goal": false,
+      "description": "You stand outside Echo's high-rise studio, gazing up at the rain-soaked building. The city's neon lights reflect off the wet pavement, casting a gaudy glow over the dark alleyway. You can almost hear the distant hum of hover-drones patrolling the skies above. Your eyes are drawn to the studio door, where a thin trail of blood leads from the entrance to the ground. It looks like Echo's killer didn't take the time to clean up after themselves.",
+      "choices": []
+    },
+    "state_3_alt_unload": {
+      "id": "state_3_alt_unload",
+      "is_goal": false,
+      "description": "You find yourself standing outside the high-rise studio of Echo, the reclusive AI artist. The rain-soaked streets of Neo-Eden seem to hum with the distant thrum of hovercars and the muffled sounds of street vendors. You can't help but feel a sense of unease as you gaze up at the darkened windows, wondering what secrets lay hidden within.",
+      "choices": []
+    },
+    "state_4_alt_move": {
+      "id": "state_4_alt_move",
+      "is_goal": false,
+      "description": "You find yourself standing outside Echo's high-rise studio, the rain-soaked streets of Neo-Eden reflecting the gloomy mood that settles in your chest. The once-vibrant colors of the city's skyscrapers now seem dull and faded, a constant reminder of the corruption and decay that permeates every corner of this dystopian metropolis.",
+      "choices": []
+    },
+    "state_4_alt_load": {
+      "id": "state_4_alt_load",
+      "is_goal": false,
+      "description": "You stand outside Echo's high-rise studio, the rain-soaked streets of Neo-Eden stretching out before you like a dirty canvas. The building's sleek, modern design seems almost incongruous with the seedy atmosphere that pervades the city. You can't help but feel a sense of unease as you gaze up at the darkened windows, wondering what secrets Echo might have left behind.",
+      "choices": []
+    }
+  }
+};
 
         class AdventureGame {
             constructor(gameData) {
@@ -440,9 +510,8 @@ class InteractiveGameGenerator:
                 document.getElementById('gameTitle').textContent = this.data.config.title;
                 document.getElementById('genreTag').textContent = this.data.config.genre;
 
-                // Inizia dalla prima scena
-                const initialNode = this.data.initial_node || this.data.initial_state || 'state_0';
-                this.renderState(initialNode);
+                // Mostra lo stato iniziale
+                this.renderState(this.currentState);
             }
 
             renderState(stateId) {
@@ -592,51 +661,17 @@ class InteractiveGameGenerator:
         // Avvia il gioco quando la pagina è caricata
         let game;
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('🎮 Inizializzazione gioco...');
-
             if (typeof GAME_DATA === 'undefined') {
-                console.error('❌ GAME_DATA non definito!');
                 document.getElementById('gameContent').innerHTML = `
                     <div class="narrative-section">
                         <p style="color: red; text-align: center;">
                             Errore: Dati del gioco non caricati correttamente.
                         </p>
-                        <p style="text-align: center; color: #666;">
-                            Controlla la console del browser per dettagli.
-                        </p>
                     </div>
                 `;
                 return;
             }
 
-            console.log('✓ GAME_DATA caricato:', GAME_DATA);
-            console.log('  - Nodi totali:', Object.keys(GAME_DATA.nodes || {}).length);
-            console.log('  - Nodo iniziale:', GAME_DATA.initial_node || GAME_DATA.initial_state);
-
-            // Verifica struttura
-            const initialNode = GAME_DATA.initial_node || GAME_DATA.initial_state;
-            if (!initialNode) {
-                console.error('❌ Nodo iniziale non trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Nodo iniziale mancante</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const nodes = GAME_DATA.nodes || GAME_DATA.states;
-            if (!nodes || Object.keys(nodes).length === 0) {
-                console.error('❌ Nessun nodo trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Storia vuota</p>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('✓ Avvio gioco...');
             game = new AdventureGame(GAME_DATA);
             game.start();
         });
@@ -648,46 +683,3 @@ class InteractiveGameGenerator:
     </script>
 </body>
 </html>
-'''
-
-
-if __name__ == '__main__':
-    # Test
-    logging.basicConfig(level=logging.INFO)
-
-    # Dati mock per test
-    mock_states = {
-        'state_0': type('obj', (object,), {'id': 'state_0', 'is_goal': False})(),
-        'state_1': type('obj', (object,), {'id': 'state_1', 'is_goal': True})()
-    }
-
-    mock_graph = {
-        'state_0': [
-            {'action': {'name': 'move'}, 'next_state': 'state_1', 'is_main_path': True}
-        ]
-    }
-
-    mock_narratives = {
-        'state_0': {
-            'description': 'Ti trovi all\'ingresso di una grotta misteriosa.',
-            'choices': [{'text': 'Entri nella grotta', 'action': 'move'}]
-        },
-        'state_1': {
-            'description': 'Hai scoperto il tesoro nascosto! Vittoria!',
-            'choices': []
-        }
-    }
-
-    mock_config = {
-        'theme': 'Test Adventure',
-        'genre': 'Fantasy',
-        'tone': 'Mysterious',
-        'graphics': 'Text Only'
-    }
-
-    generator = InteractiveGameGenerator(mock_states, mock_graph, mock_narratives, mock_config)
-
-    output_path = Path(__file__).parent / "test_game.html"
-    generator.generate_game_html(output_path)
-
-    print(f"✓ HTML di test generato: {output_path}")

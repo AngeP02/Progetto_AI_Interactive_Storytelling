@@ -182,26 +182,49 @@ class PDDLGameGraph:
         for line in lines:
             line = line.strip()
 
-            # Salta commenti e linee vuote
-            if not line or line.startswith(';') or line.startswith('=') or line.startswith('Step'):
+            # Salta commenti, linee vuote e separatori
+            if not line or line.startswith(';') or line.startswith('=') or line.startswith('PIANO'):
                 continue
 
-            # Formato: (action_name param1 param2) oppure "Step X: (action ...)"
-            # Rimuovi "Step X: " se presente
-            line = re.sub(r'^Step\s+\d+:\s*', '', line)
+            # Formato 1: "Step X: action param1 param2"
+            step_match = re.match(r'Step\s+\d+:\s*(.+)', line)
+            if step_match:
+                action_line = step_match.group(1).strip()
 
-            # Estrai azione
-            match = re.match(r'\((\w+)\s*(.*?)\)', line)
-            if match:
-                action_name = match.group(1)
-                params_text = match.group(2).strip()
+                # Rimuovi parentesi se presenti
+                action_line = action_line.strip('()')
+
+                # Splitta su spazi
+                parts = action_line.split()
+                if parts:
+                    action_name = parts[0]
+                    parameters = parts[1:] if len(parts) > 1 else []
+
+                    # Cerca l'azione nel domain
+                    domain_action = self.domain_actions.get(action_name)
+
+                    if domain_action:
+                        action_instance = {
+                            'name': action_name,
+                            'parameters': parameters,
+                            'preconditions': domain_action.preconditions,
+                            'effects': self._instantiate_effects(domain_action, parameters)
+                        }
+                        self.plan_actions.append(action_instance)
+                    else:
+                        logger.warning(f"Azione '{action_name}' non trovata nel domain")
+                continue
+
+            # Formato 2: "(action_name param1 param2)"
+            paren_match = re.match(r'\((\w+)\s*(.*?)\)', line)
+            if paren_match:
+                action_name = paren_match.group(1)
+                params_text = paren_match.group(2).strip()
                 parameters = params_text.split() if params_text else []
 
-                # Cerca l'azione nel domain
                 domain_action = self.domain_actions.get(action_name)
 
                 if domain_action:
-                    # Crea istanza dell'azione con parametri concreti
                     action_instance = {
                         'name': action_name,
                         'parameters': parameters,
@@ -209,8 +232,18 @@ class PDDLGameGraph:
                         'effects': self._instantiate_effects(domain_action, parameters)
                     }
                     self.plan_actions.append(action_instance)
+                else:
+                    logger.warning(f"Azione '{action_name}' non trovata nel domain")
 
         logger.info(f"✓ Piano parsed: {len(self.plan_actions)} azioni")
+
+        if len(self.plan_actions) == 0:
+            logger.error("⚠️ ATTENZIONE: Nessuna azione trovata nel piano!")
+            logger.error(f"Controlla il formato del file: {self.plan_path}")
+            # Debug: mostra le prime righe del piano
+            with open(self.plan_path, 'r', encoding='utf-8') as f:
+                preview = f.read()[:500]
+            logger.error(f"Preview del piano:\n{preview}")
 
     def _instantiate_effects(self, domain_action: GameAction, concrete_params: List[str]) -> List[str]:
         """Sostituisce i parametri variabili con quelli concreti negli effetti"""

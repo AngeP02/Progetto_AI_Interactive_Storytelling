@@ -301,7 +301,7 @@ def call_ollama(prompt: str, system_prompt: str) -> str:
             }
         }
 
-        response = requests.post(OLLAMA_URL, json=payload, timeout=600)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=900)
         response.raise_for_status()
         return response.json().get('response', '').strip()
     except requests.exceptions.ConnectionError:

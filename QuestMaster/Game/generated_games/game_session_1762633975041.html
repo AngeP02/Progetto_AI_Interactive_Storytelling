@@ -1,146 +1,4 @@
-# File: QuestMaster/Game/HTMLGenerator.py
-
-from pathlib import Path
-import json
-import logging
-from typing import Dict
-
-logger = logging.getLogger(__name__)
-
-
-class InteractiveGameGenerator:
-    """Genera l'HTML del gioco interattivo"""
-
-    def __init__(self, states: Dict, graph: Dict, narratives: Dict, config: Dict):
-        self.states = states
-        self.graph = graph
-        self.narratives = narratives
-        self.config = config
-
-    def generate_game_html(self, output_path: Path):
-        """Genera il file HTML completo del gioco"""
-        logger.info("🌐 Generazione HTML del gioco...")
-
-        # Prepara i dati per JavaScript
-        game_data = self._prepare_game_data()
-
-        # Genera HTML
-        html_content = self._get_html_template()
-
-        # Inietta i dati del gioco
-        html_content = html_content.replace(
-            '/* GAME_DATA_PLACEHOLDER */',
-            f'const GAME_DATA = {json.dumps(game_data, indent=2, ensure_ascii=False)};'
-        )
-
-        # Salva file
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-
-        logger.info(f"✓ HTML generato: {output_path}")
-
-    def _prepare_game_data(self) -> Dict:
-        """Prepara la struttura dati per il gioco JavaScript"""
-
-        # Se states contiene StoryNode (dalla nuova pipeline), usa quello
-        if self.states and hasattr(next(iter(self.states.values())), 'narrative'):
-            return self._prepare_narrative_game_data()
-
-        # Altrimenti usa il vecchio sistema PDDL
-        return self._prepare_pddl_game_data()
-
-    def _prepare_narrative_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su storia narrativa"""
-
-        # Trova il primo nodo (assume che il primo sia l'iniziale)
-        first_node_id = next(iter(self.states.keys())) if self.states else 'scene_1'
-
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': first_node_id,
-            'nodes': {}
-        }
-
-        for node_id, node in self.states.items():
-            # Gestisci sia StoryNode objects che dict
-            if hasattr(node, 'id'):  # È un oggetto StoryNode
-                game_data['nodes'][node_id] = {
-                    'id': node.id,
-                    'title': node.title,
-                    'narrative': node.narrative,
-                    'is_ending': node.is_ending,
-                    'ending_type': node.ending_type if node.is_ending else '',
-                    'choices': [
-                        {
-                            'text': choice.get('text', '') if isinstance(choice, dict) else choice,
-                            'next_node': choice.get('next_node', '') if isinstance(choice, dict) else ''
-                        }
-                        for choice in node.choices
-                    ]
-                }
-            else:  # È già un dict (fallback)
-                game_data['nodes'][node_id] = {
-                    'id': node.get('id', node_id),
-                    'title': node.get('title', 'Capitolo'),
-                    'narrative': node.get('narrative', 'Descrizione non disponibile'),
-                    'is_ending': node.get('is_ending', False),
-                    'ending_type': node.get('ending_type', ''),
-                    'choices': node.get('choices', [])
-                }
-
-        return game_data
-
-    def _prepare_pddl_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su PDDL (vecchio sistema)"""
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': 'state_0',
-            'nodes': {}
-        }
-
-        for state_id, state in self.states.items():
-            narrative = self.narratives.get(state_id, {})
-            edges = self.graph.get(state_id, [])
-
-            game_data['nodes'][state_id] = {
-                'id': state_id,
-                'title': f"Capitolo {state_id}",
-                'narrative': narrative.get('description', 'Descrizione non disponibile.'),
-                'is_ending': state.is_goal,
-                'ending_type': 'victory' if state.is_goal else '',
-                'choices': []
-            }
-
-            narrative_choices = narrative.get('choices', [])
-
-            for i, edge in enumerate(edges):
-                choice_data = {
-                    'next_node': edge['next_state']
-                }
-
-                if i < len(narrative_choices):
-                    choice_data['text'] = narrative_choices[i].get('text', f"Esegui {edge['action']['name']}")
-                else:
-                    choice_data['text'] = f"Esegui {edge['action']['name']}"
-
-                game_data['nodes'][state_id]['choices'].append(choice_data)
-
-        return game_data
-
-    def _get_html_template(self) -> str:
-        """Ritorna il template HTML del gioco"""
-        return '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -207,26 +65,11 @@ class InteractiveGameGenerator:
         }
 
         .narrative-text {
-            font-size: 1.15em;
-            line-height: 1.9;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            text-align: justify;
-            white-space: pre-wrap;
-            font-family: 'Georgia', serif;
-        }
-
-        .narrative-text p {
-            margin-bottom: 1.2em;
-        }
-
-        .chapter-title {
-            font-size: 1.8em;
-            color: #5eb7ca;
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #333;
             margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            text-transform: capitalize;
+            text-align: justify;
         }
 
         .choices-section {
@@ -425,7 +268,23 @@ class InteractiveGameGenerator:
     </div>
 
     <script>
-        /* GAME_DATA_PLACEHOLDER */
+        const GAME_DATA = {
+  "config": {
+    "title": "In a world where clockwork inventors and ancient magic collide, uncover the secrets of the missing Timekeeper's Guild before the fabric of reality unravels.",
+    "genre": "Steampunk Fantasy",
+    "tone": "Whimsical Mystery",
+    "graphics": "Illustrated"
+  },
+  "initial_state": "state_0",
+  "states": {
+    "state_0": {
+      "id": "state_0",
+      "is_goal": true,
+      "description": "With gears clicking into place and ancient magic swirling around you, you've unraveled the mysteries of the Timekeeper's Guild! Your ingenious solutions and cunning deductions have saved Chronos from the brink of temporal chaos. The fabric of reality is once again secure, thanks to your extraordinary detective skills.",
+      "choices": []
+    }
+  }
+};
 
         class AdventureGame {
             constructor(gameData) {
@@ -440,9 +299,8 @@ class InteractiveGameGenerator:
                 document.getElementById('gameTitle').textContent = this.data.config.title;
                 document.getElementById('genreTag').textContent = this.data.config.genre;
 
-                // Inizia dalla prima scena
-                const initialNode = this.data.initial_node || this.data.initial_state || 'state_0';
-                this.renderState(initialNode);
+                // Mostra lo stato iniziale
+                this.renderState(this.currentState);
             }
 
             renderState(stateId) {
@@ -592,51 +450,17 @@ class InteractiveGameGenerator:
         // Avvia il gioco quando la pagina è caricata
         let game;
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('🎮 Inizializzazione gioco...');
-
             if (typeof GAME_DATA === 'undefined') {
-                console.error('❌ GAME_DATA non definito!');
                 document.getElementById('gameContent').innerHTML = `
                     <div class="narrative-section">
                         <p style="color: red; text-align: center;">
                             Errore: Dati del gioco non caricati correttamente.
                         </p>
-                        <p style="text-align: center; color: #666;">
-                            Controlla la console del browser per dettagli.
-                        </p>
                     </div>
                 `;
                 return;
             }
 
-            console.log('✓ GAME_DATA caricato:', GAME_DATA);
-            console.log('  - Nodi totali:', Object.keys(GAME_DATA.nodes || {}).length);
-            console.log('  - Nodo iniziale:', GAME_DATA.initial_node || GAME_DATA.initial_state);
-
-            // Verifica struttura
-            const initialNode = GAME_DATA.initial_node || GAME_DATA.initial_state;
-            if (!initialNode) {
-                console.error('❌ Nodo iniziale non trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Nodo iniziale mancante</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const nodes = GAME_DATA.nodes || GAME_DATA.states;
-            if (!nodes || Object.keys(nodes).length === 0) {
-                console.error('❌ Nessun nodo trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Storia vuota</p>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('✓ Avvio gioco...');
             game = new AdventureGame(GAME_DATA);
             game.start();
         });
@@ -648,46 +472,3 @@ class InteractiveGameGenerator:
     </script>
 </body>
 </html>
-'''
-
-
-if __name__ == '__main__':
-    # Test
-    logging.basicConfig(level=logging.INFO)
-
-    # Dati mock per test
-    mock_states = {
-        'state_0': type('obj', (object,), {'id': 'state_0', 'is_goal': False})(),
-        'state_1': type('obj', (object,), {'id': 'state_1', 'is_goal': True})()
-    }
-
-    mock_graph = {
-        'state_0': [
-            {'action': {'name': 'move'}, 'next_state': 'state_1', 'is_main_path': True}
-        ]
-    }
-
-    mock_narratives = {
-        'state_0': {
-            'description': 'Ti trovi all\'ingresso di una grotta misteriosa.',
-            'choices': [{'text': 'Entri nella grotta', 'action': 'move'}]
-        },
-        'state_1': {
-            'description': 'Hai scoperto il tesoro nascosto! Vittoria!',
-            'choices': []
-        }
-    }
-
-    mock_config = {
-        'theme': 'Test Adventure',
-        'genre': 'Fantasy',
-        'tone': 'Mysterious',
-        'graphics': 'Text Only'
-    }
-
-    generator = InteractiveGameGenerator(mock_states, mock_graph, mock_narratives, mock_config)
-
-    output_path = Path(__file__).parent / "test_game.html"
-    generator.generate_game_html(output_path)
-
-    print(f"✓ HTML di test generato: {output_path}")

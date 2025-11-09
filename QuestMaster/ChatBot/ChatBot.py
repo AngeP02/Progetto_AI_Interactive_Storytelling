@@ -52,7 +52,7 @@ class QuestMasterLLM:
                 }
             }
 
-            response = requests.post(self.ollama_url, json=payload, timeout=120)
+            response = requests.post(self.ollama_url, json=payload, timeout=900)
             response.raise_for_status()
 
             result = response.json()
@@ -727,6 +727,73 @@ def generate_quest_stream():
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
+
+# ========== AGGIUNGI QUESTI IMPORT ALL'INIZIO DI app.py ==========
+from QuestMaster.Game.GamePipeline import generate_interactive_game
+
+
+# ========== AGGIUNGI QUESTI ENDPOINT PRIMA DI if __name__ == '__main__' ==========
+
+@app.route('/api/generate-game', methods=['POST'])
+def generate_game():
+    """Genera l'HTML del gioco interattivo dalla review page"""
+    try:
+        session_id = request.json.get('session_id', 'default')
+
+        if session_id not in user_sessions:
+            return jsonify({'success': False, 'error': 'Sessione non trovata'})
+
+        # Percorsi file
+        pddl_dir = SCRIPT_DIR.parent / "Generate_PDDL" / "pddl_output_guaranteed"
+        game_dir = SCRIPT_DIR.parent / "Game" / "generated_games"
+        game_dir.mkdir(exist_ok=True)
+
+        game_html = game_dir / f"game_{session_id}.html"
+
+        logger.info(f"🎮 Generazione gioco per sessione {session_id}...")
+
+        # Chiama la pipeline
+        success, message = generate_interactive_game(
+            domain_path=pddl_dir / "domain.pddl",
+            problem_path=pddl_dir / "problem.pddl",
+            plan_path=pddl_dir / "plan_readable.txt",
+            lore_path=LORE_FILE,
+            output_html=game_html,
+            config=user_sessions[session_id]['config']
+        )
+
+        if success:
+            return jsonify({
+                'success': True,
+                'message': message,
+                'game_url': f'/play/{session_id}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': message
+            })
+
+    except Exception as e:
+        logger.exception("Errore generate-game")
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/play/<session_id>')
+def play_game(session_id):
+    """Serve il gioco generato"""
+    try:
+        game_path = SCRIPT_DIR.parent / "Game" / "generated_games" / f"game_{session_id}.html"
+
+        if not game_path.exists():
+            return f"<h1>Gioco non trovato</h1><p>Sessione: {session_id}</p>", 404
+
+        with open(game_path, 'r', encoding='utf-8') as f:
+            return f.read()
+
+    except Exception as e:
+        logger.exception("Errore play-game")
+        return f"<h1>Errore</h1><p>{str(e)}</p>", 500
 
 if __name__ == '__main__':
     print("Avvio QuestMaster Backend...")

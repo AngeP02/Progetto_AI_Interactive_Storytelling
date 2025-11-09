@@ -1,47 +1,29 @@
 Here is the annotated PDDL file:
 
-(define (problem delivery-medium)
-; Defines a problem named "delivery-medium" within the logistics-simple domain.
-
-(:domain logistics-simple)
-; Specifies that this problem uses the logistics-simple planning domain.
-
-(:objects
-  warehouse depot shop home - location
-  truck - vehicle
-  package1 package2 - package
+(define (problem delivery-medium); defines a problem named "delivery-medium"
+(:domain logistics-simple); specifies the domain of this problem
+(:objects; declares objects in the problem
+  warehouse depot shop home - location; specifies locations: warehouse, depot, shop, and home
+  truck - vehicle; specifies a vehicle called "truck"
+  package1 package2 - package; specifies two packages: "package1" and "package2"
 )
-; Declares objects in the problem: locations (warehouse, depot, shop, and home) and a vehicle (truck), as well as packages (package1 and package2).
+(:init; initializes the state of the problem
+  (at-vehicle truck warehouse); places the truck at the warehouse
+  (at-package package1 warehouse); places package1 at the warehouse
+  (at-package package2 depot); places package2 at the depot
 
-(:init
-  (at-vehicle truck warehouse)
-; Initializes the problem by stating that the truck is located at the warehouse.
-  (at-package package1 warehouse)
-; Initializes the problem by stating that package1 is located at the warehouse.
-  (at-package package2 depot)
-; Initializes the problem by stating that package2 is located at the depot.
-
-  (connected warehouse depot)
-; Specifies that there is a connection between the warehouse and the depot.
-  (connected depot warehouse)
-; Specifies that there is a connection between the depot and the warehouse.
-  (connected depot shop)
-; Specifies that there is a connection between the depot and the shop.
-  (connected shop depot)
-; Specifies that there is a connection between the shop and the depot.
-  (connected shop home)
-; Specifies that there is a connection between the shop and the home.
-  (connected home shop)
-; Specifies that there is a connection between the home and the shop.
+  (connected warehouse depot); connects the warehouse and depot
+  (connected depot warehouse); connects the depot and warehouse
+  (connected depot shop); connects the depot and shop
+  (connected shop depot); connects the shop and depot
+  (connected shop home); connects the shop and home
+  (connected home shop); connects home and shop
 )
-; Initializes the problem by stating the initial connections between locations.
-
-(:goal
-  (and
-    (at-package package1 home)
-; States that the goal is to have package1 at the home location.
-    (at-package package2 shop)
-; States that the goal is to have package2 at the shop location.
+(:goal; specifies the desired goal state
+  (and ; logical AND operator
+    (at-package package1 home); package1 should be at home
+    (at-package package2 shop); package2 should be at the shop
   )
 )
-; Specifies the goal of the problem: to move packages to their respective destinations.
+
+Let me know if you have any further requests!

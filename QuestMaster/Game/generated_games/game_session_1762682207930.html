@@ -1,146 +1,4 @@
-# File: QuestMaster/Game/HTMLGenerator.py
-
-from pathlib import Path
-import json
-import logging
-from typing import Dict
-
-logger = logging.getLogger(__name__)
-
-
-class InteractiveGameGenerator:
-    """Genera l'HTML del gioco interattivo"""
-
-    def __init__(self, states: Dict, graph: Dict, narratives: Dict, config: Dict):
-        self.states = states
-        self.graph = graph
-        self.narratives = narratives
-        self.config = config
-
-    def generate_game_html(self, output_path: Path):
-        """Genera il file HTML completo del gioco"""
-        logger.info("🌐 Generazione HTML del gioco...")
-
-        # Prepara i dati per JavaScript
-        game_data = self._prepare_game_data()
-
-        # Genera HTML
-        html_content = self._get_html_template()
-
-        # Inietta i dati del gioco
-        html_content = html_content.replace(
-            '/* GAME_DATA_PLACEHOLDER */',
-            f'const GAME_DATA = {json.dumps(game_data, indent=2, ensure_ascii=False)};'
-        )
-
-        # Salva file
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-
-        logger.info(f"✓ HTML generato: {output_path}")
-
-    def _prepare_game_data(self) -> Dict:
-        """Prepara la struttura dati per il gioco JavaScript"""
-
-        # Se states contiene StoryNode (dalla nuova pipeline), usa quello
-        if self.states and hasattr(next(iter(self.states.values())), 'narrative'):
-            return self._prepare_narrative_game_data()
-
-        # Altrimenti usa il vecchio sistema PDDL
-        return self._prepare_pddl_game_data()
-
-    def _prepare_narrative_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su storia narrativa"""
-
-        # Trova il primo nodo (assume che il primo sia l'iniziale)
-        first_node_id = next(iter(self.states.keys())) if self.states else 'scene_1'
-
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': first_node_id,
-            'nodes': {}
-        }
-
-        for node_id, node in self.states.items():
-            # Gestisci sia StoryNode objects che dict
-            if hasattr(node, 'id'):  # È un oggetto StoryNode
-                game_data['nodes'][node_id] = {
-                    'id': node.id,
-                    'title': node.title,
-                    'narrative': node.narrative,
-                    'is_ending': node.is_ending,
-                    'ending_type': node.ending_type if node.is_ending else '',
-                    'choices': [
-                        {
-                            'text': choice.get('text', '') if isinstance(choice, dict) else choice,
-                            'next_node': choice.get('next_node', '') if isinstance(choice, dict) else ''
-                        }
-                        for choice in node.choices
-                    ]
-                }
-            else:  # È già un dict (fallback)
-                game_data['nodes'][node_id] = {
-                    'id': node.get('id', node_id),
-                    'title': node.get('title', 'Capitolo'),
-                    'narrative': node.get('narrative', 'Descrizione non disponibile'),
-                    'is_ending': node.get('is_ending', False),
-                    'ending_type': node.get('ending_type', ''),
-                    'choices': node.get('choices', [])
-                }
-
-        return game_data
-
-    def _prepare_pddl_game_data(self) -> Dict:
-        """Prepara dati per gioco basato su PDDL (vecchio sistema)"""
-        game_data = {
-            'config': {
-                'title': self.config.get('theme', 'QuestMaster Adventure'),
-                'genre': self.config.get('genre', 'Fantasy'),
-                'tone': self.config.get('tone', 'Adventurous'),
-                'graphics': self.config.get('graphics', 'Text Only')
-            },
-            'initial_node': 'state_0',
-            'nodes': {}
-        }
-
-        for state_id, state in self.states.items():
-            narrative = self.narratives.get(state_id, {})
-            edges = self.graph.get(state_id, [])
-
-            game_data['nodes'][state_id] = {
-                'id': state_id,
-                'title': f"Capitolo {state_id}",
-                'narrative': narrative.get('description', 'Descrizione non disponibile.'),
-                'is_ending': state.is_goal,
-                'ending_type': 'victory' if state.is_goal else '',
-                'choices': []
-            }
-
-            narrative_choices = narrative.get('choices', [])
-
-            for i, edge in enumerate(edges):
-                choice_data = {
-                    'next_node': edge['next_state']
-                }
-
-                if i < len(narrative_choices):
-                    choice_data['text'] = narrative_choices[i].get('text', f"Esegui {edge['action']['name']}")
-                else:
-                    choice_data['text'] = f"Esegui {edge['action']['name']}"
-
-                game_data['nodes'][state_id]['choices'].append(choice_data)
-
-        return game_data
-
-    def _get_html_template(self) -> str:
-        """Ritorna il template HTML del gioco"""
-        return '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -425,7 +283,68 @@ class InteractiveGameGenerator:
     </div>
 
     <script>
-        /* GAME_DATA_PLACEHOLDER */
+        const GAME_DATA = {
+  "config": {
+    "title": "In a dystopian future, can love bloom between a rogue AI and a human hacktivist?",
+    "genre": "Cyberpunk Romance",
+    "tone": "Moody and Introspective",
+    "graphics": "Illustrated"
+  },
+  "initial_node": "scene_1",
+  "nodes": {
+    "scene_1": {
+      "id": "scene_1",
+      "title": "L'Inizio",
+      "narrative": "La nebbia mi avvolge come una coperta umida. La città si staglia davanti a me, un confuso mix di luci e ombre che sembrano danzare tra le nuvole. Sono in piedi sul marciapiede, il mio sguardo perso nella distesa di edifici industriali che mi circondano. Il rumore della città è un costante basso martellato, come se la terra stessa fosse in fiamine.\n\nMi sento solo, il mio cuore pesante come una macina di ferro nel mio petto. Ho lasciato qualcosa dietro di me, ma non so cosa sia esattamente. Forse era amore, forse era fiducia. Qualunque cosa fosse, non è più là fuori ad aspettarmi. Il mio pensiero è un bagliore intermittente, come le luci dei lampioni sulla strada.\n\nSento il profumo di benzina e motori sul mio viso, una mistura nauseabonda che mi fa salire la bile alla bocca del mio stomaco. La mia mente è un labirinto in cui non riesco a trovare la via d'uscita. Sono un vagabondo senza direzione, un essere senza scopo.\n\nLa strada è illuminata dalle luci dei negozi, ma sembra che nessuno si accorga della mia presenza. Sono invisibile, come una forma di nebbia che fluttua sulla superficie del fiume. Il mio cuore è in fermentazione, il mio cervello è un turbine di pensieri confusi.\n\nEcco il momento critico: devo decidere cosa fare adesso. La strada mi attende, piena di possibilità e pericoli. Posso tornare indietro, rinunciando a ogni speranza di riscatto? Oppure posso procedere avanti, dentro la nebbia di dubbi e incertezze che si addensa davanti a me? La mia scelta sarà il mio destino.",
+      "is_ending": false,
+      "ending_type": "",
+      "choices": [
+        {
+          "text": "Procedi con cautela: \"Inizia la tua avventura nel cuore delle tenebre, dove ogni passo sembra pesare sulla fine. Se fallisci, potresti perdere il contatto con l'unico posto che ti resta.\"",
+          "next_node": "scene_2"
+        },
+        {
+          "text": "\"Agisci audacemente e vai nella stanza piena di segreti, dove il vento soffia con un misterioso sussurro. Scegliendo questa strada, potresti scoprire meravigliosi tesori o affrontare una minaccia imminente.\"",
+          "next_node": "scene_3"
+        }
+      ]
+    },
+    "scene_2": {
+      "id": "scene_2",
+      "title": "Approccio Cauto",
+      "narrative": "Tu ti fai strada tra gli edifici decrepiti del quartiere più depresso della città. La luce delle lampade pubbliche è debole e gialla, gettando ombre lunghe sulle facciate grigie e le strade deserte. Il vento soffia con un gemito lamentoso, come se il cielo stesso stesse piangendo la miseria umana.\n\nLa tua attenzione è catturata da una figura sola che si appresta a entrare in uno dei pochi bar della zona. La musica giunge alle tue orecchie, un lamento di chitarra elettrica che sembra risvegliarsi dal vuoto. Il suono è distorto e irreale, come se provenisse da una realtà parallela.\n\nTu ti avvicini cauto, la tua vista attenta a ogni dettaglio. La figura sola, con indosso un completo nero, si volta verso di te con un'espressione cupa. I tuoi occhi si incrociano per un istante, e tu senti una scarica di adrenalina. Qualcosa in quel momento ti dice che questo è il tipo d'uomo che non vuole problemi, ma neanche che voglia lasciare andare le cose.\n\nL'odore di birra e tabacco ti accompagna mentre entri il bar insieme a lui. La musica è più forte ora, e tu senti la pressione aumentare sulle tue spalle. Il tuo compagno d'avventura si avvicina al bancone e ordina una birra senza rivolgerti la parola. Tu ti sedi accanto a lui, cercando di non attirare troppo l'attenzione su di sé.\n\nIl barista si avvicina con la birra e il tuo compagno d'avventura la prende con un gesto rapido e sicuro. La sua mano è callosa e solleva una pioggia di monete d'argento come se nulla fosse. Tu senti l'odore di liquore e sigarette salirgli inalato, e la tua mente si riempie di domande. Che cosa è successo a questo tipo? Perché sembra così solo? E soprattutto, che cosa vuole da te?",
+      "is_ending": false,
+      "ending_type": "",
+      "choices": [
+        {
+          "text": "\"Procedi con prudenza, ma la curiosità ti spinge a continuare lungo questo sentiero sconosciuto. Quale segreto potresti scoprire, e cosa potrebbe esserti riservato?\"",
+          "next_node": "ending_victory"
+        }
+      ]
+    },
+    "scene_3": {
+      "id": "scene_3",
+      "title": "Azione Audace",
+      "narrative": "I step out of the shadows, my boots crunching on the damp asphalt. The neon lights of the city's sprawl cast a gaudy glow over the deserted alleyway, making it feel like a stage set for some twisted game. My heart is a drumbeat in my chest, pounding out a rhythm that's hard to ignore.\n\nAs I move forward, the sounds of the city fade into the background, replaced by the soft hum of machinery and the distant thrum of hovercars patrolling the skies. The air is heavy with the scent of exhaust fumes and ozone, a primordial tang that makes my skin prickle. I can feel the weight of the world bearing down on me, the crushing pressure of responsibility.\n\nI've got one shot to get it right. One chance to make things happen. The thought sends a jolt of adrenaline coursing through my veins, making my senses come alive. Every sound is amplified, every sight heightened to an almost unbearable intensity. The city's chaos swirls around me like a vortex, drawing me in with its promise of power and freedom.\n\nI stop at the edge of the alleyway, looking out over the rooftops that stretch like a vast, dark sea. The wind whispers secrets in my ear, tempting me to take the leap. To take a chance. To seize the moment. My finger hovers over the trigger, poised to fire off a round of pure, unadulterated fury.\n\nAnd then I freeze. Time stands still as I weigh my options, the city's din receding into the background like a distant hum. It's a moment of truth, a moment of choice. A moment that will change everything.",
+      "is_ending": false,
+      "ending_type": "",
+      "choices": [
+        {
+          "text": "\"Agisci coraggiosamente e persisti nella tua decisione, mettendoti in cammino lungo un sentiero sconosciuto. Le conseguenze di questo passo potrebbero essere drammatiche, ma anche la ricompensa potrebbe essere enorme.\"",
+          "next_node": "ending_victory"
+        }
+      ]
+    },
+    "ending_victory": {
+      "id": "ending_victory",
+      "title": "Vittoria",
+      "narrative": "Tu sei seduto sul tetto della città, lo skyline di neon e lampade che ti circonda è come un canto d'estasi. La brezza notturna soffia sul tuo viso, rinfrescandoti dopo la lunga battaglia. Hai fatto il miracolo, hai salvato l'umanità dalla minaccia del sistema Edge. La sensazione di trionfo è quasi fisicamente tangibile, come se potessi toccarla con le tue mani.\n\nLa tua vista è stata ristabilita, e tu puoi vedere la città per quella che è veramente: un luogo pieno di speranza e di possibilità. La tua compagna, Aria, è accanto a te, la sua mano stretta nella tua come se fosse il più naturale del mondo. Hai visto la sua vera forma, la sua umanità, e non hai potuto far altro che amarla con tutto il tuo cuore.\n\nIn questo momento, tu sai che nulla può distruggere l'amore che state vivendo. La vittoria ti ha dato una seconda chance, e tu sei pronto a costruire un futuro insieme a Aria. La città sarà ricostruita, la pace sarà restaurata, e tu sarai al centro di tutto questo cambiamento. Tu sei il vincitore, e il tuo nome sarà ricordato per sempre come l'eroe che ha salvato l'umanità.",
+      "is_ending": true,
+      "ending_type": "victory",
+      "choices": []
+    }
+  }
+};
 
         class AdventureGame {
             constructor(gameData) {
@@ -592,51 +511,17 @@ class InteractiveGameGenerator:
         // Avvia il gioco quando la pagina è caricata
         let game;
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('🎮 Inizializzazione gioco...');
-
             if (typeof GAME_DATA === 'undefined') {
-                console.error('❌ GAME_DATA non definito!');
                 document.getElementById('gameContent').innerHTML = `
                     <div class="narrative-section">
                         <p style="color: red; text-align: center;">
                             Errore: Dati del gioco non caricati correttamente.
                         </p>
-                        <p style="text-align: center; color: #666;">
-                            Controlla la console del browser per dettagli.
-                        </p>
                     </div>
                 `;
                 return;
             }
 
-            console.log('✓ GAME_DATA caricato:', GAME_DATA);
-            console.log('  - Nodi totali:', Object.keys(GAME_DATA.nodes || {}).length);
-            console.log('  - Nodo iniziale:', GAME_DATA.initial_node || GAME_DATA.initial_state);
-
-            // Verifica struttura
-            const initialNode = GAME_DATA.initial_node || GAME_DATA.initial_state;
-            if (!initialNode) {
-                console.error('❌ Nodo iniziale non trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Nodo iniziale mancante</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const nodes = GAME_DATA.nodes || GAME_DATA.states;
-            if (!nodes || Object.keys(nodes).length === 0) {
-                console.error('❌ Nessun nodo trovato!');
-                document.getElementById('gameContent').innerHTML = `
-                    <div class="narrative-section">
-                        <p style="color: red;">Errore: Storia vuota</p>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('✓ Avvio gioco...');
             game = new AdventureGame(GAME_DATA);
             game.start();
         });
@@ -648,46 +533,3 @@ class InteractiveGameGenerator:
     </script>
 </body>
 </html>
-'''
-
-
-if __name__ == '__main__':
-    # Test
-    logging.basicConfig(level=logging.INFO)
-
-    # Dati mock per test
-    mock_states = {
-        'state_0': type('obj', (object,), {'id': 'state_0', 'is_goal': False})(),
-        'state_1': type('obj', (object,), {'id': 'state_1', 'is_goal': True})()
-    }
-
-    mock_graph = {
-        'state_0': [
-            {'action': {'name': 'move'}, 'next_state': 'state_1', 'is_main_path': True}
-        ]
-    }
-
-    mock_narratives = {
-        'state_0': {
-            'description': 'Ti trovi all\'ingresso di una grotta misteriosa.',
-            'choices': [{'text': 'Entri nella grotta', 'action': 'move'}]
-        },
-        'state_1': {
-            'description': 'Hai scoperto il tesoro nascosto! Vittoria!',
-            'choices': []
-        }
-    }
-
-    mock_config = {
-        'theme': 'Test Adventure',
-        'genre': 'Fantasy',
-        'tone': 'Mysterious',
-        'graphics': 'Text Only'
-    }
-
-    generator = InteractiveGameGenerator(mock_states, mock_graph, mock_narratives, mock_config)
-
-    output_path = Path(__file__).parent / "test_game.html"
-    generator.generate_game_html(output_path)
-
-    print(f"✓ HTML di test generato: {output_path}")

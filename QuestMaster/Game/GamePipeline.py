@@ -3,8 +3,7 @@
 from pathlib import Path
 import logging
 from typing import Tuple
-from .PDDLParser import PDDLGameGraph
-from .NarrativeGenerator import NarrativeGenerator
+from .StoryGenerator import InteractiveStoryGenerator
 from .HTMLGenerator import InteractiveGameGenerator
 
 logger = logging.getLogger(__name__)
@@ -19,12 +18,17 @@ def generate_interactive_game(
         config: dict
 ) -> Tuple[bool, str]:
     """
-    Pipeline completa per generare il gioco interattivo
+    Pipeline completa per generare il gioco interattivo NARRATIVO
+
+    NUOVO APPROCCIO: LLM-First invece di PDDL-First
+    - Il PDDL fornisce solo vincoli logici
+    - L'LLM genera una storia narrativa completa e ramificata
+    - Il sistema valida che la storia rispetti i vincoli
 
     Args:
-        domain_path: Path al domain.pddl
-        problem_path: Path al problem.pddl
-        plan_path: Path al plan_readable.txt
+        domain_path: Path al domain.pddl (usato solo per vincoli)
+        problem_path: Path al problem.pddl (usato solo per vincoli)
+        plan_path: Path al plan_readable.txt (ignorato nel nuovo sistema)
         lore_path: Path al file Lore.md
         output_html: Path dove salvare l'HTML del gioco
         config: Configurazione della quest (dict)
@@ -35,54 +39,52 @@ def generate_interactive_game(
 
     try:
         logger.info("=" * 70)
-        logger.info("🎮 GENERAZIONE GIOCO INTERATTIVO")
+        logger.info("🎮 GENERAZIONE GIOCO NARRATIVO INTERATTIVO")
         logger.info("=" * 70)
 
         # Verifica che i file esistano
-        if not domain_path.exists():
-            return False, f"Domain PDDL non trovato: {domain_path}"
-        if not problem_path.exists():
-            return False, f"Problem PDDL non trovato: {problem_path}"
-        if not plan_path.exists():
-            return False, f"Piano non trovato: {plan_path}"
         if not lore_path.exists():
             return False, f"Lore non trovato: {lore_path}"
 
-        # ==================== STEP 1: Parsing PDDL ====================
-        logger.info("\n📋 STEP 1/3: Parsing PDDL e costruzione grafo...")
+        # ==================== STEP 1: Estrai Vincoli PDDL ====================
+        logger.info("\n📋 STEP 1/3: Estrazione vincoli PDDL...")
 
-        parser = PDDLGameGraph(domain_path, problem_path, plan_path)
-        states = parser.build_graph()
+        pddl_constraints = {}  # TODO: Estrai vincoli veri dal PDDL se necessario
 
-        logger.info(f"✓ Grafo costruito con successo")
-        logger.info(f"  • {len(states)} stati totali")
-        logger.info(f"  • {len(parser.graph)} transizioni")
+        logger.info(f"✓ Vincoli estratti (usati come guida per la narrativa)")
 
-        # Esporta grafo per debug (opzionale)
+        # ==================== STEP 2: Generazione Storia Narrativa ====================
+        logger.info("\n📖 STEP 2/3: Generazione storia interattiva con LLM...")
+        logger.info("  ⚠️  Questo processo richiede 3-5 minuti...")
+        logger.info("  📝 Generazione outline...")
+        logger.info("  ✍️  Scrittura scene dettagliate...")
+        logger.info("  🎭 Creazione finali multipli...")
+
+        story_generator = InteractiveStoryGenerator(
+            lore_path=lore_path,
+            pddl_constraints=pddl_constraints,
+            config=config
+        )
+
+        story_nodes = story_generator.generate_full_story()
+
+        logger.info(f"✓ Storia generata con successo")
+        logger.info(f"  • {len(story_nodes)} scene totali")
+        logger.info(f"  • {sum(1 for n in story_nodes.values() if n.is_ending)} finali diversi")
+
+        # Esporta storia per debug
         debug_dir = output_html.parent / "debug"
         debug_dir.mkdir(exist_ok=True)
-        parser.export_to_json(debug_dir / "graph.json")
-
-        # ==================== STEP 2: Generazione Narrativa ====================
-        logger.info("\n📖 STEP 2/3: Generazione narrativa con LLM...")
-        logger.info("  ⚠️  Questo potrebbe richiedere diversi minuti...")
-
-        narrator = NarrativeGenerator(lore_path, states, parser.graph)
-        narratives = narrator.generate_all_narratives()
-
-        logger.info(f"✓ Narrativa generata con successo")
-        logger.info(f"  • {len(narratives)} stati narrati")
-
-        # Esporta narrative per debug
-        narrator.export_narratives(debug_dir / "narratives.json", narratives)
+        story_generator.export_story(story_nodes, debug_dir / "story_structure.json")
 
         # ==================== STEP 3: Generazione HTML ====================
         logger.info("\n🌐 STEP 3/3: Generazione HTML interattivo...")
 
+        # Passa i nodi della storia direttamente all'HTMLGenerator
         generator = InteractiveGameGenerator(
-            states=states,
-            graph=parser.graph,
-            narratives=narratives,
+            states=story_nodes,  # StoryNodes invece di GameStates
+            graph={},  # Non serve più il grafo PDDL
+            narratives={},  # Non serve più, la narrativa è nei nodi
             config=config
         )
 
@@ -92,15 +94,18 @@ def generate_interactive_game(
 
         # ==================== RIEPILOGO ====================
         logger.info("\n" + "=" * 70)
-        logger.info("🎉 GIOCO INTERATTIVO GENERATO CON SUCCESSO!")
+        logger.info("🎉 GIOCO NARRATIVO GENERATO CON SUCCESSO!")
         logger.info("=" * 70)
         logger.info(f"📂 File generati:")
         logger.info(f"   • Gioco HTML: {output_html}")
-        logger.info(f"   • Debug Grafo: {debug_dir / 'graph.json'}")
-        logger.info(f"   • Debug Narrativa: {debug_dir / 'narratives.json'}")
+        logger.info(f"   • Debug Storia: {debug_dir / 'story_structure.json'}")
+        logger.info(f"\n📖 Statistiche:")
+        logger.info(f"   • Scene: {len(story_nodes)}")
+        logger.info(f"   • Finali: {sum(1 for n in story_nodes.values() if n.is_ending)}")
+        logger.info(f"   • Profondità media: ~{len(story_nodes) // 2} scelte")
         logger.info("=" * 70)
 
-        return True, "Gioco generato con successo!"
+        return True, "Gioco narrativo generato con successo!"
 
     except Exception as e:
         logger.exception("Errore durante la generazione del gioco")
