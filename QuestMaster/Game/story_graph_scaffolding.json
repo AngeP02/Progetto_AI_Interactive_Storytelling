@@ -1,0 +1,685 @@
+{
+  "metadata": {
+    "total_actions": 7,
+    "max_depth": 3,
+    "branching": 2,
+    "total_nodes": 35,
+    "model": "gpt-4o-mini"
+  },
+  "nodes": [
+    {
+      "node_id": "0",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "load package1 truck warehouse",
+      "state": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "0.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "0"
+    },
+    {
+      "node_id": "0.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "0.1"
+    },
+    {
+      "node_id": "0.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "0"
+    },
+    {
+      "node_id": "0.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "0.2"
+    },
+    {
+      "node_id": "1",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck warehouse depot",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "1.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "1"
+    },
+    {
+      "node_id": "1.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "1.1"
+    },
+    {
+      "node_id": "1.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "1"
+    },
+    {
+      "node_id": "1.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "1.2"
+    },
+    {
+      "node_id": "2",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "load package2 truck depot",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "2.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "2"
+    },
+    {
+      "node_id": "2.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "2.1"
+    },
+    {
+      "node_id": "2.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "2"
+    },
+    {
+      "node_id": "2.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "2.2"
+    },
+    {
+      "node_id": "3",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck depot shop",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "3.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "3"
+    },
+    {
+      "node_id": "3.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "3.1"
+    },
+    {
+      "node_id": "3.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "3"
+    },
+    {
+      "node_id": "3.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "3.2"
+    },
+    {
+      "node_id": "4",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "unload package2 truck shop",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "4.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "4"
+    },
+    {
+      "node_id": "4.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "4.1"
+    },
+    {
+      "node_id": "4.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "4"
+    },
+    {
+      "node_id": "4.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "4.2"
+    },
+    {
+      "node_id": "5",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck shop home",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "5.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "5"
+    },
+    {
+      "node_id": "5.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "5.1"
+    },
+    {
+      "node_id": "5.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "5"
+    },
+    {
+      "node_id": "5.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "5.2"
+    },
+    {
+      "node_id": "6",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "unload package1 truck home",
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null
+    },
+    {
+      "node_id": "6.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 1,
+      "parent_id": "6"
+    },
+    {
+      "node_id": "6.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "6.1"
+    },
+    {
+      "node_id": "6.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": 2,
+      "parent_id": "6"
+    },
+    {
+      "node_id": "6.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state": [
+        "?p - package truck - vehicle ?l - location",
+        "at-package ?p ?l",
+        "at-vehicle truck ?from",
+        "at-vehicle truck ?l",
+        "at-vehicle truck ?to",
+        "in-vehicle ?p truck"
+      ],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "6.2"
+    }
+  ],
+  "edges": {
+    "0": [
+      "0.1",
+      "0.2"
+    ],
+    "0.1": [
+      "0.1.0"
+    ],
+    "0.2": [
+      "0.2.0"
+    ],
+    "1": [
+      "1.1",
+      "1.2"
+    ],
+    "1.1": [
+      "1.1.0"
+    ],
+    "1.2": [
+      "1.2.0"
+    ],
+    "2": [
+      "2.1",
+      "2.2"
+    ],
+    "2.1": [
+      "2.1.0"
+    ],
+    "2.2": [
+      "2.2.0"
+    ],
+    "3": [
+      "3.1",
+      "3.2"
+    ],
+    "3.1": [
+      "3.1.0"
+    ],
+    "3.2": [
+      "3.2.0"
+    ],
+    "4": [
+      "4.1",
+      "4.2"
+    ],
+    "4.1": [
+      "4.1.0"
+    ],
+    "4.2": [
+      "4.2.0"
+    ],
+    "5": [
+      "5.1",
+      "5.2"
+    ],
+    "5.1": [
+      "5.1.0"
+    ],
+    "5.2": [
+      "5.2.0"
+    ],
+    "6": [
+      "6.1",
+      "6.2"
+    ],
+    "6.1": [
+      "6.1.0"
+    ],
+    "6.2": [
+      "6.2.0"
+    ]
+  }
+}

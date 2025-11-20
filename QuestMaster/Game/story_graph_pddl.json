@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "initial_state_id": "state_c48e09",
+    "goal_predicates": [
+      "(at-package package1 home)",
+      "(at-package package2 shop)"
+    ],
+    "branching_min": 5,
+    "branching_max": 7,
+    "depth_min": 3,
+    "depth_max": 5,
+    "model": "gpt-4o-mini"
+  },
+  "states": {
+    "state_c48e09": {
+      "id": "state_c48e09",
+      "predicates": [
+        "(connected shop home)",
+        "(connected home shop)",
+        "(connected shop depot)",
+        "(at-package package1 warehouse)",
+        "(connected warehouse depot)",
+        "(at-vehicle truck warehouse)",
+        "(at-package package2 depot)",
+        "(connected depot warehouse)",
+        "(connected depot shop)"
+      ],
+      "depth": 0,
+      "narrative_description": "",
+      "is_goal": false
+    }
+  },
+  "edges": []
+}

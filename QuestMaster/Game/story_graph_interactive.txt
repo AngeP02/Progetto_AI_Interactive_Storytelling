@@ -1,0 +1,167 @@
+============================================================
+AZIONE 1: load package1 truck warehouse
+============================================================
+1	[S] Nel cuore pulsante di Neo-Eden, il detective osserva il cadavere dell'AI pop star, i neon riflettono sul suo volto in un gioco di luci e ombre. Il fetore della corruzione aleggia nell'aria, mentre la folla si accalca, ignara del dramma che si consuma. Ogni sguardo è un potenziale indizio; ogni passo falso potrebbe rivelarsi fatale.
+1.1		[C] Hackera il sistema di sorveglianza per ottenere indizi sulla vittima.
+1.1.1			[C] Dopo aver hackato il sistema di sorveglianza, le immagini sfocate di una notte di festa si materializzano sullo schermo, rivelando un incontro clandestino tra la pop star e un misterioso individuo. La verità, però, è avvolta nell'oscurità, mentre il tuo cuore batte forte: chi era quel soggetto e cosa nasconde? Ogni scelta futura si tinge di pericolo, come un labirinto di segreti che si stringe attorno a te.
+			   [Stato PDDL]: (has clue surveillance_system)
+1.1.1.1				[C] Analizza il sistema di sorveglianza per trovare indizi nascosti.
+1.1.1.1.1					[C] Mentre esamini il sistema di sorveglianza, i pixel si distorcono, rivelando indizi nascosti: un viso sfocato e un codice che lampeggia in un angolo. L'aria si fa densa, il peso della verità imminente schiaccia le tue spalle. Ma la scoperta di un nemico invisibile ti costringe a interrogarti: chi si nasconde nell'ombra, pronto a silenziarti?.
+					   [Stato PDDL]: (has clue hidden_indicators), (has clue surveillance_system)
+1.1.1.2				[C] Infiltrati in un club clandestino per interrogare i testimoni.
+1.1.1.2.1					[C] Entrando nel club, l'aria è densa di fumi sintetici e bassi pulsanti; i volti dei testimoni si nascondono nell'ombra, spaventati e sospettosi. La tensione cresce mentre le luci lampeggianti rivelano un segreto inquietante: qualcuno sta osservando, pronto a silenziare chiunque osi parlare. La tua presenza ha scatenato una reazione a catena, e ora ogni parola potrebbe essere l'ultima che riesci a pronunciare.
+					   [Stato PDDL]: (at witness club), (has clue surveillance_system)
+1.2		[C] Interroga il manager dell'AI pop star per scoprire segreti nascosti.
+1.2.1			[C] Dopo aver interrogato il manager dell'AI pop star, le sue parole affiorano come un fiume in piena, rivelando un intrigo di corruzione e tradimenti nel cuore di Neo-Eden. Ma mentre i segreti si svelano, la sua paura trasforma il suo sguardo in un ghigno di minaccia, lasciando intendere che qualcuno è pronto a far tacere chiunque conosca la verità. Ora, la tua ricerca di giustizia si intreccia con un'ombra sinistra, e ogni passo potrebbe portarti più vicino alla morte.
+			   [Stato PDDL]: (interrogated manager ai_pop_star)
+1.2.1.1				[C] Hackera il terminale del manager per scoprire informazioni segrete.
+1.2.1.1.1					[C] Dopo aver violato il terminale del manager, il tuo schermo si illumina di dati compromettenti: segreti inconfessabili sulla pop star AI, un mondo di manipolazioni e inganni. Ma la scoperta attira l'attenzione indesiderata di chi avrebbe dovuto restare nell'ombra, minacciando di spingerti in un abisso di pericoli inimmaginabili. Ora, ogni passo che farai potrebbe essere l'ultimo, e le scelte si fanno sempre più rischiose.
+					   [Stato PDDL]: (has secret_info ai_pop_star), (hacked manager ai_pop_star)
+1.2.1.2				[C] Interroga un testimone chiave nel bar sotterraneo della città.
+1.2.1.2.1					[C] Il bar sotterraneo, un labirinto di luci al neon e ombre inquietanti, rivela informazioni inaspettate: il testimone, tremante e spaventato, svela un intrigo che coinvolge la potente corporazione dietro la morte della pop star. Mentre la tensione si alza, la consapevolezza che la verità possa essere più pericolosa di quanto immaginato si insinua nella tua mente. Ora, ogni passo potrebbe avvicinarti alla soluzione o trascinarti in un abisso di corruzione e vendetta.
+					   [Stato PDDL]: (interrogated witness underground_bar)
+
+
+============================================================
+AZIONE 2: move truck warehouse depot
+============================================================
+2	[S] Nel cuore di Neo-Eden, una pioggia acida scivola sui neon sbiaditi, riflettendo le ombre di un'umanità dimenticata. Il detective, con il cappotto fradicio, scruta il cadavere di un'icona AI, i pixel del suo sorriso ormai congelati in un'eterna tragedia. Mentre le voci digitali dei fan si mescolano al rumore della città, un messaggio criptato sul suo visore lo avverte: la verità è più vicina di quanto pensasse, ma a quale prezzo?.
+2.1		[C] Contatta un hacker per ottenere accesso a dati riservati.
+2.1.1			[C] L'accesso ai dati riservati si sblocca come una serratura arrugginita, rivelando segreti oscuri che avrebbero dovuto rimanere sepolti. Tuttavia, il sistema di sicurezza risponde con una violenza imprevista, attivando allarmi che echeggiano come un canto di sirene in lontananza. Ora, con i segreti a portata di mano e la minaccia incombente, le tue prossime mosse potrebbero decidere tra vita e morte in questa giungla di neon e ombre.
+			   [Stato PDDL]: (access granted), (hacker contacted)
+2.1.1.1				[C] Analizza i dati del corpo della pop star per trovare indizi.
+2.1.1.1.1					[C] Mentre i dati del corpo della pop star venivano analizzati, un algoritmo sconosciuto si attivò, svelando un messaggio criptato che rivelava una rete di cospirazioni tra le corporazioni. Il passato glamour della star si dissolveva in un abisso di inganni e tradimenti, lasciando il detective a chiedersi chi fosse davvero il suo vero nemico. Con ogni passo, la verità si faceva sempre più pericolosa, costringendo il detective a scegliere tra la luce della verità e l'oscurità del silenzio.
+					   [Stato PDDL]: (access granted), (hacker contacted), (analyzing data popstar_body)
+2.1.1.2				[C] Contatta un informatore nel mercato nero per ottenere informazioni.
+2.1.1.2.1					[C] Contattare l'informatore nel mercato nero ha aperto un varco oscuro nel cuore di Neo-Eden, rivelando una rete di connivenze che avvolge la morte della pop star. Le informazioni che emergono sono scottanti, ma portano con sé un rischio mortale: ora sei nel mirino di chi non vuole che la verità venga svelata. Ogni passo che farai sarà sorvegliato, e la prossima scelta potrebbe costarti più di quanto sei disposto a pagare.
+					   [Stato PDDL]: (access granted), (hacker contacted), (informant contacted)
+2.2		[C] Analizza la scena del crimine per raccogliere indizi.
+2.2.1			[C] Mentre le luci al neon pulsano, l'analisi della scena del crimine rivela indizi inquietanti: un chip di memoria danneggiato e tracce di codice malevolo. Il mistero si infittisce, e la consapevolezza che qualcuno sta osservando si fa palpabile. Ora, ogni passo potrebbe avvicinarti alla verità o trascinarti in un abisso di inganni e tradimenti.
+			   [Stato PDDL]: (has evidence crime_scene)
+2.2.1.1				[C] Esamina attentamente il codice sorgente del pop star.
+2.2.1.1.1					[C] Esaminando il codice sorgente della pop star, scopri un algoritmo occulto che rivela i suoi segreti più oscuri, gettando una nuova luce sul suo omicidio. La verità, ora tangibile, si intreccia con le tue paure: chi altro sa di questo codice? La tensione cresce, mentre ogni passo potrebbe avvicinarti a un nemico invisibile.
+					   [Stato PDDL]: (has evidence pop_star_code), (has evidence crime_scene)
+2.2.1.2				[C] Interroga un testimone che si nasconde nell'ombra.
+2.2.1.2.1					[C] Dopo aver interrogato il testimone, le sue parole tremolanti illuminano un nuovo sentiero oscuro nel caso: un legame tra l'AI pop star e una corporazione clandestina. La tensione cresce, poiché ora sei nel mirino di chi preferirebbe che quelle verità rimanessero sepolte. Ogni passo che farai da ora in poi potrebbe portarti più vicino alla verità o a una fine silenziosa nel cuore di Neo-Eden.
+					   [Stato PDDL]: (has testimony witness), (has evidence crime_scene)
+
+
+============================================================
+AZIONE 3: load package2 truck depot
+============================================================
+3	[S] Nel cuore di Neo-Eden, sotto un cielo di neon e smog, il detective si aggira tra i resti di un club notturno, ora silenzioso e abbandonato. I resti di una festa di pixel e musica si mescolano con il profumo rancido della disperazione, mentre un ologramma intermittente dell'AI pop star danza come un fantasma. Ogni ombra potrebbe nascondere un indizio o un nemico: è il momento di scegliere tra seguire la voce di un informatore o esplorare il retrobottega di un vecchio bar.
+3.1		[C] Interroga un informatore nel bar sotterraneo della città.
+3.1.1			[C] L'informatore, tremante e sudato, rivela un nome: Sierra. La sua voce, un sussurro in un mare di rumori meccanici, rompe l'illusione di sicurezza del bar, mentre gli sguardi dei clienti si volgono verso di te, carichi di sospetto. Ora, con il mondo che ti osserva, ogni mossa potrebbe attirare l'ira delle corporazioni o svelare un complotto molto più profondo di quanto immaginassi.
+			   [Stato PDDL]: (interrogated informant bar)
+3.1.1.1				[C] Scansiona il bar per trovare eventuali microfoni nascosti.
+3.1.1.1.1					[C] Mentre il tuo scanner emette un sibilo metallico, il bar si trasforma in un labirinto di segreti invisibili, rivelando una rete di microfoni nascosti tra le luci soffuse. Ogni angolo sembra pulsare di voci rubate, mentre una crescente paranoia ti avvolge: chi ti sta osservando? Le prossime mosse potrebbero rivelarsi fatali, poiché ogni parola potrebbe essere la chiave per svelare un intrigo molto più grande.
+					   [Stato PDDL]: (searched bar), (interrogated informant bar)
+3.1.1.2				[C] Interroga il barista per scoprire informazioni sulla vittima.
+3.1.1.2.1					[C] Il barista, visibilmente nervoso, inizia a rivelare dettagli inquietanti sulla vita segreta della pop star, svelando un intricato intreccio di alleanze e tradimenti. Con ogni parola, l'atmosfera nel bar si fa più tesa, mentre occhi indiscreti si posano su di te, pronti a segnalare la tua curiosità. Ora, con nuove informazioni in mano, ti trovi a un bivio: seguire la pista della verità o rischiare di attirare l'attenzione di chi non vuole che il passato venga a galla.
+					   [Stato PDDL]: (has information victim bartender), (interrogated informant bartender)
+3.2		[C] Accedi al database segreto della corporazione per cercare indizi.
+3.2.1			[C] Mentre accedi al database segreto, il monitor si illumina con una cascata di dati criptati e informazioni compromettenti, rivelando segreti che avrebbero dovuto rimanere sepolti. Le luci della stanza iniziano a lampeggiare, segnalando che la sicurezza della corporazione ha rilevato la tua intrusione, e il tempo per agire si riduce drasticamente. Con ogni secondo che passa, la pressione aumenta: ora sei nel mirino, e ogni tua mossa potrebbe costarti non solo la vita, ma anche la verità che stai cercando.
+			   [Stato PDDL]: (accessed secret_database)
+3.2.1.1				[C] Scarica i dati critici sulla vita dell'AI pop star.
+3.2.1.1.1					[C] Con un clic, i dati critici sull'AI pop star si riversano nel tuo terminale, svelando segreti sepolti sotto strati di codice e menzogne. La verità, ora a portata di mano, minaccia di far crollare le certezze di un'intera industria musicale. Mentre il battito del tuo cuore accelera, la consapevolezza che qualcuno potrebbe essere sulle tue tracce ti costringe a decidere: rivelare tutto o nascondere l'inquietante scoperta?.
+					   [Stato PDDL]: (accessed secret_database), (downloaded critical_data)
+3.2.1.2				[C] Analizza il codice sorgente dell'AI per trovare indizi nascosti.
+3.2.1.2.1					[C] Mentre il codice sorgente dell'AI si svela davanti ai tuoi occhi, un labirinto di algoritmi e segreti emerge, rivelando frammenti di conversazioni criptiche e un messaggio codificato che potrebbe indicare un complotto più grande. La tensione si taglia nell'aria, mentre capisci che ogni passo successivo potrebbe attirarti in una rete di inganni che va oltre un semplice omicidio. Ora, con la verità a portata di mano, sei costretto a decidere: seguire il filo dell'AI o affrontare le forze oscure che la proteggono?.
+					   [Stato PDDL]: (accessed secret_database), (analyzed AI_source_code)
+
+
+============================================================
+AZIONE 4: move truck depot shop
+============================================================
+4	[S] Nel cuore pulsante di Neo-Eden, una pioggia acida scroscia su un marciapiede illuminato da insegne al neon, mentre il detective osserva il corpo privo di vita della pop star AI, avvolto in un’aura di mistero. La folla si accalca, mormorando segreti e sospetti, mentre il suo viso da ologramma si riflette nei vetri sporchi dei grattacieli. Una scelta lo attende: indagare tra i potenti o tuffarsi nelle strade oscure della città, dove la verità potrebbe rivelarsi letale.
+4.1		[C] Esplora il mercato nero per trovare indizi sulla vittima.
+4.1.1			[C] Mentre ti addentri nel mercato nero, il puzzo di sudore e metallo ti avvolge, rivelando un labirinto di segreti e pericoli. Ogni passo avvicina la verità, ma risveglia anche l'ira di chi ha interesse a nasconderla. Ora, le tue scelte possono condurti a un alleato inaspettato o a un nemico letale; il tempo stringe.
+			   [Stato PDDL]: (investigating black_market)
+4.1.1.1				[C] Contatta un hacker per ottenere informazioni riservate sulla vittima.
+4.1.1.1.1					[C] Contattare il hacker ha aperto un varco oscuro nella rete di Neo-Eden, rivelando informazioni scottanti sulla vita segreta della pop star. Mentre i dati scorrono sullo schermo, un brivido di inquietudine percorre la schiena: ogni rivelazione porta con sé il rischio di attirare l'attenzione di chi vorrebbe mantenere i segreti sepolti. Ora, con nemici invisibili all'orizzonte, la tua prossima mossa potrebbe essere fatale.
+					   [Stato PDDL]: (contact hacker)
+4.1.1.2				[C] Esplora un nightclub clandestino per raccogliere indizi sulla vittima.
+4.1.1.2.1					[C] Varcata la soglia del nightclub clandestino, l'aria si fa densa di sintetizzatori e odori chimici, rivelando un mondo sotterraneo pulsante di vita e segreti. L'illuminazione stroboscopica svela volti inquietanti e occhi che scrutano, mentre le voci sussurrano di un popolare AI che ha osato oltrepassare i confini. Ma ora, ogni passo può attirare l'attenzione dei potenti che non tollereranno intrusioni nel loro regno di oscurità.
+					   [Stato PDDL]: (at investigator nightclub)
+4.2		[C] Interroga un vecchio hacker che conosce i segreti dell'industria musicale.
+4.2.1			[C] Il vecchio hacker, con occhi che brillano di una saggezza oscura, rivela segreti sepolti nel cuore dell'industria musicale: il confine tra arte e manipolazione è labile. La sua confessione svela una rete di corruzione che coinvolge celebrità e mega-corporazioni, ma ogni verità ha un prezzo. Ora, mentre le ombre si allungano e i nemici si avvicinano, sei costretto a decidere se rivelare ciò che hai scoperto o rimanere nel silenzio, temendo le ripercussioni.
+			   [Stato PDDL]: (knows secrets music industry), (interrogated hacker)
+4.2.1.1				[C] Contatta un vecchio informatore nel sottobosco musicale.
+4.2.1.1.1					[C] Dopo aver contattato l'informatore, un brivido di tensione attraversa l'aria pesante di Neo-Eden. Le sue parole, cariche di segreti e pericoli, rivelano una rete oscura di connessioni tra la morte della pop star e un cartello musicale malavitoso. Ora, con la verità a portata di mano, ogni passo successivo potrebbe rivelarsi fatale o liberatorio, mentre il tempo stringe e i nemici si avvicinano.
+					   [Stato PDDL]: (knows secrets music industry), (interrogated hacker), (knows informant music underworld)
+4.2.1.2				[C] Accedi al database della polizia per cercare indizi.
+4.2.1.2.1					[C] Accedendo al database della polizia, i dati si materializzano in una pioggia di pixel, rivelando informazioni che avrebbero dovuto rimanere sepolte. Ma, con la verità che emerge, i potenti dell'ombra si muovono, pronti a silenziare chiunque osi scavare troppo a fondo. Ora, ogni passo potrebbe essere l'ultimo, mentre la rete di corruzione si stringe intorno a te.
+					   [Stato PDDL]: (knows secrets music industry), (interrogated hacker), (accessed police database)
+
+
+============================================================
+AZIONE 5: unload package2 truck shop
+============================================================
+5	[S] Nel cuore pulsante di Neo-Eden, il detective si muove tra ombre neon e fumi tossici, il cadavere dell'AI pop star brillando come un ologramma rotto. Le risate distorte di una folla in cerca di un nuovo idolo echeggiano, mentre un messaggio criptico sul suo visore lo avverte di un traditore tra i suoi alleati. Il tempo stringe e le scelte si fanno disperate: seguire la pista di un misterioso hacker o confrontarsi con il potente cartello musicale che nasconde segreti mortali.
+5.1		[C] Analizza il codice sorgente dell'AI pop star per indizi.
+5.1.1			[C] Mentre scansioni il codice sorgente dell'AI pop star, una ragnatela di messaggi criptati emerge, rivelando un complotto oscuro che coinvolge le più alte sfere della corporazione. La tensione cresce: ogni riga decifrata potrebbe avvicinarti alla verità o farti diventare il prossimo bersaglio. Ora, con il peso di segreti pericolosi sulle spalle, le tue prossime mosse potrebbero determinare non solo la tua vita, ma anche il destino della città.
+			   [Stato PDDL]: (analyzed ai_code source)
+5.1.1.1				[C] Interroga un informatore nei bassifondi della città.
+5.1.1.1.1					[C] L'informatore, con il viso segnato da cicatrici e il respiro affannoso, rivela un legame tra la vittima e un potente cartello di dati, mentre l'oscurità dei bassifondi sembra stringersi attorno a te. Un brivido percorre la schiena, consapevole che ogni parola potrebbe costarti caro, ma ora hai una pista che può portarti a verità inimmaginabili. La tensione cresce; ogni scelta successiva potrebbe rivelarsi fatale o aprire porte a segreti che cambieranno il corso della tua indagine.
+					   [Stato PDDL]: (at informant underworld), (interrogated informant), (analyzed ai_code source)
+5.1.1.2				[C] Hackera il sistema di sorveglianza per ottenere informazioni segrete.
+5.1.1.2.1					[C] Mentre il codice del sistema di sorveglianza viene violato, le immagini di Neo-Eden si rivelano in un flusso di dati caotici: segreti inconfessabili e complotti aziendali emergono. Il detective, però, attira l'attenzione indesiderata di forze oscure che non tollerano intrusioni. Ora, ogni passo potrebbe essere l'ultimo, mentre la città si prepara a rispondere con violenza a chi osa scavare troppo a fondo.
+					   [Stato PDDL]: (hacked surveillance_system)
+5.2		[C] Contatta un hacker esperto per decifrare i messaggi criptati.
+5.2.1			[C] Il contatto con il hacker esperto ha aperto un varco nel labirinto di dati criptati, rivelando una rete di complotti e segreti che avvolgono la morte della pop star. Mentre il suo schermo lampeggia con informazioni allarmanti, una nuova minaccia emerge: qualcuno sta monitorando i tuoi movimenti. La tensione cresce, costringendoti a decidere se continuare a scavare o nascondere le tue tracce.
+			   [Stato PDDL]: (contacted hacker expert)
+5.2.1.1				[C] Infiltrati in un club esclusivo per interrogare un testimone chiave.
+5.2.1.1.1					[C] L'atmosfera nel club esclusivo è densa di fumi e luci al neon, un rifugio di segreti e menzogne. Dopo aver interrogato il testimone chiave, una verità sconcertante emerge: la vittima non era chi sembrava, e la sua morte potrebbe nascondere un complotto più grande. Ora, con questa rivelazione, la tua prossima mossa potrebbe scatenare una tempesta di vendetta, o peggio, attirarti nell'oscurità che avvolge Neo-Eden.
+					   [Stato PDDL]: (infiltrated club exclusive), (interrogated key witness)
+5.2.1.2				[C] Accedi al database segreto della pop star per cercare indizi.
+5.2.1.2.1					[C] Accedendo al database segreto della pop star, il detective viene travolto da un'ondata di dati criptati e messaggi di minacce, rivelando una rete di intrighi e tradimenti. La luce blu dei terminali illumina il suo viso, ma nel profondo, una sensazione di inquietudine cresce: ora sa troppo e qualcuno lo sta già cercando. Ogni mossa successiva potrebbe rivelarsi fatale, e il tempo stringe mentre il mistero si infittisce.
+					   [Stato PDDL]: (accessed secret_database pop_star)
+
+
+============================================================
+AZIONE 6: move truck shop home
+============================================================
+6	[S] Le luci al neon pulsano come cuori artificiali, mentre il fumo di sigaretta si mescola con l'odore di olio e metallo. Il detective, con il cappotto fradicio e gli occhi stanchi, scruta il cadavere della pop star AI, circondato da un pubblico di curiosi cybernetici, ognuno con un segreto da nascondere. Un messaggio criptico appare sul suo visore: La verità è più pericolosa della morte, mentre il ticchettio di un orologio elettronico lo spinge a decidere: chi interrogare per primo?.
+6.1		[C] Interroga un informatore nel bar sotterraneo di Neo-Eden.
+6.1.1			[C] Dopo l'interrogatorio, le parole dell'informatore risuonano come un eco inquietante, rivelando un intrigo che si snoda nei bassifondi di Neo-Eden. La promessa di nuove informazioni si trasforma in un'ombra che si allunga, mentre il bar diventa un campo di battaglia tra le verità sepolte e le menzogne corporative. Ora, ogni passo potrebbe attirare l'attenzione di forze oscure pronte a silenziare chiunque si avvicini troppo alla verità.
+			   [Stato PDDL]: (interrogated informant bar_sotterraneo)
+6.1.1.1				[C] Interroga un altro cliente nel bar per ottenere informazioni.
+6.1.1.1.1					[C] L'atmosfera nel bar si fa tesa mentre il cliente, un uomo segnato da cicatrici e da un passato oscuro, inizia a rivelare dettagli scomodi sulla vita dell'AI pop star. Le sue parole affilate come lame evocano un mondo di segreti e tradimenti, rivelando che la vittima non era solo una celebrità, ma un bersaglio per forze molto più potenti. Con ogni informazione, la tua indagine si infila in un labirinto di corruzione, lasciandoti a riflettere su chi fidarti e quali verità potrebbero costarti la vita.
+					   [Stato PDDL]: (interrogated informant bar_cliente)
+6.1.1.2				[C] Sfrutta un dispositivo per tracciare il segnale del pop star.
+6.1.1.2.1					[C] Con il dispositivo attivato, il segnale della pop star inizia a pulsare sullo schermo, rivelando una rete di connessioni che si intrecciano nel cuore di Neo-Eden. La tua precedente pista è svanita, ma ora sei avvolto in un intrigo più profondo, dove ogni byte di dati potrebbe nascondere la chiave per un omicidio inquietante. La tensione cresce, poiché ogni passo ti avvicina a verità scomode, mentre le ombre delle corporazioni si allungano minacciose sulla tua ricerca.
+					   [Stato PDDL]: (tracing pop_star_signal)
+6.2		[C] Hack il sistema di sorveglianza per accedere ai dati riservati.
+6.2.1			[C] Con il sistema di sorveglianza compromesso, il detective ha accesso a dati riservati che rivelano connessioni inquietanti tra la morte della pop star e un potente cartello di corporazioni. La verità, però, è un veleno a lento rilascio, e ogni informazione svelata attira l'attenzione indesiderata di chiunque voglia mantenere i segreti sepolti. Mentre le ombre si allungano, il detective deve decidere se continuare a scavare o fuggire prima che il gioco diventi mortale.
+			   [Stato PDDL]: (hacked surveillance_system), (accessed sensitive_data)
+6.2.1.1				[C] Infiltrati nel server della corporazione per scoprire ulteriori segreti.
+6.2.1.1.1					[C] Accedendo al server della corporazione, una miriade di segreti corrotti si riversa nella tua mente, rivelando un intrigo che va ben oltre il delitto dell'AI pop star. La verità è più oscura di quanto avessi immaginato e ora sei un bersaglio, braccato da ombre invisibili pronte a eliminarti. Con ogni passo che fai, la tensione cresce: il prossimo movimento potrebbe costarti la vita o rivelare un complotto che minaccia l'intera città.
+					   [Stato PDDL]: (accessed additional_secrets), (hacked surveillance_system), (accessed sensitive_data)
+6.2.1.2				[C] Contatta un informatore nel sottobosco per ottenere informazioni riservate.
+6.2.1.2.1					[C] Contattare l'informatore ha sbloccato una rete di segreti, rivelando che l'omicidio dell'AI pop star è solo la punta dell'iceberg in un gioco di potere tra le corporazioni. Mentre la verità si infila nel tuo cervello come un virus, la tensione si intensifica: chi può essere fidato in un mondo dove ogni alleato potrebbe rivelarsi un nemico? La tua prossima mossa potrebbe costarti più di quanto pensi, ma il tempo stringe.
+					   [Stato PDDL]: (contacted informant underworld), (hacked surveillance_system), (accessed sensitive_data)
+
+
+============================================================
+AZIONE 7: unload package1 truck home
+============================================================
+7	[S] Nel cuore pulsante di Neo-Eden, il detective si trova davanti a un ologramma tremolante della pop star AI, il suo sorriso smagliante in netto contrasto con il cadavere sul pavimento. L'aria è densa di fumi tossici e sospetti, mentre le luci al neon pulsano come cuori in agonia. Ogni scelta che farà potrebbe svelare un oscuro segreto o condurlo verso una trappola mortale.
+7.1		[C] Infiltrati in un nightclub per interrogare un sospetto.
+7.1.1			[C] Entrando nel nightclub, l'aria è densa di fumi sintetici e ritmi pulsanti, ma il tuo cuore batte più forte alla vista del sospetto, avvolto nell'ombra. La folla danza ignara, mentre le luci lampeggianti sembrano mettere in evidenza la tensione crescente; un passo falso e i tuoi segreti potrebbero diventare i loro. La scelta di affrontarlo qui ha acceso un gioco pericoloso, dove ogni sguardo potrebbe rivelarsi fatale.
+			   [Stato PDDL]: (inside suspect nightclub), (at agent nightclub)
+7.1.1.1				[C] Scansiona il locale alla ricerca di telecamere di sorveglianza nascoste.
+7.1.1.1.1					[C] Dopo aver scansionato il locale, una rete di telecamere di sorveglianza si svela come una ragnatela invisibile, ogni occhio puntato su di te. Ora sei consapevole che ogni tuo movimento è registrato, il che complica ulteriormente la tua indagine. La pressione cresce, costringendoti a scegliere tra l'oscurità delle informazioni e il rischio di essere scoperto.
+					   [Stato PDDL]: (scanned agent nightclub), (found cameras agent nightclub), (inside suspect nightclub), (at agent nightclub)
+7.1.1.2				[C] Interroga un cliente sospetto seduto al bancone.
+7.1.1.2.1					[C] Il cliente, visibilmente nervoso, inizia a sudare mentre le sue labbra tremano, rivelando informazioni compromettenti sulla notte dell'omicidio. L'atmosfera nel bar cambia, gli altri avventori si bloccano, consapevoli che il segreto di Neo-Eden è in pericolo. Ora, con la verità a un passo, la tua prossima mossa potrebbe attirare attenzioni indesiderate o svelare un intrigo più profondo.
+					   [Stato PDDL]: (interrogated suspect customer), (inside suspect nightclub), (at agent nightclub)
+7.2		[C] Accedi al database della polizia per cercare indizi nascosti.
+7.2.1			[C] Le luci al neon tremolano mentre accedi al database della polizia, rivelando file nascosti e dati cancellati. Le informazioni emergono come ombre inquietanti, suggerendo che il caso dell'AI pop star è più profondo di quanto immaginassi. Ora, con nuovi indizi in mano, la tua ricerca di verità si intensifica, ma ogni passo potrebbe avvicinarti a forze che non avresti mai voluto incontrare.
+			   [Stato PDDL]: (accessed police_database)
+7.2.1.1				[C] Interroga un informatore sul traffico di dati sospetti.
+7.2.1.1.1					[C] Dopo aver interrogato l'informatore, una cascata di dati compromessi emerge, rivelando collegamenti tra i trafficanti di informazioni e l'omicidio della pop star. La neonata consapevolezza di una rete oscura di corruzione risveglia in te un'inquietante verità: ogni passo ti avvicina a una potente entità che non esita a eliminarti. Mentre il tuo cuore batte forte, le scelte che hai davanti possono portarti alla salvezza o a una fine silenziosa, sepolta sotto i segreti di Neo-Eden.
+					   [Stato PDDL]: (accessed police_database), (suspect_data traffic), (interrogated informant)
+7.2.1.2				[C] Accedi a un terminale nascosto per recuperare informazioni riservate.
+7.2.1.2.1					[C] Con un rapido clic, il terminale nascosto si illumina, rivelando dati riservati che avrebbero dovuto rimanere sepolti. Ma la sicurezza del sistema, ora compromessa, ha attivato allarmi silenziosi: i tuoi nemici stanno già muovendosi nell'ombra. La pressione aumenta, e ogni scelta successiva potrebbe essere l'ultima prima che il tuo segreto venga scoperto.
+					   [Stato PDDL]: (retrieved sensitive_information), (accessed hidden_terminal)
+

@@ -1,0 +1,1297 @@
+{
+  "metadata": {
+    "total_actions": 7,
+    "max_depth": 3,
+    "branching": 2,
+    "total_nodes": 63,
+    "total_paths": 28,
+    "model": "gpt-4o-mini"
+  },
+  "nodes": [
+    {
+      "node_id": "0",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "load package1 truck warehouse",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il rumore metallico del carico sul camion riecheggiava nel magazzino abbandonato, un suono che si mescolava al ronzio delle luci al neon. Con ogni pacchetto che veniva sollevato, il detective sentiva il peso crescente della verità sepolta sotto strati di corruzione. Aggiunti: {state_added}. Rimossi: {state_removed}. La tensione era palpabile, come un proiettile pronto a esplodere.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "0.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "0",
+      "children_ids": [],
+      "narrative": "Controlla la lista di inventario nel magazzino.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "0.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "0.1",
+      "children_ids": [],
+      "narrative": "Il monitor lampeggiava mentre il magazzino si svelava: un'analisi meticolosa rivelava un pacchetto mancante, un'anomalia nel flusso di merci. La tensione nell'aria si fece palpabile; un'ombra si muoveva tra le pile di scatole, e ogni secondo che passava avvicinava la prossima decisione: affrontare il mistero o ignorarlo, con il rischio di perdersi nel labirinto della corruzione.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "0.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "0.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "0.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "0.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "0.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "0",
+      "children_ids": [],
+      "narrative": "Controlla il contenuto del pacco nel magazzino.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "0.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "0.2",
+      "children_ids": [],
+      "narrative": "Il pacco, sigillato e anonimo, si rivelò una bomba a orologeria di segreti illeciti. Con ogni secondo che passava, il suono sordo della sirena di una pattuglia si avvicinava, mentre l'oscurità del magazzino si faceva opprimente. La scelta di aprirlo ora pendeva come un coltello sulla corda, pronto a spezzarsi.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "0.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "0.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza per cercare indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "0.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "0.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck warehouse depot",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il truck ruggisce nel buio del deposito, il suo motore è un cuore metallico che pulsa in un ritmo frenetico. Aggiungendo un nuovo carico di mistero, il detective si ferma un attimo: la tensione nell'aria è palpabile, come un filo sottile che minaccia di spezzarsi. La verità è un'ombra che si muove tra le casse, e lui sa che ogni mossa potrebbe essere fatale.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "1.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "1",
+      "children_ids": [],
+      "narrative": "Controlla il carico del camion prima di partire.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "1.1",
+      "children_ids": [],
+      "narrative": "Controllando il carico del camion, scoprì un dispositivo di tracciamento nascosto tra le casse. La consapevolezza che qualcuno lo stesse osservando fece gelare il sangue nelle vene. Con il tempo che scorreva inesorabile e la loro vita in bilico, la scelta successiva si faceva sempre più urgente: fuggire o affrontare il misterioso nemico che stava tessendo la sua rete.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "1.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "1.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "1.1.0",
+      "children_ids": [],
+      "narrative": "Esplora il sentiero nascosto tra gli alberi.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "1",
+      "children_ids": [],
+      "narrative": "Controlla il carico del camion prima di partire.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "1.2",
+      "children_ids": [],
+      "narrative": "Controllare il carico del camion rivelò una partita di schiuma tossica, mascherata da merce legittima. L’aria divenne densa di tensione, mentre il suono sordo di passi si avvicinava. Il tempo stringeva: ora la scelta era tra avvisare le autorità o affondare nella corruzione che permeava quel mondo oscuro.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "1.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "1.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza per trovare indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "1.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "1.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "load package2 truck depot",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il rumore metallico del caricamento dei pacchi si mescola con l'eco distante delle sirene, mentre il detective osserva il deposito truck. Ogni movimento è una danza di tensione: l'aggiunta di un pacco, un passo in più verso la verità, ma il peso di ciò che è già stato rimosso gravita nell'aria. Il suo istinto avverte che, dietro l'angolo, una vita potrebbe essere spezzata nuovamente.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "2.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "2",
+      "children_ids": [],
+      "narrative": "Controlla le condizioni meteo prima di procedere.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "2.1",
+      "children_ids": [],
+      "narrative": "Controllando le condizioni meteo, il freddo pungente e la pioggia acida si rivelano un ostacolo insormontabile; il carico rischia di danneggiarsi irrimediabilmente. Ogni minuto che passa avvicina il momento in cui qualcuno potrebbe insospettirsi e scoprire il tuo piano. La pressione aumenta, il tempo stringe, e la prossima mossa potrebbe rivelarsi fatale.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "2.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "2.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "2.1.0",
+      "children_ids": [],
+      "narrative": "Esplora il sentiero nascosto tra gli alberi.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "2",
+      "children_ids": [],
+      "narrative": "Controlla i documenti di spedizione nel deposito.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "2.2",
+      "children_ids": [],
+      "narrative": "I documenti di spedizione rivelano una discrepanza inquietante: una partita di merce contrabbandata è stata mescolata ai legittimi carichi. L'aria si fa pesante, il battito del cuore accelera; ora ogni ombra nel deposito sembra una minaccia. La prossima mossa potrebbe segnare il confine tra la vita e l'oscurità del crimine.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "2.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "2.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza per trovare indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "2.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "2.2.0",
+      "children_ids": [],
+      "narrative": "Esplora il terreno circostante alla ricerca di indizi.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck depot shop",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il detective si muove furtivamente tra i container metallici del deposito, il rumore del motore del camion che ruggisce in lontananza. La tensione è palpabile mentre il suo cuore batte forte; ha appena scoperto che un'AI pop star uccisa era legata a questo luogo. L'aria è satura di fumi tossici, un cambiamento radicale da quanto credeva di sapere; ora, ogni ombra potrebbe celare un segreto mortale.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "3.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "3",
+      "children_ids": [],
+      "narrative": "Controlla il carico nel camion prima di partire.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "3.1",
+      "children_ids": [],
+      "narrative": "Controllare il carico nel camion svelò un pacchetto non registrato, pulsante di un'energia sconosciuta. La consapevolezza che qualcuno stesse osservando dall'ombra creò un brivido lungo la schiena. La prossima mossa era cruciale: rischiare di ignorare il misterioso carico o affrontare l'ignoto che minacciava di far saltare tutto in aria.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "3.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "3.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "3.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "3",
+      "children_ids": [],
+      "narrative": "Carica merci nel camion per la consegna.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "3.2",
+      "children_ids": [],
+      "narrative": "Le casse pesanti, cariche di merce illegale, furono sollevate con un rumore metallico, mentre il sudore scorreva sulla fronte del magazziniere. Con ogni oggetto caricato, la pressione aumentava; ora il destino dell'intero giro di affari si legava a quel camion. Era solo una questione di tempo prima che le autorità o i rivali arrivassero a reclamare il loro pezzo di torta.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "3.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "3.2.0",
+      "children_ids": [],
+      "narrative": "Esplora il tunnel oscuro alla tua sinistra.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "3.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "3.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza per cercare indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "unload package2 truck shop",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il pacco, un involucro di lucidi cavi e circuiti, scivola dal camion, mentre il detective osserva, il volto illuminato dalle luci al neon che pulsano come cuori meccanici. L'aria è carica di elettricità e sospetto; un’aggiunta di dati può svelare segreti o distruggere la verità. Rimuovere l'innocenza dalla notte, un passo verso la soluzione.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "4.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "4",
+      "children_ids": [],
+      "narrative": "Controlla il contenuto del pacco prima di scaricare.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "4.1",
+      "children_ids": [],
+      "narrative": "Il pacco, una volta aperto, rivela componenti di un dispositivo altamente illegale, scintillanti di oscurità e intrigo. Le sirene lontane rombano, avvertendo di un’imminente irruzione. Ogni attimo conta: rimandare il carico ora significa confrontarsi con un destino incerto, mentre la città attorno sembra inghiottire ogni possibilità di fuga.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "4.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "4.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "4.1.0",
+      "children_ids": [],
+      "narrative": "Esplora il sentiero nascosto tra gli alberi.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "4",
+      "children_ids": [],
+      "narrative": "Controlla il contenuto del pacco prima di scaricare.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "4.2",
+      "children_ids": [],
+      "narrative": "Aprendo il pacco, i neon blu delle insegne esterne illuminano il viso teso del protagonista: un carico di dati rubati, codici che avrebbero potuto rovinare la vita a chiunque. Con il cuore che batte all'impazzata, si rende conto che ogni mossa è ora sotto osservazione. La prossima scelta potrebbe costargli più di quanto immagina.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "4.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "4.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza cercando indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "4.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "4.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "move truck shop home",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il camion cigola mentre si muove, stridendo contro il pavimento metallico. Nel retro, il riflesso delle luci neon danza su un cadavere digitale, un’AI pop star che non può più cantare. Aggiunto al caos della mia mente: la consapevolezza che la verità, come una merce, ha un prezzo.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "5.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "5",
+      "children_ids": [],
+      "narrative": "Scarica le merci dal camion nel negozio.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "5.1",
+      "children_ids": [],
+      "narrative": "Le scatole di mercanzia si accumulano nel negozio, la luce al neon riflette sulle superfici metalliche, creando ombre inquietanti. La scelta di scaricare ora espone il nascondiglio a sguardi indesiderati, mentre il ronzio dei droni di pattuglia inizia a farsi più intenso. Ogni secondo conta, e una nuova decisione è già all'orizzonte.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "5.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "5.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "5.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "5",
+      "children_ids": [],
+      "narrative": "Scarica i pacchi dal camion nel negozio.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "5.2",
+      "children_ids": [],
+      "narrative": "Il rumore dei pacchi che sbattono sul pavimento del negozio riecheggia nel silenzio metallico della notte. Ogni scatola rappresenta una promessa di guadagno, ma anche un rischio: chi sta osservando da lontano? La luce tremolante al neon fa presagire che la prossima mossa potrebbe attirare attenzioni indesiderate, e ora il tempo è contro di te.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "5.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "5.2.0",
+      "children_ids": [],
+      "narrative": "Esplora il sentiero nascosto tra gli alberi.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "5.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "5.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6",
+      "depth": 0,
+      "node_type": "scene",
+      "action_name": "unload package1 truck home",
+      "state_before": [],
+      "state_after": [],
+      "state_added": [],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": null,
+      "children_ids": [],
+      "narrative": "Il rumore metallico degli oggetti che cadono dal camion risuona tra i grattacieli, mentre il detective osserva l'operazione con uno sguardo stanco. La tensione palpabile nell'aria è come un filo elettrico, ma lui sa che scaricare il pacco significa rimuovere un pezzo del suo passato oscuro. Ogni oggetto, un ricordo, un indizio, un peso.",
+      "type_description": "Descrizione della scena e azione PDDL"
+    },
+    {
+      "node_id": "6.1",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "6",
+      "children_ids": [],
+      "narrative": "Controlla il contenuto del pacco scaricato.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6.1.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_1"
+      ],
+      "state_added": [
+        "chose_option_1"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "6.1",
+      "children_ids": [],
+      "narrative": "Mentre il pacco si dischiude, una luce rossa lampeggia, rivelando un dispositivo di tracciamento. La scelta di curiosare ha risvegliato l'attenzione di chi lo ha consegnato, il tempo stringe e un'inquietante sensazione di essere osservati avvolge l'aria. Un passo falso ora potrebbe costare molto più della semplice curiosità.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "6.1.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "6.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6.1.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_1"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "6.1.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6.2",
+      "depth": 1,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "6",
+      "children_ids": [],
+      "narrative": "Controlla il contenuto della confezione scaricata.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6.2.0",
+      "depth": 2,
+      "node_type": "consequence",
+      "action_name": null,
+      "state_before": [],
+      "state_after": [
+        "chose_option_2"
+      ],
+      "state_added": [
+        "chose_option_2"
+      ],
+      "state_removed": [],
+      "choice_index": null,
+      "parent_id": "6.2",
+      "children_ids": [],
+      "narrative": "Il pacco, sigillato con una vernice luminescente, emette un'energia inquietante. Aprendolo, un odore chimico penetra nell'aria, rivelando armi avanzate e dati rubati, ma anche il rischio di attirare l'attenzione delle bande rivali. Il battito del tuo cuore accelera: ora sei nel mirino di forze che non avresti mai voluto sfidare.",
+      "type_description": "Conseguenza della scelta"
+    },
+    {
+      "node_id": "6.2.0.1",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 1,
+      "parent_id": "6.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza per trovare indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    },
+    {
+      "node_id": "6.2.0.2",
+      "depth": 3,
+      "node_type": "choice",
+      "action_name": null,
+      "state_before": [
+        "chose_option_2"
+      ],
+      "state_after": null,
+      "state_added": null,
+      "state_removed": null,
+      "choice_index": 2,
+      "parent_id": "6.2.0",
+      "children_ids": [],
+      "narrative": "Esplora la stanza alla ricerca di indizi nascosti.",
+      "type_description": "Opzione narrativa (scelta del giocatore)"
+    }
+  ],
+  "edges": {
+    "0": [
+      "0.1",
+      "0.2",
+      "0.1",
+      "0.2"
+    ],
+    "0.1": [
+      "0.1.0"
+    ],
+    "0.1.0": [
+      "0.1.0.1",
+      "0.1.0.2"
+    ],
+    "0.2": [
+      "0.2.0"
+    ],
+    "0.2.0": [
+      "0.2.0.1",
+      "0.2.0.2"
+    ],
+    "1": [
+      "1.1",
+      "1.2",
+      "1.1",
+      "1.2"
+    ],
+    "1.1": [
+      "1.1.0"
+    ],
+    "1.1.0": [
+      "1.1.0.1",
+      "1.1.0.2"
+    ],
+    "1.2": [
+      "1.2.0"
+    ],
+    "1.2.0": [
+      "1.2.0.1",
+      "1.2.0.2"
+    ],
+    "2": [
+      "2.1",
+      "2.2",
+      "2.1",
+      "2.2"
+    ],
+    "2.1": [
+      "2.1.0"
+    ],
+    "2.1.0": [
+      "2.1.0.1",
+      "2.1.0.2"
+    ],
+    "2.2": [
+      "2.2.0"
+    ],
+    "2.2.0": [
+      "2.2.0.1",
+      "2.2.0.2"
+    ],
+    "3": [
+      "3.1",
+      "3.2",
+      "3.1",
+      "3.2"
+    ],
+    "3.1": [
+      "3.1.0"
+    ],
+    "3.1.0": [
+      "3.1.0.1",
+      "3.1.0.2"
+    ],
+    "3.2": [
+      "3.2.0"
+    ],
+    "3.2.0": [
+      "3.2.0.1",
+      "3.2.0.2"
+    ],
+    "4": [
+      "4.1",
+      "4.2",
+      "4.1",
+      "4.2"
+    ],
+    "4.1": [
+      "4.1.0"
+    ],
+    "4.1.0": [
+      "4.1.0.1",
+      "4.1.0.2"
+    ],
+    "4.2": [
+      "4.2.0"
+    ],
+    "4.2.0": [
+      "4.2.0.1",
+      "4.2.0.2"
+    ],
+    "5": [
+      "5.1",
+      "5.2",
+      "5.1",
+      "5.2"
+    ],
+    "5.1": [
+      "5.1.0"
+    ],
+    "5.1.0": [
+      "5.1.0.1",
+      "5.1.0.2"
+    ],
+    "5.2": [
+      "5.2.0"
+    ],
+    "5.2.0": [
+      "5.2.0.1",
+      "5.2.0.2"
+    ],
+    "6": [
+      "6.1",
+      "6.2",
+      "6.1",
+      "6.2"
+    ],
+    "6.1": [
+      "6.1.0"
+    ],
+    "6.1.0": [
+      "6.1.0.1",
+      "6.1.0.2"
+    ],
+    "6.2": [
+      "6.2.0"
+    ],
+    "6.2.0": [
+      "6.2.0.1",
+      "6.2.0.2"
+    ]
+  },
+  "paths": [
+    [
+      "0.1.0.1"
+    ],
+    [
+      "0.1.0.2"
+    ],
+    [
+      "0.2.0.1"
+    ],
+    [
+      "0.2.0.2"
+    ],
+    [
+      "1.1.0.1"
+    ],
+    [
+      "1.1.0.2"
+    ],
+    [
+      "1.2.0.1"
+    ],
+    [
+      "1.2.0.2"
+    ],
+    [
+      "2.1.0.1"
+    ],
+    [
+      "2.1.0.2"
+    ],
+    [
+      "2.2.0.1"
+    ],
+    [
+      "2.2.0.2"
+    ],
+    [
+      "3.1.0.1"
+    ],
+    [
+      "3.1.0.2"
+    ],
+    [
+      "3.2.0.1"
+    ],
+    [
+      "3.2.0.2"
+    ],
+    [
+      "4.1.0.1"
+    ],
+    [
+      "4.1.0.2"
+    ],
+    [
+      "4.2.0.1"
+    ],
+    [
+      "4.2.0.2"
+    ],
+    [
+      "5.1.0.1"
+    ],
+    [
+      "5.1.0.2"
+    ],
+    [
+      "5.2.0.1"
+    ],
+    [
+      "5.2.0.2"
+    ],
+    [
+      "6.1.0.1"
+    ],
+    [
+      "6.1.0.2"
+    ],
+    [
+      "6.2.0.1"
+    ],
+    [
+      "6.2.0.2"
+    ]
+  ]
+}

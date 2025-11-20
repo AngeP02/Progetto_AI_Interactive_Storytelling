@@ -1,0 +1,16 @@
+{
+  "depth": 4,
+  "branching": 2,
+  "num_actions": 7,
+  "actions": [
+    "(load package1 truck warehouse)",
+    "(move truck warehouse depot)",
+    "(load package2 truck depot)",
+    "(move truck depot shop)",
+    "(unload package2 truck shop)",
+    "(move truck shop home)",
+    "(unload package1 truck home)"
+  ],
+  "total_nodes": 91,
+  "model": "gpt-4o-mini"
+}

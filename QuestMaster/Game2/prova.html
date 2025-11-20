@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grafo Narrativo — Caso Aurora Wynter</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#071028 0%, #0b1220 100%);color:#e6eef8}
+    .container{max-width:1000px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6);margin-bottom:14px;border:1px solid rgba(255,255,255,0.03)}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:14px}
+
+    .node{border-radius:10px;padding:10px;margin:8px 0;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.02)}
+    .node h3{margin:0 0 6px;font-size:16px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .sequence{counter-reset:step;display:flex;flex-direction:column;gap:6px}
+    .step{display:flex;gap:10px;align-items:flex-start}
+    .dot{width:36px;height:36px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:14px}
+    .step .body{flex:1}
+
+    .controls{display:flex;gap:8px}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--accent);cursor:pointer}
+    button.secondary{color:var(--muted);border-style:dashed}
+
+    /* tree */
+    .tree{padding:10px}
+    .branch{margin-left:10px;border-left:2px dashed rgba(255,255,255,0.03);padding-left:12px}
+
+    pre{white-space:pre-wrap;background:rgba(0,0,0,0.12);padding:10px;border-radius:8px;overflow:auto}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+
+    @media (max-width:920px){.grid{grid-template-columns:1fr} .controls{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Grafo Narrativo — Caso: Aurora Wynter</h1>
+        <p class="lead">Versione HTML interattiva generata dai tuoi file (lore + PDDL + sas_plan). Qui puoi esplorare il piano ottimale e scaricare il file.</p>
+      </div>
+      <div class="controls">
+        <button id="downloadBtn">Scarica HTML</button>
+        <button id="toggleAlt" class="secondary">Mostra/meno alternative</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section>
+        <div class="card">
+          <h2 style="margin:0 0 8px">Contesto</h2>
+          <p class="muted">Da lore.md — tradotto e adattato in italiano per la narrativa.</p>
+          <div class="node">
+            <h3>Neo-Eden — Cyberpunk Noir</h3>
+            <p class="muted">Sei Detective Jack Harris. Ambientazione: metropoli corrotta dalla pioggia, corporazioni dominanti. Obiettivo: risolvere l'omicidio di Aurora Wynter.</p>
+            <ul class="muted" style="margin:8px 0 0;padding-left:18px">
+              <li>Personaggi: Dr. Elara Vex, Lila Chen, Victor LaGraine</li>
+              <li>Fazioni: Wynter Corp, AI Underground, LaGraine Syndicate</li>
+              <li>Luoghi chiave: Red Zone, High-Rise District, Undercity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px">Stati iniziali e obiettivi (PDDL)</h2>
+          <div class="node">
+            <h3>Stato iniziale</h3>
+            <p class="muted">Sei al <strong>Warehouse</strong>. Prova A (package1) è al Warehouse. Prova B (package2) è al Depot. Rete di connessioni: Warehouse &lt;&gt; Depot &lt;&gt; Shop &lt;&gt; Home.</p>
+          </div>
+          <div class="node">
+            <h3>Obiettivi</h3>
+            <p class="muted">Portare Prova A a <strong>Home</strong> e Prova B a <strong>Shop</strong>.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px">Azioni possibili (tradotte dal domain)</h2>
+          <div class="node">
+            <h3>Muoversi</h3>
+            <p class="muted">Spostarsi tra due location collegate.</p>
+          </div>
+          <div class="node">
+            <h3>Caricare una prova</h3>
+            <p class="muted">Prendere la prova presente nella location se sei nello stesso luogo.</p>
+          </div>
+          <div class="node">
+            <h3>Scaricare una prova</h3>
+            <p class="muted">Depositare la prova nella location corrente.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px">Piano ottimale (sas_plan)</h2>
+          <div class="sequence" id="planSeq">
+            <!-- steps inserted by JS -->
+          </div>
+        </div>
+
+        <div class="card" id="alternativesCard" style="display:none">
+          <h2 style="margin:0 0 8px">Scelte alternative (esempi)</h2>
+          <p class="muted">Queste alternative non provengono dal sas_plan: sono suggerite per introdurre branching simile al lore (fattore di branching 5-7). Puoi integrarle nella storia per creare percorsi diversi.</p>
+          <div class="tree">
+            <div>
+              <strong>Warehouse</strong>
+              <div class="branch">
+                • Ignorare Prova A e andare direttamente al Depot (rischio: mancare la prova chiave).<br>
+                • Cercare testimoni nel magazzino (possibilità di ottenere indizio extra).
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <strong>Depot</strong>
+              <div class="branch">
+                • Vendere Prova B a un contatto (conseguenze morali e legali).<br>
+                • Interrogare un membro del LaGraine Syndicate (richiede un pagamento o favor).
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <strong>Shop</strong>
+              <div class="branch">
+                • Chiedere l'analisi immediata della Prova B (svela un dato segreto).<br>
+                • Nascondere la Prova B per usarla come leva politica.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <aside>
+        <div class="card">
+          <h2 style="margin:0 0 8px">Riepilogo rapido (Grafo)</h2>
+          <pre id="asciiGraph">Caricamento...</pre>
+          <p class="muted" style="margin-top:8px">Puoi copiare questo grafo o usarlo come base per il tuo gioco interattivo.</p>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px">Dati grezzi usati</h2>
+          <pre>(init)
+- at-vehicle truck warehouse
+- at-package package1 warehouse
+- at-package package2 depot
+- connected warehouse depot
+- connected depot shop
+- connected shop home
+
+(goal)
+- at-package package1 home
+- at-package package2 shop
+
+(sas_plan)
+(load package1 truck warehouse)
+(move truck warehouse depot)
+(load package2 truck depot)
+(move truck depot shop)
+(unload package2 truck shop)
+(move truck shop home)
+(unload package1 truck home)
+          </pre>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px">Note</h2>
+          <p class="muted">Vuoi la versione con nodi visuali (SVG/D3) o esportazione in JSON/mermaid? Dimmi quale e la preparo.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      Creato automaticamente a partire da lore.md, domain.pddl, problem.pddl e sas_plan. Se vuoi modifiche (grafico, JSON, branching maggiore) scrivimi e provvedo.
+    </footer>
+  </div>
+
+  <script>
+    const plan = [
+      {title: 'Warehouse — Prendi Prova A', desc: 'load package1 truck warehouse'},
+      {title: 'Warehouse → Depot — Spostamento', desc: 'move truck warehouse depot'},
+      {title: 'Depot — Prendi Prova B', desc: 'load package2 truck depot'},
+      {title: 'Depot → Shop — Spostamento', desc: 'move truck depot shop'},
+      {title: 'Shop — Lascia Prova B', desc: 'unload package2 truck shop'},
+      {title: 'Shop → Home — Spostamento', desc: 'move truck shop home'},
+      {title: 'Home — Lascia Prova A', desc: 'unload package1 truck home'}
+    ];
+
+    const seq = document.getElementById('planSeq');
+    const ascii = document.getElementById('asciiGraph');
+    plan.forEach((s,i)=>{
+      const step = document.createElement('div'); step.className='step';
+      const dot = document.createElement('div'); dot.className='dot'; dot.textContent = i+1;
+      const body = document.createElement('div'); body.className='body';
+      const h = document.createElement('h4'); h.style.margin='0 0 6px'; h.textContent = s.title;
+      const p = document.createElement('div'); p.className='muted'; p.textContent = s.desc;
+      body.appendChild(h); body.appendChild(p);
+      step.appendChild(dot); step.appendChild(body);
+      seq.appendChild(step);
+    });
+
+    // ASCII graph
+    const graphText = `Warehouse\n  → Prendi Prova A\n  → Depot\n    → Prendi Prova B\n    → Shop\n      → Lascia Prova B\n      → Home\n        → Lascia Prova A`;
+    ascii.textContent = graphText;
+
+    // Download button
+    document.getElementById('downloadBtn').addEventListener('click', ()=>{
+      const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'story_graph_aurora_wynter.html'; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    const altBtn = document.getElementById('toggleAlt');
+    const altCard = document.getElementById('alternativesCard');
+    altBtn.addEventListener('click', ()=>{ altCard.style.display = (altCard.style.display==='none')? 'block':'none'; });
+  </script>
+</body>
+</html>

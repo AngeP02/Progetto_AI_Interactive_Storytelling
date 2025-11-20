@@ -1,0 +1,105 @@
+```
+html
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cyberpunk Noir: The Murder of Aurora Wynter</title>
+	<style>
+		body {
+			background-color: #333;
+			font-family: Arial, sans-serif;
+		}
+		.container {
+			max-width: 800px;
+			margin: 40px auto;
+			padding: 20px;
+			border: 1px solid #ddd;
+			border-radius: 10px;
+			box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+		}
+		.narrative {
+			margin-bottom: 20px;
+		}
+		.choice {
+			background-color: #666;
+			color: #fff;
+			border: none;
+			padding: 10px;
+			font-size: 16px;
+			cursor: pointer;
+		}
+		.choice:hover {
+			background-color: #888;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Cyberpunk Noir: The Murder of Aurora Wynter</h1>
+		<p id="narrative"></p>
+		<button id="choice-1" class="choice">Make Choice 1</button>
+		<button id="choice-2" class="choice">Make Choice 2</button>
+		<button id="choice-3" class="choice">Make Choice 3</button>
+	</div>
+
+	<script>
+		var currentStep = 0;
+		var choices = [
+			{
+				step: 1,
+				narrative: "You arrive at the crime scene and see a group of paparazzi surrounding the body. What do you do?",
+				options: ["Talk to the paparazzi", "Examine the body", "Call for backup"]
+			},
+			{
+				step: 2,
+				narrative: "You decide to talk to the paparazzi and gather some information.",
+				options: ["Get a statement from one of the paparazzi", "Look for any suspicious objects nearby", "Follow the paparazzi's lead"]
+			},
+			// ...
+		];
+
+		function makeChoice(action) {
+			if (action === choices[currentStep].options[0]) {
+				// Code for choice 1
+				currentStep++;
+				updateNarrative();
+				updateChoices();
+			} else if (action === choices[currentStep].options[1]) {
+				// Code for choice 2
+				currentStep++;
+				updateNarrative();
+				updateChoices();
+			} else if (action === choices[currentStep].options[2]) {
+				// Code for choice 3
+				currentStep++;
+				updateNarrative();
+				updateChoices();
+			}
+		}
+
+		function updateNarrative() {
+			document.getElementById("narrative").innerHTML = choices[currentStep].narrative;
+		}
+
+		function updateChoices() {
+			if (currentStep < choices.length - 1) {
+				document.getElementById("choice-1").style.display = "block";
+				document.getElementById("choice-2").style.display = "block";
+				document.getElementById("choice-3").style.display = "block";
+			} else {
+				document.getElementById("choice-1").style.display = "none";
+				document.getElementById("choice-2").style.display = "none";
+				document.getElementById("choice-3").style.display = "none";
+			}
+		}
+
+		document.getElementById("choice-1").addEventListener("click", function() { makeChoice(choices[currentStep].options[0]); });
+		document.getElementById("choice-2").addEventListener("click", function() { makeChoice(choices[currentStep].options[1]); });
+		document.getElementById("choice-3").addEventListener("click", function() { makeChoice(choices[currentStep].options[2]); });
+
+		updateNarrative();
+		updateChoices();
+	</script>
+</body>
+</html>
+```

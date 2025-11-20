@@ -728,55 +728,10 @@ def generate_quest_stream():
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
-# ========== AGGIUNGI QUESTI IMPORT ALL'INIZIO DI app.py ==========
-from QuestMaster.Game.GamePipeline import generate_interactive_game
 
 
 # ========== AGGIUNGI QUESTI ENDPOINT PRIMA DI if __name__ == '__main__' ==========
 
-@app.route('/api/generate-game', methods=['POST'])
-def generate_game():
-    """Genera l'HTML del gioco interattivo dalla review page"""
-    try:
-        session_id = request.json.get('session_id', 'default')
-
-        if session_id not in user_sessions:
-            return jsonify({'success': False, 'error': 'Sessione non trovata'})
-
-        # Percorsi file
-        pddl_dir = SCRIPT_DIR.parent / "Generate_PDDL" / "pddl_output_guaranteed"
-        game_dir = SCRIPT_DIR.parent / "Game" / "generated_games"
-        game_dir.mkdir(exist_ok=True)
-
-        game_html = game_dir / f"game_{session_id}.html"
-
-        logger.info(f"🎮 Generazione gioco per sessione {session_id}...")
-
-        # Chiama la pipeline
-        success, message = generate_interactive_game(
-            domain_path=pddl_dir / "domain.pddl",
-            problem_path=pddl_dir / "problem.pddl",
-            plan_path=pddl_dir / "plan_readable.txt",
-            lore_path=LORE_FILE,
-            output_html=game_html,
-            config=user_sessions[session_id]['config']
-        )
-
-        if success:
-            return jsonify({
-                'success': True,
-                'message': message,
-                'game_url': f'/play/{session_id}'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': message
-            })
-
-    except Exception as e:
-        logger.exception("Errore generate-game")
-        return jsonify({'success': False, 'error': str(e)})
 
 
 @app.route('/play/<session_id>')

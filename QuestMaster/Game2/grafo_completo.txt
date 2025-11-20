@@ -1,0 +1,302 @@
+Ecco il **Grafo Narrativo Completo** per il caso "L’ultima nota di Aurora" – un’indagine cyber-noir nella Neo-Eden del futuro.  
+**Ogni nodo presenta 6 scelte, la profondità è 4, tutte le scelte portano comunque – con variazioni – al goal: scoprire l’assassino di Aurora AI e consegnare le prove giuste alle fazioni opportune. Gli eventi e le scelte sono allineati alla sequenza e agli step del piano SAS, reinterpretati in chiave narrativa e coerenti con il lore.**
+
+---
+
+## Nodo 0 (Inizio): Ufficio di Jack Harris, al Warehouse
+
+La pioggia batte contro il vetro. Sulla scrivania, il fascicolo di Aurora Wynter e una chiavetta dati con le ultime tracce lasciate dalla popstar IA. Il Warehouse (magazzino) è il tuo rifugio e il tuo quartier generale. Dr. Elara Vex ti aspetta per consegnarti un pacchetto cruciale per l’indagine (Package1). Ricevi anche notizie che un altro pacchetto (Package2) con dati importanti si trova al Depot, sorvegliato dalla Wynter Corp.
+
+**Scegli:**
+1. Chiedi a Elara dettagli sul pacchetto e accetta di trasportarlo personalmente verso nuovi indizi.
+2. Contatta Lila Chen per capire chi aveva accesso al magazzino la notte dell’omicidio.
+3. Indaga sulle connessioni tra i movimenti di Aurora e il Warehouse usando la chiavetta dati.
+4. Fai un giro di perlustrazione nel Warehouse alla ricerca di tracce anomale.
+5. Consulta i tuoi contatti nell’AI Underground per decifrare la traccia trovata.
+6. Prendi il tuo vecchio truck e preparati a lasciare il Warehouse verso il Depot.
+
+---
+
+### Nodo 1.1: Incontro con Elara Vex (Load package1, warehouse)
+
+Elara ti consegna il primo pacchetto: contiene una memoria quantistica con backup parziale della coscienza di Aurora. Questa è la chiave per accedere a ricordi censurati dalla Wynter Corp.
+
+**Scegli:**
+1. Esamina subito il backup con l’aiuto di Elara.
+2. Nascondi il pacchetto nel truck per sicurezza, pronto a trasportarlo.
+3. Chiedi a Elara di accompagnarti al Depot.
+4. Prova a clonare i dati prima di lasciare il magazzino.
+5. Manda un messaggio criptato all’AI Underground per informare del ritrovamento.
+6. Parti immediatamente verso il Depot per recuperare il secondo pacchetto.
+
+---
+
+### Nodo 1.2: Interroga Lila Chen (Warehouse)
+
+Lila è evasiva, ma afferma che la sicurezza del Warehouse è stata violata quella notte. Insiste che Aurora aveva nemici ovunque.
+
+**Scegli:**
+1. Minaccia Lila con prove false per vedere se cede.
+2. Offri a Lila un accordo: informazioni in cambio di protezione.
+3. Segui segretamente Lila dopo l’incontro.
+4. Analizza i log di sicurezza forniti da Lila.
+5. Invia la conversazione a Elara per un’analisi psicologica.
+6. Decidi di partire per il Depot.
+
+---
+
+### Nodo 1.3: Analizza la chiavetta dati (Warehouse)
+
+La chiavetta mostra movimenti sospetti: qualcuno ha trasferito dati critici dal magazzino verso una destinazione ignota poco prima dell’omicidio.
+
+**Scegli:**
+1. Segui la traccia digitale verso il Depot.
+2. Chiedi aiuto al tuo contatto nell’AI Underground per decifrare le rotte dei dati.
+3. Prepara il truck per inseguire il segnale.
+4. Condividi la scoperta con Elara.
+5. Tieni tutto per te e pianifica una mossa solitaria.
+6. Recupera il pacchetto nascosto da Elara e preparati a muoverti.
+
+---
+
+### Nodo 1.4: Perlustra il Warehouse
+
+Tra le casse, trovi una microspia marchiata LaGraine Syndicate.
+
+**Scegli:**
+1. Disattiva la microspia e la porti con te per analisi.
+2. Piazzi una falsa traccia per depistare chi la controllerà.
+3. Avverti Elara della minaccia.
+4. Tenta di risalire al segnale della microspia.
+5. Imbastisci un tranello per chi verrà a recuperarla.
+6. Parti verso il Depot, microspia alla mano.
+
+---
+
+### Nodo 1.5: Contatti AI Underground
+
+I tuoi contatti sono in fibrillazione: anche loro cercano il secondo pacchetto. Ti indicano che il Depot è sorvegliato e che serve discrezione.
+
+**Scegli:**
+1. Chiedi supporto logistico per entrare al Depot.
+2. Offri in cambio il backup di Aurora per informazioni.
+3. Invia un drone di ricognizione al Depot.
+4. Accetta di incontrare un rappresentante al Depot.
+5. Chiedi ad Elara di fornirti uno stealth-hack.
+6. Parti verso il Depot.
+
+---
+
+### Nodo 1.6: Parti con il truck (Move truck warehouse depot)
+
+Metti in moto il tuo truck cyber-modificato e ti dirigi verso il Depot, la pioggia battente e le luci al neon che si riflettono sull’asfalto.
+
+**Scegli:**
+1. Prendi la strada principale, rischiando di incontrare la sicurezza Wynter.
+2. Passi per i vicoli dell’Undercity, rischiando di essere seguito.
+3. Cambia targa e ID del truck prima di partire.
+4. Chiama Victor LaGraine per protezione durante il tragitto.
+5. Piazzi una trappola nel truck per eventuali inseguitori.
+6. Tieni Elara in comunicazione costante durante il viaggio.
+
+---
+
+## Nodo 2.1: Arrivo al Depot – infiltrazione e recupero secondo pacchetto (Load package2, depot)
+
+Al Depot la sicurezza Wynter è in allerta. Il pacchetto contiene i dati critici delle ultime ore di Aurora.
+
+**Scegli:**
+1. Ti travesti da corriere e inganni la sicurezza per entrare.
+2. Usi un drone per intercettare il pacchetto.
+3. Accedi con il truck tramite un pass hackato dell’AI Underground.
+4. Chiedi aiuto a Victor per creare una distrazione.
+5. Corrompi una guardia del Depot.
+6. Ti fingi tecnico del sistema IA di sorveglianza.
+
+---
+
+### Nodo 2.2: Elara ti accompagna (Depot)
+
+Elara ti aiuta a bypassare le sicurezze digitali. Nel frattempo, la Wynter Corp sospetta il vostro coinvolgimento.
+
+**Scegli:**
+1. Elara si occupa dei sistemi mentre tu recuperi fisicamente il pacchetto.
+2. Crei un diversivo informatico per coprire la vostra fuga.
+3. Ti nascondi nel truck, mentre Elara agisce da lontano.
+4. Registri le prove di manipolazione delle telecamere.
+5. Usi la microspia trovata per depistare la sicurezza.
+6. Recuperi entrambi i pacchetti e fuggite insieme.
+
+---
+
+### Nodo 2.3: Interferenze della Syndicate (Depot)
+
+LaGraine Syndicate tenta un colpo al Depot proprio mentre sei dentro. Il caos ti offre un vantaggio.
+
+**Scegli:**
+1. Approfitti del caos per prendere il pacchetto e scappare.
+2. Ti allei temporaneamente con LaGraine per uscire vivi.
+3. Fai finta di essere uno degli uomini della Syndicate.
+4. Rubi informazioni aggiuntive durante la confusione.
+5. Salvi una guardia ferita per ottenere un favore.
+6. Usci dal Depot con entrambi i pacchetti.
+
+---
+
+### Nodo 2.4: AI Underground all’azione (Depot)
+
+L’AI Underground ti fornisce accesso remoto ai sistemi. Un loro agente ti aiuta a localizzare esattamente il pacchetto.
+
+**Scegli:**
+1. Dai una copia del backup ad AI Underground per il loro aiuto.
+2. Prendi entrambi i pacchetti e lasci un falso.
+3. Incontri l’agente segreto nel retro del Depot.
+4. Utilizzi le reti dell’Undercity per fuggire.
+5. Sfrutti un blackout per portare via il pacchetto.
+6. Saboti il sistema di sorveglianza della Wynter Corp.
+
+---
+
+### Nodo 2.5: Recupero dati non autorizzato (Depot)
+
+Scopri che qualcuno ha già tentato di rubare il secondo pacchetto, ma è stato fermato. Restano tracce digitali preziose.
+
+**Scegli:**
+1. Analizza le tracce per risalire al colpevole.
+2. Usa le tracce per incastrare un sospettato.
+3. Lascia una falsa pista per i veri colpevoli.
+4. Confronta i dati con quelli nel primo pacchetto.
+5. Chiedi a Elara di decifrare i dati corrotti.
+6. Recuperi il pacchetto e fuggi.
+
+---
+
+### Nodo 2.6: Fuga dal Depot (Move truck depot shop)
+
+Truck carico, inseguitori alle calcagna. Decidi di spostarti verso il Shop, dove qualcuno attende la consegna.
+
+**Scegli:**
+1. Scegli un percorso alternativo per seminare la sicurezza.
+2. Chiami Victor per organizzare un incontro di scambio sicuro.
+3. Attivi il sistema di depistaggio del truck.
+4. Nascondi i pacchetti in un doppiofondo.
+5. Cambi truck con uno fornito dall’AI Underground.
+6. Inganni gli inseguitori con false informazioni sulla tua destinazione.
+
+---
+
+## Nodo 3.1: Arrivo allo Shop – consegna di package2 (Unload package2, shop)
+
+Al negozio di musica high-end, un agente della Wynter Corp aspetta di ricevere il pacchetto: dentro ci sono le ultime registrazioni di Aurora, chiave per smascherare il colpevole.
+
+**Scegli:**
+1. Consegni il pacchetto solo dopo aver ottenuto una confessione.
+2. Nascondi una copia cifrata dei dati prima della consegna.
+3. Ricatti l’agente della Wynter Corp per informazioni extra.
+4. Sostituisci il pacchetto con un falso per guadagnare tempo.
+5. Incontri Lila Chen per negoziare.
+6. Fai analizzare i dati dallo staff tecnico del negozio.
+
+---
+
+### Nodo 3.2: Incontro con Victor LaGraine (Shop)
+
+Victor ti attende: vuole i dati in cambio di protezione o informazioni sulla verità dietro l’omicidio.
+
+**Scegli:**
+1. Accetti lo scambio con Victor.
+2. Inganni Victor consegnandogli solo parte dei dati.
+3. Chiedi a Victor di organizzare un incontro con un informatore chiave.
+4. Spii la conversazione per cogliere tradimenti.
+5. Offri la microspia come pegno.
+6. Minacci Victor di rendere pubblici i suoi crimini.
+
+---
+
+### Nodo 3.3: AI Underground ti intercetta (Shop)
+
+Un agente dell’AI Underground ti intercetta per farti una proposta: i dati in cambio di decrittazione completa.
+
+**Scegli:**
+1. Accetti, ma tieni una copia di backup.
+2. Proponi uno scambio triplo con LaGraine e l’AI Underground.
+3. Verifichi l’identità dell’agente prima dello scambio.
+4. Fai analizzare i dati subito sul posto.
+5. Provi a ottenere informazioni sull’omicidio da loro.
+6. Rifiuti lo scambio e ti prepari a fuggire.
+
+---
+
+### Nodo 3.4: Tentativo di sabotaggio Wynter Corp (Shop)
+
+La Wynter Corp tenta di sabotare la consegna. Un blackout improvviso mette a rischio l’operazione.
+
+**Scegli:**
+1. Usa il caos per duplicare i dati.
+2. Blocca le uscite e interroga i sospetti.
+3. Sfrutta il blackout per sparire con entrambi i pacchetti.
+4. Chiedi supporto a Elara tramite rete autonoma.
+5. Installa una backdoor nei sistemi della Wynter Corp.
+6. Incolpa un dipendente della Wynter Corp per il sabotaggio.
+
+---
+
+### Nodo 3.5: Trappola della Syndicate (Shop)
+
+LaGraine Syndicate organizza un’imboscata: vogliono i dati per ricattare la Wynter Corp.
+
+**Scegli:**
+1. Fingi di collaborare e rubi informazioni durante lo scambio.
+2. Chiedi protezione in cambio dei dati.
+3. Scateni una rissa per coprire la tua fuga.
+4. Inganni la Syndicate con dati alterati.
+5. Provi a mettere in contatto la Syndicate e l’AI Underground per scatenare un conflitto.
+6. Ti allei temporaneamente con la Syndicate per depistare la Wynter Corp.
+
+---
+
+### Nodo 3.6: Via verso Home (Move truck shop home)
+
+Risolte le trattative, il truck punta verso Home, dove Elara ti aspetta per la fase finale.
+
+**Scegli:**
+1. Cambi percorso per evitare di essere seguito.
+2. Chiami Elara per preparare la decrittazione finale.
+3. Nascondi il truck e prosegui a piedi.
+4. Prepari un’esca per eventuali inseguitori.
+5. Usi la microspia per monitorare le comunicazioni dei nemici.
+6. Raccogli tutte le prove raccolte e le sistemi per l’arrivo.
+
+---
+
+## Nodo 4.1: Arrivo a Home – Confronto finale (Unload package1, home)
+
+Elara ti aspetta nel suo laboratorio segreto. Insieme, estraete la coscienza residua di Aurora e ricostruite le ultime ore della sua vita digitale. Il vero assassino viene smascherato: tutte le prove sono ora in tuo possesso.
+
+**Scegli:**
+1. Consegni le prove alla polizia di Neo-Eden, assicurando giustizia.
+2. Ricatti la Wynter Corp per ottenere immunità e un nuovo inizio.
+3. Libera la coscienza di Aurora nell’AI Underground, garantendole una nuova vita.
+4. Scateni un leak mediatico che rovina tutti i colpevoli.
+5. Ti allei con la Syndicate per eliminare le ultime minacce.
+6. Sparisci nell’ombra, lasciando che la verità si diffonda da sola.
+
+---
+
+### Nodo 4.2: Epilogo – Scelte e conseguenze
+
+La città non sarà più la stessa. Aurora avrà giustizia, ma Neo-Eden resta una giungla di luci e ombre. Il tuo destino dipende da come giochi le tue ultime carte.
+
+**Scegli:**
+1. Diventi il nuovo referente per i casi digitali della città.
+2. Vieni perseguitato dai resti della Wynter Corp.
+3. Ti ritiri nell’anonimato, perseguitato dai fantasmi del caso.
+4. Elara ti offre di lavorare con lei nell’AI Underground.
+5. Victor ti cerca per un nuovo affare – accetti?
+6. Scrivi la tua storia, finalmente, in un bar della Red Zone.
+
+---
+
+## FINE DEL GRAFO
+
+**Nota**: Ogni scelta ai livelli intermedi consente comunque di raggiungere il goal finale, ma con ramificazioni narrative e conseguenze diverse. Tutte le scelte riflettono coerentemente le azioni del piano SAS (load, move, unload), i luoghi e i personaggi del lore, e la struttura del problema PDDL.

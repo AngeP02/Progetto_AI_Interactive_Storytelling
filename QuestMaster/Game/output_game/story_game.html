@@ -1,0 +1,89 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Story Game - Interactive Viewer</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; background:#111; color:#eee; }
+    .card { background:#1b1b1b; padding:20px; border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.6); max-width:900px; margin-bottom:16px }
+    .choices { margin-top:12px; }
+    button.choice { display:block; margin:6px 0; padding:10px; border-radius:6px; border:1px solid #333; background:#222; color:#fff; cursor:pointer; text-align:left; }
+    button.choice:hover { background:#2b2b2b; }
+    .meta { color:#9aa; font-size:0.9em }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Story Game - Interactive Viewer</h1>
+    <div id="node" class="card"></div>
+    <div id="breadcrumbs" class="meta"></div>
+  </div>
+
+<script>
+let graph = null;
+let nodeIndex = {};
+let breadcrumbs = [];
+
+function loadGraph(g) {
+  graph = g;
+  nodeIndex = {};
+  for (const n of g.nodes) nodeIndex[n.id] = n;
+  showNode(g.start_node);
+}
+
+function showNode(nodeId) {
+  const node = nodeIndex[nodeId];
+  if (!node) {
+    document.getElementById('node').innerHTML = '<b>Node not found</b>';
+    return;
+  }
+  // update breadcrumbs
+  breadcrumbs.push(nodeId);
+  if (breadcrumbs.length>10) breadcrumbs.shift();
+  document.getElementById('breadcrumbs').innerText = 'Path: ' + breadcrumbs.join(' → ');
+
+  let html = '<h2>' + node.id + '</h2>';
+  html += '<div class="meta">Note: ' + (node.note || '') + '</div>';
+  html += '<p>' + escapeHtml(node.text) + '</p>';
+  html += '<div class="meta">Stato attuale: <ul>';
+  for (const f of node.state) html += '<li>' + escapeHtml(f) + '</li>';
+  html += '</ul></div>';
+
+  if (node.choices && node.choices.length>0) {
+    html += '<div class="choices"><h3>Scelte:</h3>';
+    for (const c of node.choices) {
+      const label = c.label + (c.is_plan_action ? ' (Azione del piano)' : '');
+      const nid = c.next_node;
+      html += '<button class="choice" onclick="handleChoice('' + (nid || '') + '')">' + escapeHtml(label) + '</button>';
+    }
+    html += '</div>';
+  } else {
+    html += '<div class="meta">Nessuna scelta disponibile.</div>';
+  }
+  document.getElementById('node').innerHTML = html;
+}
+
+function handleChoice(nextNodeId) {
+  if (!nextNodeId) {
+    alert('Questa scelta non porta a uno stato simulato.');
+    return;
+  }
+  showNode(nextNodeId);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// loader: carica story_graph.json nello stesso folder
+fetch('story_graph.json')
+  .then(r => r.json())
+  .then(g => loadGraph(g))
+  .catch(err => {
+    document.getElementById('node').innerHTML = '<b>Errore caricamento story_graph.json</b><pre>' + err + '</pre>';
+  });
+
+</script>
+</body>
+</html>
