@@ -1,58 +1,59 @@
-
 import os
 import sys
 import re
 import json
-import requests
 import subprocess
 import logging
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
+from dotenv import load_dotenv
+from openai import OpenAI
 
+# Configurazione Logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3"
+# 1. CONFIGURAZIONE OPENAI
+load_dotenv()
+API_KEY = os.environ.get("OPENAI_API_KEY")
+
+client = None
+if API_KEY:
+    client = OpenAI(api_key=API_KEY)
+else:
+    logger.warning("⚠️ OPENAI_API_KEY mancante nel file .env. Le funzioni LLM non funzioneranno.")
+
+MODEL = "gpt-4o"
 
 
-def check_ollama_available() -> bool:
-    """Verifica Ollama"""
+def check_openai_available() -> bool:
+    """Verifica disponibilità client OpenAI"""
+    return client is not None
+
+
+def call_gpt(prompt, system_prompt=""):
+    """Wrapper per chiamate a GPT-4o"""
+    if not client:
+        logger.error("❌ Client OpenAI non inizializzato.")
+        return ""
+
     try:
-        response = requests.get("http://localhost:11434/api/tags", timeout=5)
-        return response.status_code == 200
-    except:
-        return False
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+        return response.choices[0].message.content.strip()
 
-
-def call_ollama(prompt, system_prompt=""):
-    try:
-        payload = {
-            "model": MODEL,
-            "prompt": prompt,
-            "system": system_prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "top_p": 0.9,
-                "num_predict": 500
-            }
-        }
-
-        response = requests.post(OLLAMA_URL, json=payload, timeout=500)
-        response.raise_for_status()
-
-        result = response.json()
-        return result.get('response', '').strip()
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Errore chiamata Ollama: {e}")
-        return "Mi dispiace, sto avendo problemi tecnici. Riprova tra un momento."
     except Exception as e:
-        logger.error(f"Errore generico: {e}")
-        return "Si è verificato un errore imprevisto."
+        logger.error(f"Errore chiamata OpenAI: {e}")
+        return ""
+
 
 # =============================================================================
 # STRATEGIA: TEMPLATE FISSI PRE-TESTATI + SCALING PARAMETRICO
@@ -443,25 +444,25 @@ class SmartPDDLSelector:
             genre = match.group(1).strip()
             logger.info(f"🎭 Genere rilevato dal testo: {genre}")
         else:
-            # === 2️⃣ Fallback: uso LLM per classificarlo ===
+            # === 2️⃣ Fallback: uso LLM (GPT) per classificarlo ===
             prompt = f"""
             Read the following story and identify its genre.
             Choose exactly one from this list:
             ["Fantasy", "Romance", "Drama", "Horror", "Comedy", "Science Fiction", "Mystery", "Historical", "Adventure"].
             Respond only with the single word of the genre.
-        
+
             STORY:
             {self.lore}
             """
             system_prompt = "You are a text classification model that identifies the literary genre of a given story."
-            result = call_ollama(prompt, system_prompt)
+            result = call_gpt(prompt, system_prompt)
 
             if result:
                 genre = result.strip().lower()
                 logger.info(f"🎭 Genere rilevato da LLM: {genre}")
             else:
                 genre = "generic"
-                logger.warning("⚠️ Nessuna risposta valida da Ollama, uso 'generic'.")
+                logger.warning("⚠️ Nessuna risposta valida da LLM, uso 'generic'.")
 
         # Estrai depth constraint
         depth_min, depth_max = 5, 10  # Default
@@ -675,8 +676,7 @@ class FastDownwardValidator:
                 else:
                     return True, "Soluzione trovata", output
 
-# nessuna soluzione trovata, uso reflection agent
-
+            # nessuna soluzione trovata, uso reflection agent
             logger.warning("⚠️ Nessuna soluzione trovata — avvio Reflection Agent per rigenerare il piano...")
 
             try:
@@ -701,7 +701,7 @@ class FastDownwardValidator:
 
     def run_reflection_agent(self, domain_path: Path, problem_path: Path) -> bool:
         """
-        Esegue il Reflection Agent:
+        Esegue il Reflection Agent (versione GPT-4o):
         - Analizza i file PDDL esistenti
         - Usa LLM per identificare problemi di validità
         - Propone e applica correzioni
@@ -716,7 +716,7 @@ class FastDownwardValidator:
             with open(problem_path, "r", encoding="utf-8") as f:
                 problem_content = f.read()
 
-            # 2️⃣ Costruisci il prompt per Ollama o LLM
+            # 2️⃣ Costruisci il prompt per LLM
             system_prompt = (
                 "You are a PDDL expert. Your task is to analyze a domain and problem definition "
                 "that failed to produce a valid plan in Fast Downward. You must identify structural "
@@ -737,15 +737,15 @@ class FastDownwardValidator:
             1. Identify the most likely issue preventing plan generation.
             2. Modify the PDDL minimally to fix the issue.
             3. Keep the syntax strictly valid and consistent with Fast Downward requirements.
-            4. Return only the corrected domain and problem, formatted as:
+            4. Return only the corrected domain and problem, formatted exactly as:
                ---DOMAIN---
                <corrected domain>
                ---PROBLEM---
                <corrected problem>
             """
 
-            # 3️⃣ Chiamata all’LLM locale (Ollama)
-            response = call_ollama(user_prompt, system_prompt)
+            # 3️⃣ Chiamata all’LLM (GPT)
+            response = call_gpt(user_prompt, system_prompt)
 
             # 4️⃣ Estrai le nuove sezioni
             domain_fixed, problem_fixed = None, None
@@ -794,6 +794,7 @@ class FastDownwardValidator:
 
         return '\n'.join(readable)
 
+
 def generate_valid_pddl_guaranteed(
         lore_path: Path,
         output_dir: Path,
@@ -812,7 +813,7 @@ def generate_valid_pddl_guaranteed(
 
     logger.info("=" * 70)
     logger.info("GENERAZIONE PDDL - STRATEGIA GARANTITA")
-    logger.info("Usa template pre-validati + personalizzazione sicura")
+    logger.info("Usa template pre-validati + personalizzazione sicura (GPT-4o Enhanced)")
     logger.info("=" * 70)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -871,7 +872,7 @@ def aggiunta_commenti_LLM(domain_path: Path, problem_path: Path):
     domain_text = domain_path.read_text(encoding="utf-8")
     problem_text = problem_path.read_text(encoding="utf-8")
 
-    # === Prompt LLM ===
+    # === Prompt LLM (GPT) ===
     system_prompt = """You are an expert in AI planning and PDDL (Planning Domain Definition Language).
     Your task is to annotate PDDL files with clear and concise inline comments.
     Do NOT change or reorder any line, and do not remove parentheses.
@@ -887,26 +888,23 @@ def aggiunta_commenti_LLM(domain_path: Path, problem_path: Path):
 
     PDDL FILE:
     {content}
-
-    bash
-    Copia codice
     """
 
     # === Genera versioni commentate ===
     print("💬 Aggiunta commenti al domain...")
-    domain_commented = call_ollama(
+    domain_commented = call_gpt(
         prompt_template.format(content=domain_text),
         system_prompt
     )
 
     print("💬 Aggiunta commenti al problem...")
-    problem_commented = call_ollama(
+    problem_commented = call_gpt(
         prompt_template.format(content=problem_text),
         system_prompt
     )
 
     if not domain_commented or not problem_commented:
-        print("❌ Impossibile generare i file commentati. Controlla Ollama.")
+        print("❌ Impossibile generare i file commentati. Controlla la connessione OpenAI.")
         return None
 
     # === Salvataggio ===
@@ -919,7 +917,16 @@ def aggiunta_commenti_LLM(domain_path: Path, problem_path: Path):
     print(f"✅ File commentati salvati in:\n   - {domain_out}\n   - {problem_out}")
     return domain_out, problem_out
 
+
+def check_ollama_available() -> bool:
+    """
+    Deprecato: Mantenuto per compatibilità, ma ora controlla OpenAI.
+    """
+    return check_openai_available()
+
+
 if __name__ == '__main__':
+    # Configurazione per test stand-alone
     SCRIPT_DIR = Path(__file__).resolve().parent
 
     LORE_FILE = SCRIPT_DIR.parent / "Lore" / "Generated_Lore" / "Lore.md"
@@ -936,7 +943,7 @@ if __name__ == '__main__':
         exit(1)
 
     # Esegui
-    print("\n🚀 Generazione PDDL GARANTITA...\n")
+    print("\n🚀 Generazione PDDL GARANTITA (GPT Edition)...\n")
 
     success, message = generate_valid_pddl_guaranteed(
         lore_path=LORE_FILE,

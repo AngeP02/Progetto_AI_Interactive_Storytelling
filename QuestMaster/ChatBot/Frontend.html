@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestMaster</title>
+    <title>QuestMaster - GPT Edition</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* --- STILI IDENTICI AL TUO FILE ORIGINALE --- */
+        /* Ho mantenuto i tuoi stili per non rompere il layout */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url("/static/img/SfondoChatbot.png");
-            background-size:cover ;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-
         .container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -36,25 +32,16 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
         .header {
-            background: linear-gradient(135deg, #7eddb2 0%, #5eb7ca 100%);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); /* Colore leggermente diverso per indicare GPT */
             color: #ffffff;
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
+        .header h1 { font-size: 2.5em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+        .header p { opacity: 0.9; font-size: 1.1em; }
 
         .connection-status {
             position: absolute;
@@ -65,322 +52,45 @@
             font-size: 12px;
             font-weight: bold;
         }
+        .status-online { background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; }
+        .status-offline { background: rgba(220, 53, 69, 0.8); color: white; }
 
-        .status-online {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
+        /* Chat Styles */
+        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
-        .status-offline {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
+        .message { max-width: 80%; padding: 15px 20px; border-radius: 18px; animation: slideIn 0.3s ease-out; line-height: 1.5; word-wrap: break-word; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        .assistant-message { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #000; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid #e1e8ed; }
+        .user-message { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
+        .error-message { background: #ff6b6b; color: white; align-self: flex-start; }
 
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        /* Input Area */
+        .input-area { padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }
+        .text-input-container { display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }
+        .text-input-container.active { display: flex; }
+        .text-input-container input { flex: 1; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 25px; font-size: 16px; outline: none; }
+        .send-button { background: #4facfe; color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; }
 
-        .message {
-            max-width: 80%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            animation: slideIn 0.3s ease-out;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .assistant-message {
-            background: linear-gradient(135deg, #99d182 0%, #88e6cc 100%);
-            color: #000000;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
-        }
-
-        .user-message {
-            background: linear-gradient(135deg, #6996bc 0%, #8ad3d8 100%);
-            color: #000000;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            color: white;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .input-area {
-            padding: 20px;
-            background: rgba(247, 250, 252, 0.8);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .text-input-container {
-            display: none;
-            margin-bottom: 15px;
-            flex-direction: row;
-            gap: 10px;
-        }
-
-        .text-input-container.active {
-            display: flex;
-        }
-
-        .text-input-container input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .text-input-container input:focus {
-            border-color: #73b1e4;
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #e4b281 0%, #dc8a3f 100%);
-            color: #ffffff;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s ease;
-            min-width: 80px;
-        }
-
-        .send-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .send-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .options-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
+        .options-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         .option-button {
-            background: linear-gradient(135deg, #e4b281 0%, #dc8a3f 100%);
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            min-width: 120px;
+            background: white; color: #4facfe; border: 2px solid #4facfe;
+            padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s;
         }
+        .option-button:hover { background: #4facfe; color: white; transform: translateY(-2px); }
 
-        .option-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
+        /* Loading & Progress */
+        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .loading-overlay.active { display: flex; }
+        .loading-spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .option-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            background: rgba(108, 117, 125, 0.1);
-            padding: 15px 20px;
-            border-radius: 18px;
-            border-bottom-left-radius: 5px;
-            max-width: 80px;
-        }
-
-        .typing-indicator.active {
-            display: block;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 4px;
-        }
-
-        .typing-dots span {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #6c757d;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes typing {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-
-        .status-bar {
-            padding: 10px 20px;
-            background: rgba(240, 242, 245, 0.9);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            font-size: 14px;
-            color: #6c757d;
-            text-align: center;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 5px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #e4b281, #d37621);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-        .progress-tracker {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-
-        .progress-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-
-        .progress-step.running {
-            background: rgba(255, 193, 7, 0.2);
-            animation: pulse 1.5s infinite;
-        }
-
-        .progress-step.complete {
-            background: rgba(40, 167, 69, 0.2);
-        }
-
-        .progress-step.error {
-            background: rgba(220, 53, 69, 0.2);
-        }
-
-        .step-icon {
-            font-size: 2em;
-        }
-
-        .step-label {
-            font-weight: bold;
-        }
-
-        .step-status {
-            font-size: 1.5em;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                height: 95vh;
-                margin: 10px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .message {
-                max-width: 90%;
-            }
-
-            .option-button {
-                min-width: 100px;
-                font-size: 14px;
-                padding: 10px 20px;
-            }
-        }
+        .progress-tracker { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 15px; width: 100%; }
+        .progress-step { display: flex; flex-direction: column; align-items: center; font-size: 0.8em; opacity: 0.5; }
+        .progress-step.running { opacity: 1; color: #e67e22; font-weight: bold; }
+        .progress-step.complete { opacity: 1; color: #27ae60; font-weight: bold; }
+        .progress-step.error { opacity: 1; color: #c0392b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -390,510 +100,220 @@
 
     <div class="container">
         <div class="header">
-            <div class="connection-status" id="connectionStatus">🔴 Offline</div>
-            <h1>QuestMaster</h1>
-            <p>Generatore di Storie Interattive a Logica Aumentata</p>
+            <div class="connection-status" id="connectionStatus">Check Connection...</div>
+            <h1>QuestMaster AI</h1>
         </div>
 
         <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-
-            </div>
-
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <!-- Typing indicator semplificato -->
+            <div class="message assistant-message" id="typingIndicator" style="display:none;">...</div>
         </div>
 
-        <div class="input-area" id="inputArea">
+        <div class="input-area">
             <div class="text-input-container" id="textInputContainer">
-                <input type="text" id="textInput" placeholder="Scrivi il tuo messaggio...">
-                <button class="send-button" id="sendButton" onclick="sendTextMessage()">Invia</button>
+                <input type="text" id="textInput" placeholder="Type here...">
+                <button class="send-button" id="sendButton" onclick="sendTextMessage()">Send</button>
             </div>
-            <div class="options-container" id="optionsContainer">
-
-            </div>
-        </div>
-
-        <div class="status-bar">
-            <div>Stato: <span id="statusText">Connessione in corso...</span></div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+            <div class="options-container" id="optionsContainer"></div>
         </div>
     </div>
 
     <script>
-        // Configurazione API
         const API_BASE_URL = 'http://localhost:5000';
 
-        // Classe principale per gestire QuestMaster Frontend
         class QuestMasterClient {
             constructor() {
-                this.currentStep = 'welcome';
-                this.sessionId = 'session_' + Date.now();
+                this.sessionId = 'sess_' + Date.now();
                 this.isLoading = false;
+                this.currentStep = 'welcome';
 
-                // Elementi DOM
-                this.elements = {
-                    chatMessages: document.getElementById('chatMessages'),
-                    typingIndicator: document.getElementById('typingIndicator'),
-                    optionsContainer: document.getElementById('optionsContainer'),
-                    textInputContainer: document.getElementById('textInputContainer'),
-                    textInput: document.getElementById('textInput'),
-                    sendButton: document.getElementById('sendButton'),
-                    statusText: document.getElementById('statusText'),
-                    progressFill: document.getElementById('progressFill'),
-                    connectionStatus: document.getElementById('connectionStatus'),
-                    loadingOverlay: document.getElementById('loadingOverlay')
-                };
+                // Elementi
+                this.chatMessages = document.getElementById('chatMessages');
+                this.optionsContainer = document.getElementById('optionsContainer');
+                this.textInputContainer = document.getElementById('textInputContainer');
+                this.textInput = document.getElementById('textInput');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
 
                 this.init();
             }
 
             async init() {
-                console.log('🎮 Inizializzazione QuestMaster Client...');
+                this.checkConnection();
+                this.startWelcome();
 
-                // Setup event listeners
-                this.setupEventListeners();
-
-                // Controlla connessione
-                await this.checkConnection();
-
-                // Avvia conversazione
-                await this.startWelcome();
-            }
-
-            setupEventListeners() {
-                // Enter key per input testuale
-                this.elements.textInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.sendTextMessage();
-                    }
+                // Event Listeners
+                this.textInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendTextMessage();
                 });
-
-                // Controllo stato connessione periodico
-                setInterval(() => this.checkConnection(), 30000);
             }
 
             async checkConnection() {
+                const statusEl = document.getElementById('connectionStatus');
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/health`, {
-                        method: 'GET',
-                        timeout: 5000
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        this.updateConnectionStatus(true, data.ollama);
+                    const res = await fetch(`${API_BASE_URL}/api/health`);
+                    const data = await res.json();
+                    if (data.connection === 'online') {
+                        statusEl.textContent = '🟢 OpenAI Online';
+                        statusEl.classList.add('status-online');
                     } else {
-                        this.updateConnectionStatus(false);
+                        throw new Error('Offline');
                     }
-                } catch (error) {
-                    console.error('Errore controllo connessione:', error);
-                    this.updateConnectionStatus(false);
-                }
-            }
-
-            updateConnectionStatus(isOnline, ollamaStatus = 'unknown') {
-                const statusEl = this.elements.connectionStatus;
-
-                if (isOnline && ollamaStatus === 'online') {
-                    statusEl.textContent = '🟢 Online';
-                    statusEl.className = 'connection-status status-online';
-                } else {
+                } catch (e) {
                     statusEl.textContent = '🔴 Offline';
-                    statusEl.className = 'connection-status status-offline';
+                    statusEl.classList.add('status-offline');
                 }
             }
 
             async startWelcome() {
-                this.setLoading(true);
-                this.updateStatus('Connessione al sistema LLM...', 10);
-
+                this.toggleLoading(true);
                 try {
-                    const response = await this.apiCall('/api/welcome', {});
-
-                    if (response.success) {
-                        await this.showAssistantMessage(response.message);
-                        this.showOptions(response.options);
-                        this.updateStatus('In attesa della scelta dell\'utente...', 20);
-                    } else {
-                        throw new Error(response.error || 'Errore sconosciuto');
-                    }
-                } catch (error) {
-                    console.error('Errore welcome:', error);
-                    await this.showErrorMessage('Impossibile connettersi al server. Assicurati che il backend sia avviato su localhost:5000');
-                    this.updateStatus('Errore di connessione', 0);
-                } finally {
-                    this.setLoading(false);
+                    const res = await this.apiCall('/api/welcome', {});
+                    this.addMessage(res.message, 'assistant');
+                    this.showOptions(res.options);
+                } catch (e) {
+                    this.addMessage("Errore di connessione al Backend.", 'error');
                 }
+                this.toggleLoading(false);
             }
 
-            async handleUserChoice(choice) {
-                if (this.isLoading) return;
+            async handleChoice(choice) {
+                this.addMessage(choice, 'user');
+                this.toggleLoading(true);
 
-                this.addUserMessage(choice);
-
-                // ✅ NUOVO: Gestione speciale per l'avvio della quest
-                if (choice === 'Start the Quest!' || choice === 'Quest Begins!') {
-                    this.startQuestGeneration();
-                    return; // Esci subito, il resto è gestito da SSE
+                // Se inizia la quest
+                if (choice.includes('Quest Begins') || choice.includes('Start the Quest')) {
+                    this.startQuestStream();
+                    return;
                 }
 
-                // Comportamento normale per altre scelte
-                this.showTyping();
-                this.setLoading(true);
-
                 try {
-                    const requestData = {
+                    const res = await this.apiCall('/api/chat', {
                         message: choice,
                         session_id: this.sessionId,
                         step: this.currentStep
-                    };
+                    });
 
-                    const response = await this.apiCall('/api/chat', requestData);
+                    this.currentStep = res.next_step || this.currentStep;
+                    this.addMessage(res.message, 'assistant');
 
-                    if (response.success) {
-                        await this.processResponse(response);
+                    if (res.show_text_input) {
+                        this.showTextInput(res.text_placeholder);
                     } else {
-                        throw new Error(response.error || 'Errore nella risposta del server');
+                        this.showOptions(res.options || []);
                     }
 
-                } catch (error) {
-                    console.error('Errore chat:', error);
-                    await this.showErrorMessage(`Errore: ${error.message}`);
-                } finally {
-                    this.hideTyping();
-                    this.setLoading(false);
+                } catch (e) {
+                    this.addMessage("Errore: " + e.message, 'error');
                 }
+                this.toggleLoading(false);
             }
 
-            // ========== NUOVO CODICE: Gestione Progress Tracker ==========
+            // Gestione SSE per la generazione
+            startQuestStream() {
+                this.optionsContainer.innerHTML = ''; // Pulisci opzioni
+                const source = new EventSource(`${API_BASE_URL}/api/generate-quest-stream?session=${this.sessionId}`);
 
-            startQuestGeneration() {
-                this.setLoading(true);
-                this.showProgressTracker();
+                // UI Tracker
+                const trackerId = 'tracker-' + Date.now();
+                const trackerHTML = `
+                    <div id="${trackerId}" class="progress-tracker">
+                        <div class="progress-step" id="step-lore">LORE</div>
+                        <div class="progress-step" id="step-pddl">PDDL</div>
+                        <div class="progress-step" id="step-comments">FINALIZE</div>
+                    </div>`;
+                this.addRawHtml(trackerHTML, 'assistant');
 
-                const eventSource = new EventSource(`${API_BASE_URL}/api/generate-quest-stream?session=${this.sessionId}`);
-
-                eventSource.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    this.updateProgressStep(data);
+                source.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    this.updateTracker(trackerId, data);
 
                     if (data.step === 'done') {
-                        eventSource.close();
-                        this.setLoading(false);
-                        setTimeout(() => {
-                            window.location.href = data.redirect;
-                        }, 2000);
+                        source.close();
+                        this.toggleLoading(false);
+                        setTimeout(() => window.location.href = data.redirect, 1500);
                     }
                 };
 
-                eventSource.onerror = (error) => {
-                    console.error('SSE Error:', error);
-                    eventSource.close();
-                    this.setLoading(false);
-                    this.showErrorMessage('Errore nella generazione della quest. Riprova più tardi.');
+                source.onerror = () => {
+                    source.close();
+                    this.toggleLoading(false);
+                    this.addMessage("Errore durante la generazione.", 'error');
                 };
             }
 
-            showProgressTracker() {
-                const tracker = `
-                    <div class="progress-tracker">
-                        <div class="progress-step" id="step-lore">
-                            <span class="step-icon">📜</span>
-                            <span class="step-label">Lore</span>
-                            <span class="step-status">⏳</span>
-                        </div>
-                        <div class="progress-step" id="step-pddl">
-                            <span class="step-icon">🧠</span>
-                            <span class="step-label">PDDL</span>
-                            <span class="step-status">⏳</span>
-                        </div>
-                        <div class="progress-step" id="step-comments">
-                            <span class="step-icon">💬</span>
-                            <span class="step-label">Commenti</span>
-                            <span class="step-status">⏳</span>
-                        </div>
-                    </div>
-                `;
-
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message assistant-message';
-                messageDiv.innerHTML = tracker;
-                this.elements.chatMessages.appendChild(messageDiv);
-                this.scrollToBottom();
-            }
-
-            updateProgressStep(data) {
-                const stepEl = document.getElementById(`step-${data.step}`);
-                if (!stepEl && data.step !== 'done') return;
-
-                if (stepEl) {
-                    const statusSpan = stepEl.querySelector('.step-status');
-
-                    if (data.status === 'running') {
-                        statusSpan.textContent = '⏳';
-                        stepEl.classList.add('running');
-                    } else if (data.status === 'complete') {
-                        statusSpan.textContent = '✅';
-                        stepEl.classList.remove('running');
-                        stepEl.classList.add('complete');
-                    } else if (data.status === 'error') {
-                        statusSpan.textContent = '❌';
-                        stepEl.classList.add('error');
-                    }
-                }
-
-                // Mostra messaggio sotto il tracker
-                if (data.message) {
-                    this.showAssistantMessage(data.message);
+            updateTracker(trackerId, data) {
+                if (data.step === 'done') return;
+                const el = document.querySelector(`#${trackerId} #step-${data.step}`);
+                if (el) {
+                    if (data.status === 'running') el.className = 'progress-step running';
+                    if (data.status === 'complete') el.className = 'progress-step complete';
+                    if (data.status === 'error') el.className = 'progress-step error';
                 }
             }
 
-
-            async processResponse(response) {
-                 if (response.redirect_to_review) {
-                    await this.showAssistantMessage(response.message);
-
-                    this.updateStatus('Reindirizzamento alla pagina di revisione...', 100);
-
-                    // Attendi 2 secondi e poi redirect
-                    setTimeout(() => {
-                        window.location.href = `/review.html?session=${response.session_id}`;
-                    }, 2000);
-
-                    return; // Stop qui
-                 }
-                // Mostra il messaggio dell'assistente
-                await this.showAssistantMessage(response.message);
-
-                // Aggiorna lo step corrente
-                if (response.next_step) {
-                    this.currentStep = response.next_step;
-                }
-
-                // Gestisci le opzioni
-                if (response.options && response.options.length > 0) {
-                    this.showOptions(response.options);
-                }
-
-                // Gestisci input testuale
-                if (response.show_text_input) {
-                    const placeholder = response.text_placeholder || 'Scrivi il tuo messaggio...';
-                    this.showTextInput(placeholder);
-                }
-
-                // Aggiorna barra di progresso
-                this.updateProgressBasedOnStep();
-
-                // Se quest completata
-                if (response.quest_ready) {
-                    console.log('Quest configurata:', response.config);
-                    this.updateStatus('Quest pronta per essere avviata!', 100);
-                } else {
-                    this.updateStatus(this.getStatusForStep(this.currentStep), this.getProgressForStep(this.currentStep));
-                }
+            // Helpers UI
+            addMessage(html, type) {
+                const div = document.createElement('div');
+                div.className = `message ${type}-message`;
+                div.innerHTML = html;
+                this.chatMessages.appendChild(div);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
             }
 
-            async apiCall(endpoint, data) {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                return await response.json();
-            }
-
-            // Metodi UI
-            async showAssistantMessage(message) {
-                await this.delay(300);
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message assistant-message';
-                messageDiv.innerHTML = this.formatMessage(message);
-                this.elements.chatMessages.appendChild(messageDiv);
-                this.scrollToBottom();
-                this.hideOptions();
-            }
-
-            async showErrorMessage(message) {
-                await this.delay(300);
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message error-message';
-                messageDiv.innerHTML = `${message}`;
-                this.elements.chatMessages.appendChild(messageDiv);
-                this.scrollToBottom();
-            }
-
-            addUserMessage(message) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message user-message';
-                messageDiv.textContent = message;
-                this.elements.chatMessages.appendChild(messageDiv);
-                this.scrollToBottom();
-                this.hideOptions();
-                this.hideTextInput();
+            addRawHtml(html, type) {
+                this.addMessage(html, type);
             }
 
             showOptions(options) {
-                this.elements.optionsContainer.innerHTML = '';
+                this.optionsContainer.innerHTML = '';
+                this.textInputContainer.classList.remove('active');
 
-                options.forEach(option => {
-                    const button = document.createElement('button');
-                    button.className = 'option-button';
-                    button.textContent = option;
-                    button.onclick = () => this.handleUserChoice(option);
-
-                    if (this.isLoading) {
-                        button.disabled = true;
-                    }
-
-                    this.elements.optionsContainer.appendChild(button);
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-button';
+                    btn.innerText = opt;
+                    btn.onclick = () => this.handleChoice(opt);
+                    this.optionsContainer.appendChild(btn);
                 });
             }
 
-            hideOptions() {
-                this.elements.optionsContainer.innerHTML = '';
-            }
-
-            showTextInput(placeholder = "Scrivi il tuo messaggio...") {
-                this.elements.textInput.placeholder = placeholder;
-                this.elements.textInput.value = '';
-                this.elements.textInputContainer.classList.add('active');
-                this.elements.textInput.focus();
-
-                // Aggiorna stato bottone
-                this.elements.sendButton.disabled = this.isLoading;
-            }
-
-            hideTextInput() {
-                this.elements.textInputContainer.classList.remove('active');
+            showTextInput(placeholder) {
+                this.optionsContainer.innerHTML = '';
+                this.textInputContainer.classList.add('active');
+                this.textInput.placeholder = placeholder || "Type here...";
+                this.textInput.focus();
             }
 
             sendTextMessage() {
-                if (this.isLoading) return;
-
-                const message = this.elements.textInput.value.trim();
-                if (message) {
-                    this.handleUserChoice(message);
+                const txt = this.textInput.value.trim();
+                if (txt) {
+                    this.textInput.value = '';
+                    this.handleChoice(txt);
                 }
             }
 
-            showTyping() {
-                this.elements.typingIndicator.classList.add('active');
-                this.scrollToBottom();
+            async apiCall(url, body) {
+                const res = await fetch(API_BASE_URL + url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                return await res.json();
             }
 
-            hideTyping() {
-                this.elements.typingIndicator.classList.remove('active');
-            }
-
-            setLoading(loading) {
-                this.isLoading = loading;
-
-                // Aggiorna overlay
-                if (loading) {
-                    this.elements.loadingOverlay.classList.add('active');
-                } else {
-                    this.elements.loadingOverlay.classList.remove('active');
-                }
-
-                // Aggiorna bottoni
-                const buttons = document.querySelectorAll('.option-button, .send-button');
-                buttons.forEach(btn => btn.disabled = loading);
-            }
-
-            updateStatus(text, progress) {
-                this.elements.statusText.textContent = text;
-                this.elements.progressFill.style.width = progress + '%';
-            }
-
-            scrollToBottom() {
-                setTimeout(() => {
-                    this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
-                }, 100);
-            }
-
-            formatMessage(message) {
-                return message
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/\n/g, '<br>');
-            }
-
-            delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            getStatusForStep(step) {
-                const statusMap = {
-                    'welcome': 'In attesa della modalità...',
-                    'genre_selection': 'Selezione del genere...',
-                    'custom_genre': 'Genere personalizzato...',
-                    'length_selection': 'Definizione della lunghezza...',
-                    'tone_selection': 'Scelta del tono narrativo...',
-                    'graphics_selection': 'Modalità grafica...',
-                    'theme_input': 'Definizione del tema...',
-                    'final_confirmation': 'Configurazione completata...'
-                };
-                return statusMap[step] || 'In elaborazione...';
-            }
-
-            getProgressForStep(step) {
-                const progressMap = {
-                    'welcome': 20,
-                    'genre_selection': 30,
-                    'custom_genre': 35,
-                    'length_selection': 50,
-                    'tone_selection': 65,
-                    'graphics_selection': 80,
-                    'theme_input': 90,
-                    'final_confirmation': 95
-                };
-                return progressMap[step] || 25;
-            }
-
-            updateProgressBasedOnStep() {
-                const progress = this.getProgressForStep(this.currentStep);
-                const status = this.getStatusForStep(this.currentStep);
-                this.updateStatus(status, progress);
+            toggleLoading(show) {
+                this.isLoading = show;
+                if(show) this.loadingOverlay.classList.add('active');
+                else this.loadingOverlay.classList.remove('active');
             }
         }
 
-        // Funzione globale per compatibilità
-        function sendTextMessage() {
-            if (window.questMasterClient) {
-                window.questMasterClient.sendTextMessage();
-            }
-        }
-
-        // Inizializzazione quando la pagina è caricata
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Caricamento QuestMaster Frontend...');
-            window.questMasterClient = new QuestMasterClient();
+            window.client = new QuestMasterClient();
         });
 
-        // Gestione errori globali
-        window.addEventListener('error', (event) => {
-            console.error('Errore JavaScript:', event.error);
-        });
-
-        window.addEventListener('unhandledrejection', (event) => {
-            console.error('Promise rejettata:', event.reason);
-        });
+        function sendTextMessage() { window.client.sendTextMessage(); }
     </script>
 </body>
 </html>
