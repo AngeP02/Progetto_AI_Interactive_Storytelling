@@ -20,44 +20,83 @@ def read_file(path):
         print(f"ERRORE: File non trovato -> {path}")
         sys.exit(1)
 
-def build_prompt(domain, problem, sas_plan, lore, branching_factor=6, depth=4):
-    """
-    Costruisce un prompt dettagliato che richiede:
-    - tutti i rami espansi secondo branching_factor
-    - profondità del grafo pari a depth
-    - ogni scelta porta al goal
-    - output sia testuale che in JSON
-    """
+def build_prompt(domain, problem, sas_plan, lore):
     return f"""
-Sei un sistema che trasforma un DOMAIN PDDL, un PROBLEM PDDL,
-un piano SAS e un LORE narrativo in un GRAFO NARRATIVO COMPLETO in italiano.
+Genera un GRAFO NARRATIVO COERENTE CON PDDL dove:
 
-REQUISITI:
-- Tutti i rami devono essere espansi fino a profondità {depth}.
-- Ogni nodo deve avere {branching_factor} scelte possibili.
-- Tutte le scelte devono portare al raggiungimento del goal PDDL.
-- Il grafo deve essere coerente con le azioni SAS e il lore.
-- Restituisci l'output in forma testuale leggibile (come i nodi precedenti).
+1. STATO NARRATIVO PERSISTENTE
+   - Ogni nodo specifica quale "stato del caso" sei
+   - Es: "Stato: Hai identificato Specter come sospetto"
+   - Le scelte future rispecchiano questo stato
 
-----------------------------------------
-DOMAIN PDDL:
-{domain}
+2. CONSEGUENZE LOGICHE
+   - Scelta 1 (Visita Elara) → Scopri X
+   - Scelta 2 (Scena crimine) → Scopri Y
+   - Nel prossimo nodo, puoi usare X o Y per azioni diverse
 
-----------------------------------------
-PROBLEM PDDL:
-{problem}
+3. CONVERGENZA OBBLIGATORIA
+   - Dopo profondità 2, i percorsi devono convergere
+   - Tutti gli elementi raccolti si incontrano in nodi comuni
+   - Es: "Riunione finale dove accusi il colpevole"
 
-----------------------------------------
-SAS PLAN:
-{sas_plan}
+4. GOAL ESPLICITO
+   - L'ultimo nodo deve essere "GOAL RAGGIUNTO: Caso Risolto"
+   - Deve mostrare quale informazione ha risolto tutto
+   - Es: "Hai provato che Victor pagò Specter per uccidere Aurora"
 
-----------------------------------------
-LORE:
-{lore}
-----------------------------------------
+5. PROFONDITÀ E BRANCHING
+   - depth={lore.depth}, branching_factor={lore.branching_factor}
+   - TUTTI i percorsi raggiungono il goal (non tutti gli endpoint sono uguali)
 
-Genera ora il grafo completo, rispettando branching e profondità, con ogni scelta che porta al goal.
-"""
+ESEMPIO DI STRUTTURA CORRETTA:
+
+## Nodo 0: Inizio
+Sei nella tua città, indaghi sulla morte di Aurora.
+Stato: Nessuna pista ancora
+
+**Scegli:**
+1. Visita Dr. Elara Vex
+2. Vai alla scena del crimine
+...
+
+---
+
+### Nodo 1.1: Da Elara
+[Conseguenze: Elara rivela che Specter è il sabotatore]
+Stato: Specter identificato come sospetto principale
+
+**Scegli:**
+1. Traccia le comunicazioni di Specter
+2. Infiltrati nell'AI Underground
+...
+
+---
+
+### Nodo 1.2: Scena del Crimine
+[Conseguenze: Scopri Black Rain, impronta digitale di un guanto cibernetico]
+Stato: Hai due tracce: Black Rain e guanto cibernetico
+
+**Scegli:**
+1. Analizza il guanto cibernetico
+2. Ricerca Black Rain nei database
+...
+
+---
+
+### Nodo 2.1: Convergenza (da 1.1 + altre scelte)
+[Combina tutte le prove raccolte]
+Stato: Specter collegato a Victor LaGraine tramite pagamenti criptati
+
+**Scegli:**
+1. Arresta Victor LaGraine
+2. Piedi in una trappola a Specter
+...
+
+---
+
+## GOAL RAGGIUNTO: Caso Risolto
+Victor LaGraine è l'assassino. Specter era il suo esecutore.
+Prova definitiva: [combinazione di tutte le scoperte]"""
 
 def generate_graph(prompt):
     client = OpenAI(api_key=API_KEY)
@@ -82,11 +121,10 @@ def main():
 
 
     # Puoi settare branching_factor e depth come da lore
-    branching_factor = 6
-    depth = 4
+
 
     print("🔧 Costruzione prompt...")
-    prompt = build_prompt(domain, problem, sas_plan, lore, branching_factor, depth)
+    prompt = build_prompt(domain, problem, sas_plan, lore)
 
     print("🤖 Invio a modello OpenAI...")
     output = generate_graph(prompt)

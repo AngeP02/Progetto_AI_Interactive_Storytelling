@@ -1,105 +1,486 @@
-```
-html
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-	<title>Cyberpunk Noir: The Murder of Aurora Wynter</title>
-	<style>
-		body {
-			background-color: #333;
-			font-family: Arial, sans-serif;
-		}
-		.container {
-			max-width: 800px;
-			margin: 40px auto;
-			padding: 20px;
-			border: 1px solid #ddd;
-			border-radius: 10px;
-			box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
-		}
-		.narrative {
-			margin-bottom: 20px;
-		}
-		.choice {
-			background-color: #666;
-			color: #fff;
-			border: none;
-			padding: 10px;
-			font-size: 16px;
-			cursor: pointer;
-		}
-		.choice:hover {
-			background-color: #888;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'ultima nota di Aurora - Storia Interattiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(20, 20, 40, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            text-align: center;
+            border-bottom: 3px solid #8a2be2;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .file-input-section {
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .file-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+        }
+
+        .file-label:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(138, 43, 226, 0.8);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 20px;
+            color: #8a2be2;
+            font-size: 1.1em;
+        }
+
+        .story-container {
+            padding: 40px;
+        }
+
+        .node-header {
+            background: rgba(138, 43, 226, 0.2);
+            border-left: 5px solid #8a2be2;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-info {
+            font-size: 1.1em;
+        }
+
+        .node-info strong {
+            color: #8a2be2;
+        }
+
+        .story-title {
+            font-size: 2em;
+            color: #8a2be2;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+
+        .story-text {
+            font-size: 1.15em;
+            line-height: 1.9;
+            color: #e0e0e0;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-left: 3px solid #8a2be2;
+            text-align: justify;
+        }
+
+        .choices-header {
+            font-size: 1.3em;
+            color: #8a2be2;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .choices {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice-button {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            color: #fff;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            padding: 20px 25px;
+            border-radius: 12px;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-button:before {
+            content: '→';
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .choice-button:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%);
+            border-color: #8a2be2;
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+        }
+
+        .choice-button:hover:before {
+            opacity: 1;
+            right: 20px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .nav-button {
+            background: rgba(108, 117, 125, 0.5);
+            color: white;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: rgba(138, 43, 226, 0.5);
+            border-color: #8a2be2;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .goal-reached {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            animation: celebration 1s ease;
+            box-shadow: 0 0 30px rgba(56, 239, 125, 0.5);
+        }
+
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .goal-reached h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .epilogue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .epilogue h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-	<div class="container">
-		<h1>Cyberpunk Noir: The Murder of Aurora Wynter</h1>
-		<p id="narrative"></p>
-		<button id="choice-1" class="choice">Make Choice 1</button>
-		<button id="choice-2" class="choice">Make Choice 2</button>
-		<button id="choice-3" class="choice">Make Choice 3</button>
-	</div>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 L'ultima nota di Aurora 🎵</h1>
+            <p class="subtitle">Un'indagine cyber-noir nella Neo-Eden del futuro</p>
+        </div>
 
-	<script>
-		var currentStep = 0;
-		var choices = [
-			{
-				step: 1,
-				narrative: "You arrive at the crime scene and see a group of paparazzi surrounding the body. What do you do?",
-				options: ["Talk to the paparazzi", "Examine the body", "Call for backup"]
-			},
-			{
-				step: 2,
-				narrative: "You decide to talk to the paparazzi and gather some information.",
-				options: ["Get a statement from one of the paparazzi", "Look for any suspicious objects nearby", "Follow the paparazzi's lead"]
-			},
-			// ...
-		];
+        <div class="file-input-section" id="fileSection">
+            <label for="fileInput" class="file-label">
+                📂 Carica il file grafo_completo.txt
+            </label>
+            <input type="file" id="fileInput" class="file-input" accept=".txt">
+            <div class="file-name" id="fileName"></div>
+        </div>
 
-		function makeChoice(action) {
-			if (action === choices[currentStep].options[0]) {
-				// Code for choice 1
-				currentStep++;
-				updateNarrative();
-				updateChoices();
-			} else if (action === choices[currentStep].options[1]) {
-				// Code for choice 2
-				currentStep++;
-				updateNarrative();
-				updateChoices();
-			} else if (action === choices[currentStep].options[2]) {
-				// Code for choice 3
-				currentStep++;
-				updateNarrative();
-				updateChoices();
-			}
-		}
+        <div class="story-container hidden" id="storyContainer">
+            <div class="node-header">
+                <div class="node-info">
+                    <strong>Nodo:</strong> <span id="nodeId">-</span>
+                </div>
+                <div class="node-info">
+                    <strong>Profondità:</strong> <span id="nodeDepth">-</span>
+                </div>
+            </div>
+            
+            <h2 class="story-title" id="storyTitle"></h2>
+            
+            <div class="story-text" id="storyText"></div>
+            
+            <div id="choicesSection">
+                <h3 class="choices-header">Scegli:</h3>
+                <div class="choices" id="choicesContainer"></div>
+            </div>
 
-		function updateNarrative() {
-			document.getElementById("narrative").innerHTML = choices[currentStep].narrative;
-		}
+            <div class="navigation">
+                <button class="nav-button" id="backButton" onclick="goBack()">
+                    ← Indietro
+                </button>
+                <button class="nav-button" id="restartButton" onclick="restart()">
+                    🔄 Ricomincia
+                </button>
+            </div>
+        </div>
+    </div>
 
-		function updateChoices() {
-			if (currentStep < choices.length - 1) {
-				document.getElementById("choice-1").style.display = "block";
-				document.getElementById("choice-2").style.display = "block";
-				document.getElementById("choice-3").style.display = "block";
-			} else {
-				document.getElementById("choice-1").style.display = "none";
-				document.getElementById("choice-2").style.display = "none";
-				document.getElementById("choice-3").style.display = "none";
-			}
-		}
+    <script>
+        let storyGraph = {};
+        let currentNodeId = 'nodo_0';
+        let history = [];
 
-		document.getElementById("choice-1").addEventListener("click", function() { makeChoice(choices[currentStep].options[0]); });
-		document.getElementById("choice-2").addEventListener("click", function() { makeChoice(choices[currentStep].options[1]); });
-		document.getElementById("choice-3").addEventListener("click", function() { makeChoice(choices[currentStep].options[2]); });
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = `File caricato: ${file.name}`;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    parseStoryFile(event.target.result);
+                    document.getElementById('fileSection').classList.add('hidden');
+                    document.getElementById('storyContainer').classList.remove('hidden');
+                    displayNode(currentNodeId);
+                };
+                reader.readAsText(file);
+            }
+        });
 
-		updateNarrative();
-		updateChoices();
-	</script>
+        function parseStoryFile(content) {
+            const lines = content.split('\n');
+            let currentNode = null;
+            let inNodeSection = false;
+            let textBuffer = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                
+                // Rileva un nuovo nodo (formato: ## Nodo X... o ### Nodo X...)
+                if (line.match(/^#{2,3}\s+Nodo\s+(\d+\.?\d*)/i)) {
+                    // Salva il nodo precedente se esiste
+                    if (currentNode && textBuffer.length > 0) {
+                        currentNode.text = textBuffer.join('\n').trim();
+                        textBuffer = [];
+                    }
+                    
+                    const match = line.match(/Nodo\s+(\d+\.?\d*)\s*(?:\(([^)]+)\))?:\s*(.+)/i);
+                    if (match) {
+                        const nodeId = 'nodo_' + match[1].replace('.', '_');
+                        const nodeType = match[2] || '';
+                        const nodeTitle = match[3] || '';
+                        
+                        currentNode = {
+                            id: nodeId,
+                            title: nodeTitle.trim(),
+                            type: nodeType.trim(),
+                            depth: match[1].split('.').length - 1,
+                            text: '',
+                            choices: [],
+                            isGoal: nodeTitle.toLowerCase().includes('goal') || 
+                                    nodeTitle.toLowerCase().includes('fine') ||
+                                    nodeTitle.toLowerCase().includes('epilogo')
+                        };
+                        storyGraph[nodeId] = currentNode;
+                        inNodeSection = true;
+                    }
+                }
+                // Rileva le scelte
+                else if (line.match(/^\d+\.\s+.+/) && currentNode) {
+                    if (textBuffer.length > 0 && !currentNode.text) {
+                        currentNode.text = textBuffer.join('\n').trim();
+                        textBuffer = [];
+                    }
+                    
+                    const choiceMatch = line.match(/^(\d+)\.\s+(.+)/);
+                    if (choiceMatch) {
+                        currentNode.choices.push({
+                            number: parseInt(choiceMatch[1]),
+                            text: choiceMatch[2].trim()
+                        });
+                    }
+                }
+                // Rileva sezione "Scegli:"
+                else if (line.match(/^\*\*Scegli:\*\*/i)) {
+                    if (textBuffer.length > 0 && !currentNode.text) {
+                        currentNode.text = textBuffer.join('\n').trim();
+                        textBuffer = [];
+                    }
+                }
+                // Raccolta testo del nodo
+                else if (line && inNodeSection && currentNode && !line.startsWith('---') && !line.startsWith('#')) {
+                    textBuffer.push(line);
+                }
+                // Fine del grafo
+                else if (line.includes('FINE DEL GRAFO')) {
+                    if (currentNode && textBuffer.length > 0) {
+                        currentNode.text = textBuffer.join('\n').trim();
+                    }
+                    break;
+                }
+            }
+            
+            // Salva l'ultimo nodo
+            if (currentNode && textBuffer.length > 0) {
+                currentNode.text = textBuffer.join('\n').trim();
+            }
+            
+            // Determina i collegamenti tra nodi
+            linkNodes();
+        }
+
+        function linkNodes() {
+            // Crea una mappa dei nodi per profondità
+            const nodesByDepth = {};
+            for (let nodeId in storyGraph) {
+                const node = storyGraph[nodeId];
+                if (!nodesByDepth[node.depth]) {
+                    nodesByDepth[node.depth] = [];
+                }
+                nodesByDepth[node.depth].push(node);
+            }
+            
+            // Collega le scelte ai nodi successivi
+            for (let nodeId in storyGraph) {
+                const node = storyGraph[nodeId];
+                const nextDepth = node.depth + 1;
+                
+                if (nodesByDepth[nextDepth]) {
+                    const nextNodes = nodesByDepth[nextDepth];
+                    node.choices.forEach((choice, index) => {
+                        if (index < nextNodes.length) {
+                            choice.nextNode = nextNodes[index].id;
+                        } else {
+                            // Se non ci sono abbastanza nodi, collega al primo disponibile
+                            choice.nextNode = nextNodes[0]?.id;
+                        }
+                    });
+                }
+            }
+        }
+
+        function displayNode(nodeId) {
+            const node = storyGraph[nodeId];
+            if (!node) {
+                alert('Nodo non trovato: ' + nodeId);
+                return;
+            }
+
+            currentNodeId = nodeId;
+            document.getElementById('nodeId').textContent = node.id;
+            document.getElementById('nodeDepth').textContent = node.depth;
+            document.getElementById('storyTitle').textContent = node.title;
+            document.getElementById('storyText').textContent = node.text;
+
+            const choicesContainer = document.getElementById('choicesContainer');
+            const choicesSection = document.getElementById('choicesSection');
+            choicesContainer.innerHTML = '';
+
+            if (node.isGoal || node.choices.length === 0) {
+                choicesSection.innerHTML = `
+                    <div class="goal-reached">
+                        <h2>🎉 ${node.title} 🎉</h2>
+                        <p>Hai completato questo capitolo dell'indagine!</p>
+                    </div>
+                `;
+            } else {
+                node.choices.forEach((choice) => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-button';
+                    button.textContent = `${choice.number}. ${choice.text}`;
+                    if (choice.nextNode) {
+                        button.onclick = () => makeChoice(choice.nextNode);
+                    }
+                    choicesContainer.appendChild(button);
+                });
+            }
+
+            document.getElementById('backButton').disabled = history.length === 0;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function makeChoice(nextNodeId) {
+            history.push(currentNodeId);
+            displayNode(nextNodeId);
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                const previousNode = history.pop();
+                displayNode(previousNode);
+            }
+        }
+
+        function restart() {
+            if (confirm('Vuoi davvero ricominciare l\'indagine dall\'inizio?')) {
+                history = [];
+                currentNodeId = 'nodo_0';
+                displayNode(currentNodeId);
+            }
+        }
+    </script>
 </body>
 </html>
-```

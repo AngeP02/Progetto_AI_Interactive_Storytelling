@@ -1,29 +1,29 @@
 Here is the annotated PDDL file:
 
-(define (problem delivery-medium); defines a problem named "delivery-medium"
-(:domain logistics-simple); specifies the domain of this problem
-(:objects; declares objects in the problem
-  warehouse depot shop home - location; specifies locations: warehouse, depot, shop, and home
-  truck - vehicle; specifies a vehicle called "truck"
-  package1 package2 - package; specifies two packages: "package1" and "package2"
+(define (problem delivery-medium) ; defines a problem called "delivery-medium"
+(:domain logistics-simple) ; specifies the domain for this problem, which is "logistics-simple"
+(:objects 
+    warehouse depot shop home - location ; defines objects that are locations
+    truck - vehicle ; defines an object that is a vehicle
+    package1 package2 - package ; defines objects that are packages
 )
-(:init; initializes the state of the problem
-  (at-vehicle truck warehouse); places the truck at the warehouse
-  (at-package package1 warehouse); places package1 at the warehouse
-  (at-package package2 depot); places package2 at the depot
+(:init 
+    (at-vehicle truck warehouse) ; initializes the location of the truck to be at the warehouse
+    (at-package package1 warehouse) ; initializes the location of package1 to be at the warehouse
+    (at-package package2 depot) ; initializes the location of package2 to be at the depot
 
-  (connected warehouse depot); connects the warehouse and depot
-  (connected depot warehouse); connects the depot and warehouse
-  (connected depot shop); connects the depot and shop
-  (connected shop depot); connects the shop and depot
-  (connected shop home); connects the shop and home
-  (connected home shop); connects home and shop
+    (connected warehouse depot) ; specifies that the warehouse and depot are connected
+    (connected depot warehouse) ; specifies that the depot and warehouse are connected
+    (connected depot shop) ; specifies that the depot and shop are connected
+    (connected shop depot) ; specifies that the shop and depot are connected
+    (connected shop home) ; specifies that the shop and home are connected
+    (connected home shop) ; specifies that the home and shop are connected
 )
-(:goal; specifies the desired goal state
-  (and ; logical AND operator
-    (at-package package1 home); package1 should be at home
-    (at-package package2 shop); package2 should be at the shop
-  )
+(:goal 
+    (and 
+      (at-package package1 home) ; specifies that the goal is for package1 to be at home
+      (at-package package2 shop) ; specifies that the goal is for package2 to be at the shop
+    )
 )
 
-Let me know if you have any further requests!
+Let me know if you have any questions or need further assistance!

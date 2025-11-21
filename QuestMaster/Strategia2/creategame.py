@@ -1,0 +1,283 @@
+import os
+import sys
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.environ.get("OPENAI_API_KEY")
+
+if API_KEY is None:
+    print("❌ ERRORE: Variabile OPENAI_API_KEY non trovata nel file .env!")
+    sys.exit(1)
+
+def read_file(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"ERRORE: File non trovato -> {path}")
+        sys.exit(1)
+
+
+def create_game_html(quest_plan_content, output_filename="index.html"):
+    # Escaping dei backtick
+    safe_quest_plan = quest_plan_content.replace("`", "\\`")
+
+    html_content = f"""<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestMaster: GPT Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap');
+        body {{ font-family: 'Merriweather', serif; background-color: #111; color: #e5e7eb; }}
+        .mono {{ font-family: 'JetBrains Mono', monospace; }}
+        .fade-in {{ animation: fadeIn 0.5s ease-in; }}
+        @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+        ::-webkit-scrollbar {{ width: 8px; }}
+        ::-webkit-scrollbar-track {{ background: #1f2937; }}
+        ::-webkit-scrollbar-thumb {{ background: #4b5563; border-radius: 4px; }}
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center shadow-lg z-10">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-robot text-green-500 text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-wider text-white">QUEST<span class="text-green-500">GPT</span></h1>
+        </div>
+        <div class="text-xs text-gray-500 mono hidden md:block">Powered by OpenAI GPT-4o</div>
+    </header>
+
+    <!-- MAIN AREA -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        <div id="story-container" class="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 scroll-smooth pb-32">
+            <div class="text-center text-gray-500 mt-20 animate-pulse">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-4"></i>
+                <p>Connessione al server OpenAI...</p>
+            </div>
+        </div>
+        <aside class="w-full md:w-80 bg-gray-900 border-l border-gray-800 p-4 hidden md:flex flex-col gap-4 overflow-y-auto">
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <h3 class="text-green-400 font-bold text-sm mb-2 uppercase mono"><i class="fa-solid fa-suitcase"></i> Inventario</h3>
+                <ul id="inventory-list" class="text-sm text-gray-300 space-y-1 list-disc pl-4"><li class="italic text-gray-500">Vuoto</li></ul>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex-1">
+                <h3 class="text-blue-400 font-bold text-sm mb-2 uppercase mono"><i class="fa-solid fa-location-dot"></i> Luogo</h3>
+                <p id="location-display" class="text-sm text-gray-300">Sconosciuto</p>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ACTION BAR -->
+    <div class="bg-gray-900 border-t border-gray-800 p-4 absolute bottom-0 w-full shadow-2xl">
+        <div class="max-w-5xl mx-auto">
+            <div id="choices-container" class="flex flex-wrap gap-3 justify-center"></div>
+            <div id="input-area" class="hidden mt-3 flex gap-2">
+                <input type="text" id="custom-action" placeholder="Azione personalizzata..." class="flex-1 bg-gray-800 text-white border border-gray-700 rounded px-3 py-2">
+                <button onclick="submitCustomAction()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API KEY MODAL -->
+    <div id="api-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-8 rounded-xl border border-gray-700 max-w-md w-full shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-4">OpenAI Key Richiesta</h2>
+            <p class="text-gray-400 mb-4 text-sm">Inserisci la tua chiave (sk-...) per iniziare.</p>
+            <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-gray-900 border border-gray-700 rounded p-3 text-white mb-4 focus:border-green-500 outline-none">
+            <button onclick="saveApiKey()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded transition">Inizia</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAZIONE GPT ---
+        // MODELLO: Cambia qui se vuoi usare gpt-3.5-turbo o gpt-4-turbo
+        const MODEL_ID = "gpt-4o"; 
+
+        const QUEST_PLAN = `{safe_quest_plan}`;
+        let apiKey = "{API_KEY}";
+
+        let chatHistory = [];
+        let gameState = {{ location: "Start", inventory: [] }};
+
+        window.onload = function() {{
+            if (!apiKey) {{
+                const storedKey = localStorage.getItem("openai_api_key");
+                if (storedKey) {{ apiKey = storedKey; startGame(); }} 
+                else {{ document.getElementById('api-modal').classList.remove('hidden'); }}
+            }} else {{ startGame(); }}
+        }};
+
+        function saveApiKey() {{
+            const input = document.getElementById('api-key-input').value.trim();
+            if (input) {{
+                apiKey = input;
+                localStorage.setItem("openai_api_key", apiKey);
+                document.getElementById('api-modal').classList.add('hidden');
+                startGame();
+            }}
+        }}
+
+        function startGame() {{
+            document.getElementById('story-container').innerHTML = '';
+            // Primo messaggio per avviare il loop
+            callGPT("Inizia l'avventura descrivendo la situazione iniziale.", true);
+        }}
+
+        function buildSystemPrompt() {{
+            return `Sei il Dungeon Master. 
+            CONOSCENZA DEL MONDO:
+            ---
+            ${{QUEST_PLAN}}
+            ---
+
+            RISPONDI SOLO IN JSON PURO (senza blocchi markdown). Formato:
+            {{
+                "description": "HTML della storia",
+                "location": "Nome luogo",
+                "inventory": ["Item1", "Item2"],
+                "choices": [
+                    {{ "text": "Azione", "action": "Prompt per il prossimo turno" }}
+                ]
+            }}
+            `;
+        }}
+
+        async function callGPT(userAction, isStart = false) {{
+            showLoading();
+            disableChoices();
+
+            // Costruiamo i messaggi nello stile ChatML di OpenAI
+            let messages = [
+                {{ role: "system", content: buildSystemPrompt() }}
+            ];
+
+            // Aggiungiamo la cronologia
+            messages = messages.concat(chatHistory);
+
+            // Aggiungiamo l'azione corrente
+            messages.push({{ role: "user", content: `AZIONE GIOCATORE: ${{userAction}}` }});
+
+            const payload = {{
+                model: MODEL_ID,
+                messages: messages,
+                response_format: {{ type: "json_object" }} // Importante per GPT
+            }};
+
+            try {{
+                // CHIAMATA A OPENAI API
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {{
+                    method: 'POST',
+                    headers: {{ 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${{apiKey}}`
+                    }},
+                    body: JSON.stringify(payload)
+                }});
+
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error.message);
+
+                const aiText = data.choices[0].message.content;
+                const gameData = JSON.parse(aiText);
+
+                updateUI(gameData, userAction, isStart);
+
+                // Aggiorna History per il contesto (max ultimi 10 turni per risparmiare token se vuoi)
+                if (!isStart) chatHistory.push({{ role: "user", content: userAction }});
+                chatHistory.push({{ role: "assistant", content: aiText }});
+
+            }} catch (error) {{
+                console.error(error);
+                appendMessage("Errore", error.message, true);
+                enableChoices();
+            }}
+        }}
+
+        // --- FUNZIONI UI (Invariate) ---
+        function showLoading() {{ document.getElementById('choices-container').innerHTML = '<div class="text-green-500 animate-pulse">Elaborazione GPT...</div>'; }}
+
+        function updateUI(data, lastAction, isStart) {{
+            const story = document.getElementById('story-container');
+            const choices = document.getElementById('choices-container');
+
+            // Rimuovi loading precedenti
+            document.querySelectorAll('.loading').forEach(e => e.remove());
+
+            if (!isStart) {{
+                const userDiv = document.createElement('div');
+                userDiv.className = "text-right mb-4";
+                userDiv.innerHTML = `<span class="bg-gray-800 text-gray-300 px-4 py-2 rounded-lg text-sm italic">"${{lastAction}}"</span>`;
+                story.appendChild(userDiv);
+            }}
+
+            const aiDiv = document.createElement('div');
+            aiDiv.className = "bg-gray-900/50 border-l-4 border-green-600 p-5 rounded-r-lg mb-6 fade-in";
+            aiDiv.innerHTML = `<div class="prose prose-invert max-w-none text-gray-200">${{marked.parse(data.description)}}</div>`;
+            story.appendChild(aiDiv);
+            story.scrollTop = story.scrollHeight;
+
+            // Aggiorna Stats
+            document.getElementById('location-display').innerText = data.location || "Sconosciuto";
+            const invList = document.getElementById('inventory-list');
+            invList.innerHTML = (data.inventory && data.inventory.length) 
+                ? data.inventory.map(i => `<li class="text-green-300">${{i}}</li>`).join('')
+                : '<li class="italic text-gray-500">Vuoto</li>';
+
+            // Bottoni
+            choices.innerHTML = '';
+            if(data.choices) {{
+                data.choices.forEach(c => {{
+                    const btn = document.createElement('button');
+                    btn.className = "bg-gray-800 hover:bg-green-900 text-gray-200 border border-gray-600 hover:border-green-500 px-4 py-3 rounded flex-grow text-sm text-left shadow-lg";
+                    btn.innerText = c.text;
+                    btn.onclick = () => callGPT(c.action);
+                    choices.appendChild(btn);
+                }});
+            }}
+
+            const freeBtn = document.createElement('button');
+            freeBtn.className = "bg-transparent border border-gray-600 text-gray-400 px-3 py-3 rounded";
+            freeBtn.innerHTML = '<i class="fa-solid fa-keyboard"></i>';
+            freeBtn.onclick = () => document.getElementById('input-area').classList.toggle('hidden');
+            choices.appendChild(freeBtn);
+        }}
+
+        function submitCustomAction() {{
+            const val = document.getElementById('custom-action').value.trim();
+            if (val) {{ callGPT(val); document.getElementById('custom-action').value=''; document.getElementById('input-area').classList.add('hidden'); }}
+        }}
+        function disableChoices() {{ document.querySelectorAll('#choices-container button').forEach(b => b.disabled = true); }}
+        function enableChoices() {{ document.querySelectorAll('#choices-container button').forEach(b => b.disabled = false); }}
+        function appendMessage(t, m, e) {{ 
+            const d = document.createElement('div'); 
+            d.className = `p-4 mb-4 border ${{e?'bg-red-900/20 border-red-700':'bg-gray-800'}}`; 
+            d.innerHTML = `<b>${{t}}</b><br>${{m}}`; 
+            document.getElementById('story-container').appendChild(d); 
+        }}
+    </script>
+</body>
+</html>
+"""
+
+    with open(output_filename, "w", encoding="utf-8") as f:
+        f.write(html_content)
+    print(f"✅ Gioco creato con successo: {output_filename}")
+    print("👉 Apri il file nel browser. Assicurati di avere la chiave OpenAI pronta.")
+
+
+if __name__ == "__main__":
+    QUEST_PLAN_PATH = "quest_plan.md"
+    if not os.path.exists(QUEST_PLAN_PATH):
+        print(f"⚠️ Attenzione: Manca '{QUEST_PLAN_PATH}'.")
+        quest_content = "ERRORE: Quest Plan mancante."
+    else:
+        quest_content = read_file(QUEST_PLAN_PATH)
+
+    create_game_html(quest_content)
