@@ -40,78 +40,195 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
 
     print(f"⚙️  Configurazione rilevata -> Turni Max: {max_depth}, Scelte per turno: {branching_factor}")
 
-    safe_quest_plan = quest_plan_content.replace("`", "\\`")
+    safe_quest_plan = quest_plan_content.replace("`", "\\`").replace('"', '\\"')
 
     html_content = f"""<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestMaster: GPT Adventure</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Libreria per PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>QuestMaster - GPT Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap');
-        body {{ font-family: 'Merriweather', serif; background-color: #0f172a; color: #e2e8f0; }}
-        .mono {{ font-family: 'JetBrains Mono', monospace; }}
-        .fade-in {{ animation: fadeIn 0.6s ease-out; }}
-        @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(15px); }} to {{ opacity: 1; transform: translateY(0); }} }}
-        ::-webkit-scrollbar {{ width: 8px; }}
-        ::-webkit-scrollbar-track {{ background: #1e293b; }}
-        ::-webkit-scrollbar-thumb {{ background: #475569; border-radius: 4px; }}
+        /* --- STILI IDENTICI AL FRONTEND --- */
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url("SfondoChatbot.png");
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }}
+        .container {{
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }}
+        .header h1 {{ font-size: 2.5em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }}
+        .header p {{ opacity: 0.9; font-size: 1.1em; }}
+
+        .connection-status {{
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }}
+        .status-online {{ background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; }}
+        .status-offline {{ background: rgba(220, 53, 69, 0.8); color: white; }}
+
+        /* Chat Styles */
+        .chat-container {{ flex: 1; display: flex; flex-direction: column; overflow: hidden; }}
+        .chat-messages {{ flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }}
+
+        .message {{ max-width: 80%; padding: 15px 20px; border-radius: 18px; animation: slideIn 0.3s ease-out; line-height: 1.5; word-wrap: break-word; }}
+        @keyframes slideIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+
+        .assistant-message {{ background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #000; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid #e1e8ed; }}
+        .user-message {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }}
+        .error-message {{ background: #ff6b6b; color: white; align-self: flex-start; }}
+
+        /* Input Area */
+        .input-area {{ padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }}
+        .text-input-container {{ display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }}
+        .text-input-container.active {{ display: flex; }}
+        .text-input-container input {{ flex: 1; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 25px; font-size: 16px; outline: none; }}
+        .send-button {{ background: #4facfe; color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }}
+        .send-button:hover {{ background: #00f2fe; transform: translateY(-2px); transition: 0.3s; }}
+
+        .options-container {{ display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }}
+        .option-button {{
+            background: white; color: #4facfe; border: 2px solid #4facfe;
+            padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }}
+        .option-button:hover {{ background: #4facfe; color: white; transform: translateY(-2px); }}
+
+        /* Loading & Progress */
+        .loading-overlay {{ position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }}
+        .loading-overlay.active {{ display: flex; }}
+        .loading-spinner {{ width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid white; border-radius: 50%; animation: spin 1s linear infinite; }}
+        @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+
+        .progress-tracker {{ display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 15px; width: 100%; }}
+        .progress-step {{ display: flex; flex-direction: column; align-items: center; font-size: 0.8em; opacity: 0.5; }}
+        .progress-step.running {{ opacity: 1; color: #e67e22; font-weight: bold; }}
+        .progress-step.complete {{ opacity: 1; color: #27ae60; font-weight: bold; }}
+        .progress-step.error {{ opacity: 1; color: #c0392b; font-weight: bold; }}
+
+        /* Modal API Key */
+        .api-modal-overlay {{
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }}
+        .api-modal-overlay.active {{ display: flex; }}
+        .api-modal {{
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+        .api-modal h2 {{
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }}
+        .api-modal input {{
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }}
+        .api-modal input:focus {{ border-color: #4facfe; }}
+        .api-modal button {{
+            width: 100%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }}
+        .api-modal button:hover {{ transform: translateY(-2px); box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3); }}
+
+        /* PDF Button */
+        .pdf-button {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }}
+        .pdf-button:hover {{ transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }}
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center shadow-lg z-10">
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-dragon text-indigo-500 text-2xl"></i>
-            <h1 class="text-xl font-bold tracking-wider text-white">QUEST<span class="text-indigo-500">GPT</span></h1>
-        </div>
-        <div class="flex gap-6 text-xs mono text-slate-400 hidden md:flex">
-            <span id="turn-display" class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Turno: 0/{max_depth}</span>
-            <span class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Branching: {branching_factor}</span>
-        </div>
-    </header>
-
-    <!-- MAIN AREA -->
-    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        <div id="story-container" class="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 scroll-smooth pb-40 bg-[#0f172a]">
-            <div class="text-center text-slate-500 mt-20 animate-pulse">
-                <i class="fa-solid fa-dice-d20 fa-spin text-4xl mb-4"></i>
-                <p>Inizializzazione Logica Narrativa...</p>
-            </div>
-        </div>
-
-        <aside class="w-full md:w-80 bg-slate-900 border-l border-slate-800 p-5 hidden md:flex flex-col gap-6">
-            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-inner">
-                <h3 class="text-indigo-400 font-bold text-xs mb-3 uppercase mono tracking-widest"><i class="fa-solid fa-suitcase"></i> Inventario</h3>
-                <ul id="inventory-list" class="text-sm text-slate-300 space-y-2 list-disc pl-4 font-light"><li class="italic text-slate-600">Vuoto</li></ul>
-            </div>
-            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-inner flex-1">
-                <h3 class="text-emerald-400 font-bold text-xs mb-3 uppercase mono tracking-widest"><i class="fa-solid fa-map-pin"></i> Posizione</h3>
-                <p id="location-display" class="text-lg font-serif text-white">Start</p>
-            </div>
-        </aside>
-    </main>
-
-    <!-- ACTION BAR -->
-    <div class="bg-slate-900 border-t border-slate-800 p-6 absolute bottom-0 w-full shadow-2xl backdrop-blur-sm bg-opacity-95">
-        <div class="max-w-6xl mx-auto">
-            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-{branching_factor if branching_factor <= 4 else 4} gap-4"></div>
+    <div class="api-modal-overlay" id="apiModalOverlay">
+        <div class="api-modal">
+            <h2>OpenAI API Key</h2>
+            <input type="password" id="apiKeyInput" placeholder="sk-...">
+            <button onclick="saveApiKey()">Avvia Avventura</button>
         </div>
     </div>
 
-    <!-- API KEY MODAL -->
-    <div id="api-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-        <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 max-w-md w-full shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-4">OpenAI API Key</h2>
-            <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mb-4 focus:border-indigo-500 outline-none font-mono text-sm">
-            <button onclick="saveApiKey()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition">Avvia Avventura</button>
+    <div class="container">
+        <div class="header">
+            <div class="connection-status" id="connectionStatus">🟢 OpenAI Online</div>
+            <h1>QuestMaster AI</h1>
+            <p>GPT Adventure Engine</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+        </div>
+
+        <div class="input-area">
+            <div class="options-container" id="optionsContainer"></div>
         </div>
     </div>
 
@@ -130,50 +247,37 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
         window.onload = function() {{
             if (!apiKey) {{
                 const stored = localStorage.getItem("openai_api_key");
-                if (stored) {{ apiKey = stored; startGame(); }} 
-                else {{ document.getElementById('api-modal').classList.remove('hidden'); }}
-            }} else {{ startGame(); }}
+                if (stored) {{ 
+                    apiKey = stored; 
+                    startGame(); 
+                }} else {{ 
+                    document.getElementById('apiModalOverlay').classList.add('active'); 
+                }}
+            }} else {{ 
+                startGame(); 
+            }}
         }};
 
         function saveApiKey() {{
-            const val = document.getElementById('api-key-input').value.trim();
+            const val = document.getElementById('apiKeyInput').value.trim();
             if(val) {{ 
                 apiKey = val; 
                 localStorage.setItem("openai_api_key", val);
-                document.getElementById('api-modal').classList.add('hidden');
+                document.getElementById('apiModalOverlay').classList.remove('active');
                 startGame(); 
             }}
         }}
 
         function startGame() {{
-            document.getElementById('story-container').innerHTML = '';
+            document.getElementById('chatMessages').innerHTML = '';
             turnCount = 0;
             isGameOver = false;
-            updateTurnDisplay();
             callGPT("Inizia l'avventura. Descrivi lo scenario iniziale.", true);
-        }}
-
-        function updateTurnDisplay() {{
-            const display = document.getElementById('turn-display');
-            if(display) {{
-                if(isGameOver) {{
-                    display.innerText = "FINE STORIA";
-                    display.className = "border border-emerald-700 px-2 py-1 rounded bg-emerald-900 text-white font-bold";
-                    return;
-                }}
-
-                display.innerText = `Turno: ${{turnCount}}/${{MAX_TURNS}}`;
-                if(turnCount >= MAX_TURNS - 2) {{
-                    display.classList.remove('bg-slate-800', 'border-slate-700');
-                    display.classList.add('bg-red-900', 'border-red-700', 'text-red-200', 'font-bold');
-                }}
-            }}
         }}
 
         function buildSystemPrompt() {{
             let turnsLeft = MAX_TURNS - turnCount;
 
-            // 1. CHECK FINE ASSOLUTA
             if (turnsLeft <= 0) {{
                 return `Sei il Dungeon Master. STOP AL GIOCO.
 
@@ -184,14 +288,10 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
                 JSON FORMAT:
                 {{
                     "description": "<h1>FINE</h1> <p>Testo dell'epilogo...</p>",
-                    "location": "Fine",
-                    "inventory": [],
                     "choices": [] 
                 }}`;
             }}
 
-            // 2. LOGICA IMBUTO FORZATO (Ultimi 2 turni)
-            // Qui diciamo all'LLM che ogni scelta deve portare al goal.
             let pacingInstruction = "Ritmo normale.";
 
             if (turnsLeft <= 2) {{
@@ -222,9 +322,7 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
 
             JSON FORMAT:
             {{
-                "description": "HTML story text",
-                "location": "Location name",
-                "inventory": ["Item"],
+                "description": "Testo HTML story",
                 "choices": [ {{ "text": "Label", "action": "Prompt action" }} ]
             }}
             `;
@@ -234,10 +332,9 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             showLoading();
 
             if (!isStart) turnCount++;
-            updateTurnDisplay();
 
             let messages = [{{ role: "system", content: buildSystemPrompt() }}];
-            const recentHistory = chatHistory.slice(-8); // Contesto breve per risparmiare token
+            const recentHistory = chatHistory.slice(-8);
             messages = messages.concat(recentHistory);
             messages.push({{ role: "user", content: `AZIONE: ${{userAction}}` }});
 
@@ -261,7 +358,6 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
                 const aiText = data.choices[0].message.content;
                 const gameData = JSON.parse(aiText);
 
-                // Aggiorna History
                 if (!isStart) chatHistory.push({{ role: "user", content: userAction }});
                 chatHistory.push({{ role: "assistant", content: aiText }});
 
@@ -269,103 +365,116 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
 
             }} catch (error) {{
                 console.error(error);
-                appendError(error.message);
-                document.getElementById('choices-container').innerHTML = '<button onclick="location.reload()" class="bg-red-700 text-white px-4 py-2 rounded">Riprova</button>';
+                addMessage(error.message, 'error');
+                showError();
             }}
         }}
 
         function showLoading() {{
-            document.getElementById('choices-container').innerHTML = '<div class="col-span-full text-center text-indigo-400 animate-pulse py-4 font-mono">Elaborazione...</div>';
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '<div style="color: #4facfe; text-align: center; padding: 10px;">Elaborazione...</div>';
+            document.getElementById('loadingOverlay').classList.add('active');
         }}
 
         function updateUI(data, lastAction, isStart) {{
-            const story = document.getElementById('story-container');
-            const choices = document.getElementById('choices-container');
-            choices.innerHTML = '';
+            document.getElementById('loadingOverlay').classList.remove('active');
 
-            // Render Messaggi
             if (!isStart) {{
-                const userDiv = document.createElement('div');
-                userDiv.className = "flex justify-end mb-6 fade-in";
-                userDiv.innerHTML = `<div class="bg-slate-800 text-slate-200 px-5 py-3 rounded-2xl rounded-tr-none border border-slate-700 text-sm italic shadow-md max-w-lg">"${{lastAction}}"</div>`;
-                story.appendChild(userDiv);
+                addMessage(lastAction, 'user');
             }}
 
-            const aiDiv = document.createElement('div');
-            aiDiv.className = "flex justify-start mb-8 fade-in";
-            aiDiv.innerHTML = `<div class="prose prose-invert prose-p:text-slate-300 prose-strong:text-indigo-400 max-w-3xl leading-relaxed">${{marked.parse(data.description)}}</div>`;
-            story.appendChild(aiDiv);
+            addMessage(data.description, 'assistant');
 
-            setTimeout(() => story.scrollTo({{ top: story.scrollHeight, behavior: 'smooth' }}), 100);
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
 
-            // Stats
-            document.getElementById('location-display').innerText = data.location || "Fine";
-            const invList = document.getElementById('inventory-list');
-            if(data.inventory) {{
-                invList.innerHTML = (data.inventory.length) 
-                    ? data.inventory.map(i => `<li class="text-indigo-300">${{i}}</li>`).join('')
-                    : '<li class="italic text-slate-600">Vuoto</li>';
-            }}
-
-            // --- LOGICA DI TERMINAZIONE ---
-            // Se l'array choices è vuoto o nullo, il gioco finisce.
             if (!data.choices || data.choices.length === 0) {{
-                isGameOver = true; 
-                updateTurnDisplay();
+                isGameOver = true;
 
-                // 1. Bottone PDF
                 const pdfBtn = document.createElement('button');
-                pdfBtn.className = "col-span-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2";
-                pdfBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Scarica Storia';
+                pdfBtn.className = 'pdf-button';
+                pdfBtn.innerHTML = 'Scarica Storia PDF';
                 pdfBtn.onclick = downloadPDF;
-                choices.appendChild(pdfBtn);
+                container.appendChild(pdfBtn);
 
-                // 2. Bottone Rigioca
                 const restartBtn = document.createElement('button');
-                restartBtn.className = "col-span-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2";
-                restartBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Rigioca';
+                restartBtn.className = 'option-button';
+                restartBtn.innerHTML = 'Rigioca';
                 restartBtn.onclick = () => location.reload();
-
-                // Layout griglia 2 col per i bottoni finali
-                choices.className = "grid grid-cols-2 gap-4";
-                choices.appendChild(restartBtn);
+                container.appendChild(restartBtn);
 
             }} else {{
-                // --- LOGICA DI GIOCO NORMALE ---
-                const cols = data.choices.length === 1 ? 'grid-cols-1' : (data.choices.length > 3 ? 'md:grid-cols-2' : `md:grid-cols-${{data.choices.length}}`);
-                choices.className = `grid grid-cols-1 ${{cols}} gap-4`;
-
                 data.choices.forEach(c => {{
                     const btn = document.createElement('button');
-                    btn.className = "bg-slate-800 hover:bg-indigo-900 text-slate-200 border border-slate-600 hover:border-indigo-500 p-4 rounded-xl text-sm text-left shadow-lg transition duration-200 flex items-center gap-3 group h-full";
-                    btn.innerHTML = `<i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-indigo-400"></i> <span class="font-medium">${{c.text}}</span>`;
+                    btn.className = 'option-button';
+                    btn.innerText = c.text;
                     btn.onclick = () => callGPT(c.action);
-                    choices.appendChild(btn);
+                    container.appendChild(btn);
                 }});
             }}
         }}
 
-        function downloadPDF() {{
-            const element = document.getElementById('story-container');
-            const opt = {{
-                margin:       10,
-                filename:     'La_Mia_Avventura.pdf',
-                image:        {{ type: 'jpeg', quality: 0.98 }},
-                html2canvas:  {{ scale: 2, backgroundColor: "#0f172a" }}, // Background scuro per coerenza
-                jsPDF:        {{ unit: 'mm', format: 'a4', orientation: 'portrait' }}
-            }};
-
-            // Nota: html2pdf funziona meglio su sfondi chiari per la stampa, 
-            // ma qui manteniamo il tema dark o possiamo forzare uno stile chiaro temporaneo.
-            // Per semplicità, catturiamo così com'è.
-            html2pdf().set(opt).from(element).save();
+        function addMessage(html, type) {{
+            const div = document.createElement('div');
+            div.className = `message ${{type}}-message`;
+            div.innerHTML = html;
+            document.getElementById('chatMessages').appendChild(div);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
         }}
 
-        function appendError(msg) {{
-            const story = document.getElementById('story-container');
-            story.innerHTML += `<div class="text-red-400 border border-red-900 bg-red-900/20 p-4 rounded mb-4 text-sm font-mono">ERRORE: ${{msg}}</div>`;
+        function showError() {{
+            const container = document.getElementById('optionsContainer');
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'option-button';
+            retryBtn.innerHTML = 'Riprova';
+            retryBtn.onclick = () => location.reload();
+            container.appendChild(retryBtn);
+        }}
+
+        function downloadPDF() {{
+            const messages = document.querySelectorAll('.message');
+            let fullText = 'LA MIA AVVENTURA\\n\\n' + '='.repeat(50) + '\\n\\n';
+            
+            messages.forEach((msg, index) => {{
+                const isUser = msg.classList.contains('user-message');
+                const label = isUser ? '[Tu]: ' : '[DM]: ';
+                const text = msg.innerText || msg.textContent;
+                fullText += label + text + '\\n\\n';
+            }});
+
+            // Crea il PDF con jsPDF
+            const {{ jsPDF }} = window.jspdf;
+            const doc = new jsPDF({{
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            }});
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 10;
+            const maxWidth = pageWidth - 2 * margin;
+            const fontSize = 9; 
+            const lineHeight = 7;
+            let yPosition = margin;
+
+            // Dividi il testo in linee
+            const lines = doc.splitTextToSize(fullText, maxWidth);
+
+            lines.forEach(line => {{
+                if (yPosition + lineHeight > pageHeight - margin) {{
+                    doc.addPage();
+                    yPosition = margin;
+                }}
+                doc.text(line, margin, yPosition);
+                yPosition += lineHeight;
+            }});
+
+            doc.save('La_Mia_Avventura.pdf');
         }}
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
 """
@@ -383,9 +492,10 @@ def run_create_game(quest_plan_path, output_html_path):
     try:
         QUEST_PLAN_PATH = "quest_plan.md"
         if os.path.exists(QUEST_PLAN_PATH):
-            html_content=create_game_html(read_file(QUEST_PLAN_PATH))
+            html_content = create_game_html(read_file(QUEST_PLAN_PATH))
         else:
             print("❌ Manca quest_plan.md")
+            return False
 
         with open(output_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
@@ -394,6 +504,7 @@ def run_create_game(quest_plan_path, output_html_path):
     except Exception as e:
         print(f"Errore creazione gioco: {e}")
         return False
+
 
 if __name__ == "__main__":
     QUEST_PLAN_PATH = "quest_plan.md"

@@ -26,6 +26,6 @@ Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del
 6. Unisci i pezzi del puzzle per identificare l'assassino e il movente.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 5
-- **Branching:** 7
+- **MaxDepth:** 1
+- **Branching:** 2
 ```

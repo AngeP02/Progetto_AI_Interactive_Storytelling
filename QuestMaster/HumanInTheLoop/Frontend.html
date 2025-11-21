@@ -296,30 +296,29 @@
 
     <div class="container">
         <div class="header">
-            <h1>🎨 Revisione Quest</h1>
-            <p>Rivedi e perfeziona la tua storia prima di iniziare l'avventura!</p>
+            <h1>Human in the loop</h1>
         </div>
 
         <!-- LORE EDITOR -->
         <div class="section">
-            <h2>📜 Editor Lore</h2>
+            <h2>Lore</h2>
             <div id="loreEditor"></div>
         </div>
         <div class="section">
-            <h2>✏️ Modifica Nomi</h2>
+            <h2>Modifica Nomi</h2>
             <p>Puoi rinominare i personaggi e i luoghi (solo i nomi, non la struttura):</p>
             <div class="name-editor" id="nameEditor"></div>
         </div>
 
         <!-- PDDL VIEWER -->
         <div class="section">
-            <h2>🧠 Visualizza PDDL (con commenti)</h2>
+            <h2>Visualizzazione PDDL</h2>
             <details>
-                <summary>📄 Domain PDDL</summary>
+                <summary>Domain PDDL</summary>
                 <div class="pddl-viewer" id="domainViewer"></div>
             </details>
             <details>
-                <summary>📋 Problem PDDL</summary>
+                <summary>Problem PDDL</summary>
                 <div class="pddl-viewer" id="problemViewer"></div>
             </details>
         </div>
@@ -332,9 +331,9 @@
 
         <!-- ACTION BUTTONS -->
         <div class="action-buttons">
-            <button class="btn btn-secondary" onclick="goBack()">← Indietro</button>
-            <button class="btn btn-primary" onclick="regenerate()">🔄 Rigenera Piano</button>
-            <button class="btn btn-success" onclick="generateGame()">🎮 Genera Gioco!</button>
+            <button class="btn btn-secondary" onclick="goBack()">Indietro</button>
+            <button class="btn btn-primary" onclick="regenerate()">Rigenera Piano</button>
+            <button class="btn btn-success" onclick="generateGame()">Genera Gioco!</button>
         </div>
     </div>
 
@@ -460,25 +459,25 @@
 
                 if (data.success) {
                     hideLoading();
-                    alert('✅ Piano rigenerato con successo!');
+                    alert('Piano rigenerato con successo!');
                     location.reload();
                 } else if (data.validation_failed) {
                     hideLoading();
                     showReflectionSuggestions(data.reflection_suggestions);
                 } else {
                     hideLoading();
-                    alert('❌ Errore: ' + data.error);
+                    alert('Errore: ' + data.error);
                 }
             } catch (error) {
                 hideLoading();
-                alert('❌ Errore di connessione: ' + error.message);
+                alert('Errore di connessione: ' + error.message);
             }
         }
         async function generateGame() {
             const confirmMsg = "Sei sicuro di voler generare il gioco? Questo processo può richiedere alcuni minuti.";
             if (!confirm(confirmMsg)) return;
 
-            showLoading('🎮 Generazione del gioco interattivo in corso...');
+            showLoading('Generazione del gioco interattivo in corso...');
 
             try {
                 const response = await fetch(`${API_BASE}/api/generate-game`, {
@@ -491,15 +490,14 @@
 
                 if (data.success) {
                     hideLoading();
-                    alert('✅ Gioco generato con successo!');
                     window.location.href = data.game_url;
                 } else {
                     hideLoading();
-                    alert('❌ Errore: ' + data.error);
+                    alert('Errore: ' + data.error);
                 }
             } catch (error) {
                 hideLoading();
-                alert('❌ Errore di connessione: ' + error.message);
+                alert('Errore di connessione: ' + error.message);
             }
         }
         function showReflectionSuggestions(suggestions) {

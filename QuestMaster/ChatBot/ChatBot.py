@@ -459,8 +459,16 @@ def get_pddl():
     """Carica Domain e Problem PDDL."""
     try:
         # Assumiamo nomi standard per i file generati
-        domain_path = OUTPUT_FOLDER / "domain.pddl"
-        problem_path = OUTPUT_FOLDER / "problem.pddl"
+        # 1. Percorsi dei file commentati
+        domain_path = OUTPUT_FOLDER / "domain_commented.pddl"
+        problem_path = OUTPUT_FOLDER / "problem_commented.pddl"
+
+        # 2. Fallback: Se i file commentati non esistono, usa quelli standard
+        if not domain_path.exists():
+            domain_path = OUTPUT_FOLDER / "domain.pddl"
+
+        if not problem_path.exists():
+            problem_path = OUTPUT_FOLDER / "problem.pddl"
 
         domain_content = ""
         problem_content = ""
@@ -487,40 +495,48 @@ def get_pddl():
 
 @app.route('/api/update-and-regenerate', methods=['POST'])
 def update_and_regenerate():
-    """Riceve le modifiche dall'utente e rigenera il PDDL."""
+    """Riceve le modifiche dall'utente, aggiorna i file e (simula) la rigenerazione."""
     try:
         data = request.json
         new_lore = data.get('lore', '')
         name_changes = data.get('names', {})  # Dizionario { old_name: new_name }
 
-        # 1. Salva la Lore aggiornata
-        with open(LORE_FILE, 'w', encoding='utf-8') as f:
-            f.write(new_lore)
+        # 1. Salva la Lore aggiornata (sovrascrittura)
+        if new_lore:
+            with open(LORE_FILE, 'w', encoding='utf-8') as f:
+                f.write(new_lore)
 
-        # 2. (Opzionale) Applica il rinomina nel PDDL o nella Lore
-        # Qui dovresti implementare la logica che sostituisce i nomi nei file
-        # Per ora facciamo solo un pass-through della rigenerazione
+        # 2. Applica la rinomina ai file PDDL (Domain e Problem)
+        if name_changes:
+            domain_path = OUTPUT_FOLDER / "domain.pddl"
+            problem_path = OUTPUT_FOLDER / "problem.pddl"
 
-        # 3. Chiama la funzione di rigenerazione (Simulata o Reale)
-        # success, msg = generate_valid_pddl_guaranteed(...)
+            # Aggiorna DOMAIN
+            if domain_path.exists():
+                with open(domain_path, 'r', encoding='utf-8') as f:
+                    domain_content = f.read()
 
-        # MOCK per test:
-        success = True
+                new_domain = apply_pddl_renaming(domain_content, name_changes)
 
-        if success:
-            return jsonify({'success': True})
-        else:
-            return jsonify({
-                'success': False,
-                'validation_failed': True,
-                'reflection_suggestions': [
-                    {'issue': 'Mock Error', 'suggestion': 'This is a mock suggestion.'}
-                ]
-            })
+                with open(domain_path, 'w', encoding='utf-8') as f:
+                    f.write(new_domain)
+
+            # Aggiorna PROBLEM
+            if problem_path.exists():
+                with open(problem_path, 'r', encoding='utf-8') as f:
+                    problem_content = f.read()
+
+                new_problem = apply_pddl_renaming(problem_content, name_changes)
+
+                with open(problem_path, 'w', encoding='utf-8') as f:
+                    f.write(new_problem)
+
+
+        return jsonify({'success': True, 'message': 'Lore e PDDL aggiornati con successo.'})
 
     except Exception as e:
+        logger.error(f"Errore aggiornamento: {e}")
         return jsonify({'success': False, 'error': str(e)})
-
 
 @app.route('/api/generate-game', methods=['POST'])
 def generate_game():
@@ -608,6 +624,33 @@ def extract_pddl_objects(problem_text):
     except Exception:
         pass
     return list(set(objects))  # Rimuovi duplicati
+
+
+import re
+
+
+def apply_pddl_renaming(text, name_changes):
+    """
+    Sostituisce tutte le occorrenze dei vecchi nomi con i nuovi nel testo.
+    Usa le regex (\b) per assicurarsi di cambiare solo parole intere.
+    Es: cambia 'key' ma NON 'keyboard'.
+    """
+    if not name_changes:
+        return text
+
+    updated_text = text
+    for old_name, new_name in name_changes.items():
+        # Ignora se il nome è vuoto
+        if not old_name or not new_name:
+            continue
+
+        # Crea un pattern che cerca la parola esatta (word boundary \b)
+        # re.escape è importante nel caso i nomi contengano caratteri speciali
+        pattern = r'\b' + re.escape(old_name) + r'\b'
+        updated_text = re.sub(pattern, new_name, updated_text)
+
+    return updated_text
+
 
 if __name__ == '__main__':
     print("🚀 QuestMaster Backend (OpenAI Edition) Starting...")
