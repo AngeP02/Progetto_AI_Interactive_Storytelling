@@ -1,8 +1,0 @@
-{
-  "branching_factor": 6,
-  "depth": 4,
-  "branching_range": "5-7",
-  "depth_range": "3-5",
-  "graph_filename": "grafo_completo.txt",
-  "grafo_generato": true
-}

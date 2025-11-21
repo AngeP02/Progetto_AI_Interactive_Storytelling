@@ -1,71 +1,31 @@
-# SCENARIO GUIDA: **Aurora's Last Note**
-
----
+```markdown
+# SCENARIO GUIDA: Il Caso dell'Aurora Oscura
 
 ## 1. CONTESTO NARRATIVO
-
-Nel cuore piovoso e nebbioso di Neo-Eden, una metropoli cyberpunk dove le corporazioni comandano e l’umanità si fonde con la tecnologia, interpreti il detective Jack Harris. Cinico, ironico e profondamente segnato dai suoi casi passati, Harris si trova coinvolto nel misterioso omicidio di Aurora Wynter, l’amatissima pop star IA della città. Ad affiancarlo ci sarà la geniale (e inquietante) Dr.ssa Elara Vex, mentre si destreggerà tra la manager spietata Lila Chen e il carismatico criminale Victor LaGraine. In questo mondo di alleanze volatili, segreti mortali e IA ribelli, il tono è quello di un noir cinico e beffardo, dove anche la verità ha un prezzo.
-
----
+Benvenuti a Neo-Eden, una metropoli high-tech che non dorme mai e non dimentica mai. In questo mondo dove le corporazioni hanno sostituito i governi e la tecnologia è il potere supremo, impersoni il Detective Jack Harris. Un investigatore duro con un debole per il whisky economico, Jack si trova a risolvere l'omicidio della famosa AI pop star Aurora Wynter. Con un tono umoristicamente oscuro e una punta di angoscia esistenziale, navigherai l'intricato sottobosco di Neo-Eden per scoprire la verità.
 
 ## 2. STATO INIZIALE
-
-- **Luogo di partenza:** Magazzino abbandonato nei bassifondi di Neo-Eden (Warehouse)
-- **Inventario Iniziale:**
-  - Tesserino da detective
-  - Blocco note digitale (vuoto)
-  - Chiave di accesso (servirà per entrare in aree protette)
-- **Elementi Chiave nella stanza:**
-  - Il tuo vecchio truck (parcheggiato fuori dal magazzino)
-  - Il dossier su Aurora Wynter (“package1”)
-  - Un secondo dossier (“package2”) nascosto in un cassetto (potenzialmente utile per ricattare qualcuno)
-
----
+- **Luogo di partenza:** Il tuo ufficio al dipartimento di polizia di Neo-Eden
+- **Inventario Iniziale:** Taccuino, registratore vocale, badge da detective
+- **Elementi Chiave nella stanza:** Scrivania con computer, finestra che si affaccia sulla città piovosa, bacheca con foto e indizi
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-
-- **Per spostarti in una nuova zona**, devi essere a bordo del truck e la destinazione deve essere collegata (strade aperte o vie sicure).
-- **Per caricare un dossier/oggetto importante**, il truck e il dossier devono trovarsi nello stesso luogo.
-- **Per scaricare (usare/consegnare) un dossier**, il truck (e quindi tu) e il dossier devono essere nello stesso luogo di destinazione.
-- **Non puoi trasportare più dossier di quanti ce ne stanno nel truck (max 2 alla volta).**
-- **Alcune destinazioni sono accessibili solo dopo aver parlato con determinati PNG o aver ottenuto specifiche informazioni.**
-- **Interagire con un personaggio chiave può sbloccare nuove connessioni tra i luoghi (es: Dr. Vex ti apre l’accesso all’Undercity).**
-
----
+- **Muoversi:** Se il veicolo è in un luogo e il luogo è connesso a un altro, allora puoi spostarti nel luogo connesso.
+- **Caricare:** Se un pacco è in un luogo e il veicolo è nello stesso luogo, allora puoi caricare il pacco nel veicolo.
+- **Scaricare:** Se un pacco è nel veicolo e il veicolo è in un luogo, allora puoi scaricare il pacco nel luogo.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-
-- **Svelare l’assassino di Aurora Wynter** (ottenendo la prova definitiva tramite il dossier “package1” consegnato alla giusta persona nel luogo finale – la “home” di Elara Vex).
-- **Consegna parallela:** Il dossier “package2” deve essere consegnato al “shop” (la sede della Wynter Corporation), per smascherare i piani di Lila Chen.
-
-**Condizione di vittoria:**  
-- Il dossier Aurora (“package1”) è nella residenza di Elara Vex (home)
-- Il dossier compromettente (“package2”) è negli uffici della Wynter Corporation (shop)
-
----
+Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del suo ultimo album che ha portato alla sua morte.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
+1. Inizia nell'ufficio e raccogli i primi indizi.
+2. Visita il deposito per raccogliere informazioni aggiuntive.
+3. Interagisci con il personaggio chiave Dr. Elara Vex per ottenere informazioni cruciali.
+4. Raggiungi il negozio per scoprire dettagli nascosti sull'album di Aurora.
+5. Raccogli prove nel Red Zone e confronta Victor LaGraine.
+6. Unisci i pezzi del puzzle per identificare l'assassino e il movente.
 
-1. **Raccolta prove iniziali:**  
-   - Prendi il truck al magazzino (warehouse)
-   - Carica il dossier Aurora (“package1”) dal warehouse
-
-2. **Muoviti verso il deposito (depot):**  
-   - Spostati con il truck dal warehouse al depot (dove si trova “package2”)
-   - Carica anche il secondo dossier (“package2”) nel truck
-
-3. **Consegna dossier compromettente:**  
-   - Spostati dal depot allo shop (Wynter Corporation)
-   - Scarica/consegna “package2” nello shop (potresti dover affrontare Lila Chen)
-
-4. **Raggiungi la scena finale:**  
-   - Dal shop, vai verso la home (abitazione di Elara Vex)
-   - Scarica/consegna “package1” alla home di Elara Vex, che analizzerà la prova e rivelerà l’assassino
-
-5. **Epilogo:**  
-   - Se entrambi i dossier sono stati consegnati nei luoghi corretti, Elara svela la verità e chiama i rinforzi: caso risolto!  
-   - Se uno dei dossier manca, la soluzione resta incompleta, e i colpevoli (o innocenti) possono farla franca…
-
----
-
-> **Nota:** Durante il viaggio potrai imbatterti in ostacoli narrativi (imboscate, negoziazioni, scelte morali) che rifletteranno le fazioni coinvolte e potranno modificare la sequenza degli eventi o la difficoltà delle consegne. Sta a te, detective, scegliere chi fidarti… e a che prezzo!
+## 6. VINCOLI DI GIOCO
+- **MaxDepth:** 5
+- **Branching:** 7
+```

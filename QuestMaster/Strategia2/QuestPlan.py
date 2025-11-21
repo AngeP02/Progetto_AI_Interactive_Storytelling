@@ -11,14 +11,14 @@ if API_KEY is None:
     print("❌ ERRORE: Variabile OPENAI_API_KEY non trovata nel file .env!")
     sys.exit(1)
 
+
 def read_file(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
-        print(f"ERRORE: File non trovato -> {path}")
+        print(f"❌ ERRORE: File non trovato -> {path}")
         sys.exit(1)
-
 
 
 def save_to_file(content, filename):
@@ -32,6 +32,11 @@ def save_to_file(content, filename):
 
 
 def generate_quest_plan(pddl_content, lore_content):
+    """
+    Genera il piano della quest istruendo l'LLM a estrarre anche
+    i vincoli di Branching e Depth dal file Lore.
+    """
+
     prompt = f"""
     Sei un esperto Game Designer e Scrittore Tecnico. 
     Il tuo compito è creare un "File Scenario Guida" (Quest Plan) che servirà come cervello per un gioco testuale interattivo. 
@@ -41,9 +46,15 @@ def generate_quest_plan(pddl_content, lore_content):
     {pddl_content}
     --- FINE DATI PDDL ---
 
-    --- INIZIO DATI LORE (TRAMA) ---
+    --- INIZIO DATI LORE (TRAMA E VINCOLI) ---
     {lore_content}
     --- FINE DATI LORE ---
+
+    ISTRUZIONI SPECIALI PER I VINCOLI:
+    Analizza attentamente il testo della LORE sopra. Cerca le sezioni o frasi che specificano:
+    1. "Branching Factor" (Ramificazione delle scelte).
+    2. "Depth Constraints" (Lunghezza/Profondità della storia).
+    Estrai i valori numerici (se è un range come "7-12", usa il valore massimo, es. 12).
 
     Genera un output formattato in MARKDOWN, seguendo ESATTAMENTE questa struttura:
 
@@ -65,14 +76,19 @@ def generate_quest_plan(pddl_content, lore_content):
 
     ## 5. SEQUENZA DI EVENTI (Suggerita)
     [Una breve scaletta dei passaggi logici per vincere, derivata dal piano PDDL]
+
+    ## 6. VINCOLI DI GIOCO
+    - **MaxDepth:** [Inserisci SOLO il numero intero estratto dalla Lore, es. 12]
+    - **Branching:** [Inserisci SOLO il numero intero estratto dalla Lore, es. 3]
     """
 
     print("⏳ ...Invio richiesta all'IA per generare il Quest Plan...")
 
     client = OpenAI(api_key=API_KEY)
 
+    # Usa gpt-4o oppure gpt-4-turbo (gpt-4.1 non è ancora un modello pubblico valido)
     response = client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7
     )
@@ -80,11 +96,9 @@ def generate_quest_plan(pddl_content, lore_content):
     return response.choices[0].message.content
 
 
-
 # --- ESECUZIONE PRINCIPALE ---
 if __name__ == "__main__":
     # 1. Definizione dei percorsi file
-    # Nota: Usa stringhe raw (r"...") per evitare problemi con i backslash di Windows
     BASE_PATH = r"C:\Users\ANGELICA\Desktop\ANGELICA\UNICAL\MAGISTRALE\I ANNO\SECONDO SEMESTRE\INTELLIGENZA ARTIFICIALE\PROGETTO\CODICE\QuestMaster"
 
     path_domain = os.path.join(BASE_PATH, "ChatBot/pddl_output/domain.pddl")
@@ -105,10 +119,9 @@ if __name__ == "__main__":
     plan_content = generate_quest_plan(full_pddl_content, lore_content)
 
     # 4. Salvataggio
-    # Salviamo come .md (Markdown) perché il prompt genera markdown, non JSON.
-    # Questo file sarà letto dalla web app per capire come narrare la storia.
     output_filename = "quest_plan.md"
     save_to_file(plan_content, output_filename)
 
     print("\n--- ANTEPRIMA DEL CONTENUTO GENERATO ---\n")
-    print(plan_content[:500] + "...\n(continua nel file)")
+    # Stampiamo la parte finale per verificare che abbia creato la sezione 6
+    print("..." + plan_content[-600:])
