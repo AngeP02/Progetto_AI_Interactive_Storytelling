@@ -1,16 +1,9 @@
-# File: QuestMaster/Lore/Lore.py
-
 import requests
-import json
 import logging
-import os
 from pathlib import Path
 
-# Configurazione del logger
 logger = logging.getLogger(__name__)
 
-
-# --- LLM Helper (copia semplificata da QuestMasterLLM per l'indipendenza del modulo) ---
 
 class LoreGeneratorLLM:
     """Helper per le chiamate Ollama, specifico per la generazione della Lore."""

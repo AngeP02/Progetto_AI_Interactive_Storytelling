@@ -9,8 +9,7 @@ import webbrowser
 from threading import Timer
 import os
 
-from QuestMaster.Generate_PDDL.Prova3 import generate_valid_pddl_v2, check_ollama_available
-from QuestMaster.Generate_PDDL.no_LLM_2 import generate_valid_pddl_guaranteed
+from QuestMaster.Generate_PDDL.no_LLM_2 import generate_valid_pddl_guaranteed,check_ollama_available
 from QuestMaster.Lore.Lore2 import generate_lore_document
 
 from flask import Flask, render_template
