@@ -11,6 +11,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from QuestMaster.Game import creategame, QuestPlan
+
 # Carica variabili d'ambiente
 load_dotenv()
 
@@ -38,6 +40,9 @@ OUTPUT_FOLDER = SCRIPT_DIR / "pddl_output"
 # Modifica il path se necessario
 FAST_DOWNWARD = r"C:\Users\ANGELICA\Desktop\SOFTWARE\FASTDOWNWARD\fast-downward-24.06.1\fast-downward.py"
 HUMAN_LOOP_FILE = BASE_DIR / "HumanInTheLoop" / "Frontend.html"
+GAME_OUTPUT_DIR = BASE_DIR / "static" / "generated_games"
+GAME_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 app = Flask(__name__,
             static_folder=str(BASE_DIR / "static"),
             template_folder=str(BASE_DIR / "ChatBot"))
@@ -519,15 +524,51 @@ def update_and_regenerate():
 
 @app.route('/api/generate-game', methods=['POST'])
 def generate_game():
-    """Finalizza il gioco e restituisce il link."""
+    """
+    Orchestra la generazione:
+    1. Chiama QuestPlan per creare il piano narrativo (Markdown).
+    2. Chiama creategame per creare il file HTML giocabile.
+    3. Restituisce l'URL del gioco.
+    """
     try:
-        # Qui andrebbe la logica per compilare tutto nel gioco finale
+        session_id = request.json.get('session_id', 'default')
+
+        # File intermedi e finali
+        plan_output_path = OUTPUT_FOLDER / "quest_plan.md"
+        game_filename = f"game_{session_id}.html"
+        game_output_path = GAME_OUTPUT_DIR / game_filename
+
+        # 2. ESECUZIONE QUEST PLANNER
+        # Chiama la funzione importata da QuestPlan.py
+        # Nota: Passiamo stringhe di percorsi convertite da Pathlib
+        plan_content = QuestPlan.run_quest_plan_generation()
+
+        if not plan_content or "Error" in plan_content:
+            raise Exception("Fallimento nella generazione del Quest Plan.")
+
+        # 3. ESECUZIONE CREATE GAME
+        # Chiama la funzione importata da creategame.py
+        success = creategame.run_create_game(
+            str(plan_output_path),
+            str(game_output_path)
+        )
+
+        if not success:
+            raise Exception("Fallimento nella generazione del file HTML del gioco.")
+
+        # 4. RITORNO URL
+        # L'URL deve puntare alla cartella static dove abbiamo salvato il file
+        game_url = f"/static/generated_games/{game_filename}"
+
         return jsonify({
             'success': True,
-            'game_url': '/game_ready'  # O un URL reale se hai una route di gioco
+            'game_url': game_url
         })
+
     except Exception as e:
+        logger.exception("Errore generazione gioco")
         return jsonify({'success': False, 'error': str(e)})
+
 
 def parse_lore_sections(lore_text):
     """Divide il markdown della Lore in sezioni per l'editor."""
@@ -579,4 +620,5 @@ if __name__ == '__main__':
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         Timer(1, open_browser).start()
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+        # AGGIUNGI use_reloader=False QUI SOTTO
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

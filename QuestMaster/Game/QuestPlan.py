@@ -96,9 +96,7 @@ def generate_quest_plan(pddl_content, lore_content):
     return response.choices[0].message.content
 
 
-# --- ESECUZIONE PRINCIPALE ---
-if __name__ == "__main__":
-    # 1. Definizione dei percorsi file
+def run_quest_plan_generation():
     BASE_PATH = r"C:\Users\ANGELICA\Desktop\ANGELICA\UNICAL\MAGISTRALE\I ANNO\SECONDO SEMESTRE\INTELLIGENZA ARTIFICIALE\PROGETTO\CODICE\QuestMaster"
 
     path_domain = os.path.join(BASE_PATH, "ChatBot/pddl_output/domain.pddl")
@@ -125,3 +123,9 @@ if __name__ == "__main__":
     print("\n--- ANTEPRIMA DEL CONTENUTO GENERATO ---\n")
     # Stampiamo la parte finale per verificare che abbia creato la sezione 6
     print("..." + plan_content[-600:])
+
+    return plan_content
+
+# --- ESECUZIONE PRINCIPALE ---
+if __name__ == "__main__":
+   run_quest_plan_generation()

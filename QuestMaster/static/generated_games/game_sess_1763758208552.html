@@ -1,48 +1,4 @@
-import os
-import sys
-import re
-from dotenv import load_dotenv
-
-# Carica variabili d'ambiente
-load_dotenv()
-API_KEY = os.environ.get("OPENAI_API_KEY", "")
-
-
-def read_file(path):
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        print(f"❌ File non trovato: {path}")
-        sys.exit(1)
-
-
-def extract_constraints(plan_content):
-    """
-    Estrae i valori numerici di Branching e MaxDepth dal testo del Quest Plan (Markdown).
-    """
-    depth = 10  # Default ridotto per testare prima la fine
-    branching = 3
-
-    depth_match = re.search(r"\*\*MaxDepth:\*\*\s*(\d+)", plan_content, re.IGNORECASE)
-    if depth_match:
-        depth = int(depth_match.group(1))
-
-    branch_match = re.search(r"\*\*Branching:\*\*\s*(\d+)", plan_content, re.IGNORECASE)
-    if branch_match:
-        branching = int(branch_match.group(1))
-
-    return depth, branching
-
-
-def create_game_html(quest_plan_content, output_filename="index.html"):
-    max_depth, branching_factor = extract_constraints(quest_plan_content)
-
-    print(f"⚙️  Configurazione rilevata -> Turni Max: {max_depth}, Scelte per turno: {branching_factor}")
-
-    safe_quest_plan = quest_plan_content.replace("`", "\\`")
-
-    html_content = f"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -55,13 +11,13 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap');
-        body {{ font-family: 'Merriweather', serif; background-color: #0f172a; color: #e2e8f0; }}
-        .mono {{ font-family: 'JetBrains Mono', monospace; }}
-        .fade-in {{ animation: fadeIn 0.6s ease-out; }}
-        @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(15px); }} to {{ opacity: 1; transform: translateY(0); }} }}
-        ::-webkit-scrollbar {{ width: 8px; }}
-        ::-webkit-scrollbar-track {{ background: #1e293b; }}
-        ::-webkit-scrollbar-thumb {{ background: #475569; border-radius: 4px; }}
+        body { font-family: 'Merriweather', serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -73,8 +29,8 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             <h1 class="text-xl font-bold tracking-wider text-white">QUEST<span class="text-indigo-500">GPT</span></h1>
         </div>
         <div class="flex gap-6 text-xs mono text-slate-400 hidden md:flex">
-            <span id="turn-display" class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Turno: 0/{max_depth}</span>
-            <span class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Branching: {branching_factor}</span>
+            <span id="turn-display" class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Turno: 0/12</span>
+            <span class="border border-slate-700 px-2 py-1 rounded bg-slate-800">Branching: 4</span>
         </div>
     </header>
 
@@ -102,7 +58,7 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
     <!-- ACTION BAR -->
     <div class="bg-slate-900 border-t border-slate-800 p-6 absolute bottom-0 w-full shadow-2xl backdrop-blur-sm bg-opacity-95">
         <div class="max-w-6xl mx-auto">
-            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-{branching_factor if branching_factor <= 4 else 4} gap-4"></div>
+            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
         </div>
     </div>
 
@@ -117,64 +73,94 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
 
     <script>
         const MODEL_ID = "gpt-4o"; 
-        const QUEST_PLAN = `{safe_quest_plan}`;
+        const QUEST_PLAN = `\`\`\`markdown
+# SCENARIO GUIDA: Segreti dell'Arcano
 
-        const MAX_TURNS = {max_depth};
-        const STD_BRANCHING = {branching_factor}; 
+## 1. CONTESTO NARRATIVO
+Nel cuore del regno di Eldoria, la Foresta dell'Arcano nasconde magie perdute tra alberi millenari e radure ombrose. L'avventuriero, un giovane esploratore con un antico medaglione, è spinto dalla curiosità e dalla volontà di scoprire i segreti custoditi da spiriti enigmatici e protetti da leggende. Il tono è misterioso e fantastico, tra sussurri del vento e luci danzanti.
 
-        let apiKey = "{API_KEY}";
+## 2. STATO INIZIALE
+- **Luogo di partenza:** Villaggio di Dunhollow, ai margini della Foresta dell'Arcano
+- **Inventario Iniziale:** Antico medaglione
+- **Elementi Chiave nella stanza:** Cartelli di avvertimento, mappa della foresta, sentiero verso la radura
+
+## 3. REGOLE DEL MONDO (Logica Semplificata)
+- Se il veicolo (camion) è in una località e la località è connessa a un'altra, allora il veicolo può muoversi lì.
+- Per caricare un pacco, deve trovarsi nello stesso luogo del veicolo.
+- Per scaricare un pacco, deve trovarsi nel veicolo e il veicolo deve essere nel luogo desiderato.
+
+## 4. OBIETTIVO FINALE (GOAL)
+Rivelare i segreti della Foresta dell'Arcano e consegnare il pacco 1 a casa e il pacco 2 al negozio, simbolicamente rappresentando la scoperta del segreto della foresta.
+
+## 5. SEQUENZA DI EVENTI (Suggerita)
+1. Incontrare Elandriel il druido e ottenere informazioni iniziali.
+2. Ottenere la benedizione di Selene per dimostrare di essere degno.
+3. Trovare il Santuario del Cuore Verde e scoprire il segreto.
+4. Navigare attraverso il Lago degli Specchi per riflettere i desideri.
+5. Svelare il mistero della Radura dell'Alba e comunicare con gli spiriti.
+6. Concludere la missione consegnando i pacchi ai rispettivi luoghi.
+
+## 6. VINCOLI DI GIOCO
+- **MaxDepth:** 12
+- **Branching:** 4
+\`\`\``;
+
+        const MAX_TURNS = 12;
+        const STD_BRANCHING = 4; 
+
+        let apiKey = "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";
         let chatHistory = [];
         let turnCount = 0;
         let isGameOver = false;
 
-        window.onload = function() {{
-            if (!apiKey) {{
+        window.onload = function() {
+            if (!apiKey) {
                 const stored = localStorage.getItem("openai_api_key");
-                if (stored) {{ apiKey = stored; startGame(); }} 
-                else {{ document.getElementById('api-modal').classList.remove('hidden'); }}
-            }} else {{ startGame(); }}
-        }};
+                if (stored) { apiKey = stored; startGame(); } 
+                else { document.getElementById('api-modal').classList.remove('hidden'); }
+            } else { startGame(); }
+        };
 
-        function saveApiKey() {{
+        function saveApiKey() {
             const val = document.getElementById('api-key-input').value.trim();
-            if(val) {{ 
+            if(val) { 
                 apiKey = val; 
                 localStorage.setItem("openai_api_key", val);
                 document.getElementById('api-modal').classList.add('hidden');
                 startGame(); 
-            }}
-        }}
+            }
+        }
 
-        function startGame() {{
+        function startGame() {
             document.getElementById('story-container').innerHTML = '';
             turnCount = 0;
             isGameOver = false;
             updateTurnDisplay();
             callGPT("Inizia l'avventura. Descrivi lo scenario iniziale.", true);
-        }}
+        }
 
-        function updateTurnDisplay() {{
+        function updateTurnDisplay() {
             const display = document.getElementById('turn-display');
-            if(display) {{
-                if(isGameOver) {{
+            if(display) {
+                if(isGameOver) {
                     display.innerText = "FINE STORIA";
                     display.className = "border border-emerald-700 px-2 py-1 rounded bg-emerald-900 text-white font-bold";
                     return;
-                }}
+                }
 
-                display.innerText = `Turno: ${{turnCount}}/${{MAX_TURNS}}`;
-                if(turnCount >= MAX_TURNS - 2) {{
+                display.innerText = `Turno: ${turnCount}/${MAX_TURNS}`;
+                if(turnCount >= MAX_TURNS - 2) {
                     display.classList.remove('bg-slate-800', 'border-slate-700');
                     display.classList.add('bg-red-900', 'border-red-700', 'text-red-200', 'font-bold');
-                }}
-            }}
-        }}
+                }
+            }
+        }
 
-        function buildSystemPrompt() {{
+        function buildSystemPrompt() {
             let turnsLeft = MAX_TURNS - turnCount;
 
             // 1. CHECK FINE ASSOLUTA
-            if (turnsLeft <= 0) {{
+            if (turnsLeft <= 0) {
                 return `Sei il Dungeon Master. STOP AL GIOCO.
 
                 IL TEMPO È SCADUTO. DEVI CONCLUDERE ORA.
@@ -182,78 +168,78 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
                 2. L'array "choices" DEVE ESSERE VUOTO []. Non generare nessuna scelta.
 
                 JSON FORMAT:
-                {{
+                {
                     "description": "<h1>FINE</h1> <p>Testo dell'epilogo...</p>",
                     "location": "Fine",
                     "inventory": [],
                     "choices": [] 
-                }}`;
-            }}
+                }`;
+            }
 
             // 2. LOGICA IMBUTO FORZATO (Ultimi 2 turni)
             // Qui diciamo all'LLM che ogni scelta deve portare al goal.
             let pacingInstruction = "Ritmo normale.";
 
-            if (turnsLeft <= 2) {{
-                pacingInstruction = `URGENZA ESTREMA: Mancano solo ${{turnsLeft}} passi.
+            if (turnsLeft <= 2) {
+                pacingInstruction = `URGENZA ESTREMA: Mancano solo ${turnsLeft} passi.
                 Qualsiasi scelta tu generi DEVE portare inevitabilmente verso la conclusione del Goal.
                 Non permettere deviazioni. Se l'utente sceglie A, B o C, il risultato deve comunque avvicinarlo al finale.
                 Elimina le opzioni esplorative. Solo azioni risolutive.`;
-            }} 
-            else if (turnCount >= MAX_TURNS / 2) {{
+            } 
+            else if (turnCount >= MAX_TURNS / 2) {
                 pacingInstruction = "Inizia a guidare il giocatore verso l'obiettivo.";
-            }}
+            }
 
             return `Sei il Dungeon Master.
 
             DOCUMENTAZIONE (Regole e Goal):
             ---
-            ${{QUEST_PLAN}}
+            ${QUEST_PLAN}
             ---
 
             STATO PARTITA:
-            - Turno ${{turnCount}} di ${{MAX_TURNS}} (Mancano ${{turnsLeft}} turni).
-            - ISTRUZIONE RIGIDA: ${{pacingInstruction}}
+            - Turno ${turnCount} di ${MAX_TURNS} (Mancano ${turnsLeft} turni).
+            - ISTRUZIONE RIGIDA: ${pacingInstruction}
 
             COMPITI:
             1. Narra la storia.
-            2. Genera ESATTAMENTE ${{STD_BRANCHING}} opzioni.
+            2. Genera ESATTAMENTE ${STD_BRANCHING} opzioni.
             3. Se il Goal è stato raggiunto in questo turno, lascia "choices" vuoto [] per terminare.
 
             JSON FORMAT:
-            {{
+            {
                 "description": "HTML story text",
                 "location": "Location name",
                 "inventory": ["Item"],
-                "choices": [ {{ "text": "Label", "action": "Prompt action" }} ]
-            }}
+                "choices": [ { "text": "Label", "action": "Prompt action" } ]
+            }
             `;
-        }}
+        }
 
-        async function callGPT(userAction, isStart = false) {{
+        async function callGPT(userAction, isStart = false) {
             showLoading();
 
             if (!isStart) turnCount++;
             updateTurnDisplay();
 
-            let messages = [{{ role: "system", content: buildSystemPrompt() }}];
+            let messages = [{ role: "system", content: buildSystemPrompt() }];
             const recentHistory = chatHistory.slice(-8); // Contesto breve per risparmiare token
             messages = messages.concat(recentHistory);
-            messages.push({{ role: "user", content: `AZIONE: ${{userAction}}` }});
+            messages.push({ role: "user", content: `AZIONE: ${userAction}` });
 
-            try {{
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {{
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
-                    headers: {{ 
+                    headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${{apiKey}}`
-                    }},
-                    body: JSON.stringify({{
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
                         model: MODEL_ID,
                         messages: messages,
-                        response_format: {{ type: "json_object" }}
-                    }})
-                }});
+                        response_format: { type: "json_object" }
+                    })
+                });
 
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
@@ -262,54 +248,54 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
                 const gameData = JSON.parse(aiText);
 
                 // Aggiorna History
-                if (!isStart) chatHistory.push({{ role: "user", content: userAction }});
-                chatHistory.push({{ role: "assistant", content: aiText }});
+                if (!isStart) chatHistory.push({ role: "user", content: userAction });
+                chatHistory.push({ role: "assistant", content: aiText });
 
                 updateUI(gameData, userAction, isStart);
 
-            }} catch (error) {{
+            } catch (error) {
                 console.error(error);
                 appendError(error.message);
                 document.getElementById('choices-container').innerHTML = '<button onclick="location.reload()" class="bg-red-700 text-white px-4 py-2 rounded">Riprova</button>';
-            }}
-        }}
+            }
+        }
 
-        function showLoading() {{
+        function showLoading() {
             document.getElementById('choices-container').innerHTML = '<div class="col-span-full text-center text-indigo-400 animate-pulse py-4 font-mono">Elaborazione...</div>';
-        }}
+        }
 
-        function updateUI(data, lastAction, isStart) {{
+        function updateUI(data, lastAction, isStart) {
             const story = document.getElementById('story-container');
             const choices = document.getElementById('choices-container');
             choices.innerHTML = '';
 
             // Render Messaggi
-            if (!isStart) {{
+            if (!isStart) {
                 const userDiv = document.createElement('div');
                 userDiv.className = "flex justify-end mb-6 fade-in";
-                userDiv.innerHTML = `<div class="bg-slate-800 text-slate-200 px-5 py-3 rounded-2xl rounded-tr-none border border-slate-700 text-sm italic shadow-md max-w-lg">"${{lastAction}}"</div>`;
+                userDiv.innerHTML = `<div class="bg-slate-800 text-slate-200 px-5 py-3 rounded-2xl rounded-tr-none border border-slate-700 text-sm italic shadow-md max-w-lg">"${lastAction}"</div>`;
                 story.appendChild(userDiv);
-            }}
+            }
 
             const aiDiv = document.createElement('div');
             aiDiv.className = "flex justify-start mb-8 fade-in";
-            aiDiv.innerHTML = `<div class="prose prose-invert prose-p:text-slate-300 prose-strong:text-indigo-400 max-w-3xl leading-relaxed">${{marked.parse(data.description)}}</div>`;
+            aiDiv.innerHTML = `<div class="prose prose-invert prose-p:text-slate-300 prose-strong:text-indigo-400 max-w-3xl leading-relaxed">${marked.parse(data.description)}</div>`;
             story.appendChild(aiDiv);
 
-            setTimeout(() => story.scrollTo({{ top: story.scrollHeight, behavior: 'smooth' }}), 100);
+            setTimeout(() => story.scrollTo({ top: story.scrollHeight, behavior: 'smooth' }), 100);
 
             // Stats
             document.getElementById('location-display').innerText = data.location || "Fine";
             const invList = document.getElementById('inventory-list');
-            if(data.inventory) {{
+            if(data.inventory) {
                 invList.innerHTML = (data.inventory.length) 
-                    ? data.inventory.map(i => `<li class="text-indigo-300">${{i}}</li>`).join('')
+                    ? data.inventory.map(i => `<li class="text-indigo-300">${i}</li>`).join('')
                     : '<li class="italic text-slate-600">Vuoto</li>';
-            }}
+            }
 
             // --- LOGICA DI TERMINAZIONE ---
             // Se l'array choices è vuoto o nullo, il gioco finisce.
-            if (!data.choices || data.choices.length === 0) {{
+            if (!data.choices || data.choices.length === 0) {
                 isGameOver = true; 
                 updateTurnDisplay();
 
@@ -330,74 +316,41 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
                 choices.className = "grid grid-cols-2 gap-4";
                 choices.appendChild(restartBtn);
 
-            }} else {{
+            } else {
                 // --- LOGICA DI GIOCO NORMALE ---
-                const cols = data.choices.length === 1 ? 'grid-cols-1' : (data.choices.length > 3 ? 'md:grid-cols-2' : `md:grid-cols-${{data.choices.length}}`);
-                choices.className = `grid grid-cols-1 ${{cols}} gap-4`;
+                const cols = data.choices.length === 1 ? 'grid-cols-1' : (data.choices.length > 3 ? 'md:grid-cols-2' : `md:grid-cols-${data.choices.length}`);
+                choices.className = `grid grid-cols-1 ${cols} gap-4`;
 
-                data.choices.forEach(c => {{
+                data.choices.forEach(c => {
                     const btn = document.createElement('button');
                     btn.className = "bg-slate-800 hover:bg-indigo-900 text-slate-200 border border-slate-600 hover:border-indigo-500 p-4 rounded-xl text-sm text-left shadow-lg transition duration-200 flex items-center gap-3 group h-full";
-                    btn.innerHTML = `<i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-indigo-400"></i> <span class="font-medium">${{c.text}}</span>`;
+                    btn.innerHTML = `<i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-indigo-400"></i> <span class="font-medium">${c.text}</span>`;
                     btn.onclick = () => callGPT(c.action);
                     choices.appendChild(btn);
-                }});
-            }}
-        }}
+                });
+            }
+        }
 
-        function downloadPDF() {{
+        function downloadPDF() {
             const element = document.getElementById('story-container');
-            const opt = {{
+            const opt = {
                 margin:       10,
                 filename:     'La_Mia_Avventura.pdf',
-                image:        {{ type: 'jpeg', quality: 0.98 }},
-                html2canvas:  {{ scale: 2, backgroundColor: "#0f172a" }}, // Background scuro per coerenza
-                jsPDF:        {{ unit: 'mm', format: 'a4', orientation: 'portrait' }}
-            }};
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, backgroundColor: "#0f172a" }, // Background scuro per coerenza
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
             // Nota: html2pdf funziona meglio su sfondi chiari per la stampa, 
             // ma qui manteniamo il tema dark o possiamo forzare uno stile chiaro temporaneo.
             // Per semplicità, catturiamo così com'è.
             html2pdf().set(opt).from(element).save();
-        }}
+        }
 
-        function appendError(msg) {{
+        function appendError(msg) {
             const story = document.getElementById('story-container');
-            story.innerHTML += `<div class="text-red-400 border border-red-900 bg-red-900/20 p-4 rounded mb-4 text-sm font-mono">ERRORE: ${{msg}}</div>`;
-        }}
+            story.innerHTML += `<div class="text-red-400 border border-red-900 bg-red-900/20 p-4 rounded mb-4 text-sm font-mono">ERRORE: ${msg}</div>`;
+        }
     </script>
 </body>
 </html>
-"""
-
-    with open(output_filename, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    print(f"✅ Gioco Generato! File: {output_filename}")
-    return html_content
-
-
-def run_create_game(quest_plan_path, output_html_path):
-    """Funzione principale chiamata dal ChatBot"""
-    print("🎮 Generazione Codice Gioco HTML...")
-
-    try:
-        QUEST_PLAN_PATH = "quest_plan.md"
-        if os.path.exists(QUEST_PLAN_PATH):
-            html_content=create_game_html(read_file(QUEST_PLAN_PATH))
-        else:
-            print("❌ Manca quest_plan.md")
-
-        with open(output_html_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
-
-        return True
-    except Exception as e:
-        print(f"Errore creazione gioco: {e}")
-        return False
-
-if __name__ == "__main__":
-    QUEST_PLAN_PATH = "quest_plan.md"
-    if os.path.exists(QUEST_PLAN_PATH):
-        create_game_html(read_file(QUEST_PLAN_PATH))
-    else:
-        print("❌ Manca quest_plan.md")
