@@ -5,7 +5,7 @@ import logging
 import webbrowser
 from threading import Timer
 from pathlib import Path
-
+import requests
 from flask import Flask, request, jsonify, render_template_string, Response, stream_with_context
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -88,6 +88,43 @@ class QuestMasterLLM:
             logger.error(f"Errore chiamata OpenAI: {e}")
             return "Mi dispiace, sto avendo problemi di connessione con il cervello neurale (OpenAI Error)."
 
+    def generate_cover_image(self, lore_text, output_path):
+        """
+        Genera un'immagine di copertina basata sul testo della Lore usando DALL-E 3.
+        """
+        try:
+            # 1. Crea un prompt visivo riassumendo la Lore
+            system_prompt = "You are an expert visual artist and prompt engineer for generative AI."
+            summary_prompt = f"""Read the following fantasy backstory (Lore) and create a detailed, atmospheric visual description suitable for a book cover image. Focus on the main setting, mood, and central conflict. The description should be vivid and concise (max 100 words).
+
+            LORE:
+            {lore_text[:2000]}... (truncated for brevity)
+            """
+            visual_description = self.call_gpt(summary_prompt, system_prompt)
+            logger.info(f"DALL-E Prompt generated: {visual_description}")
+
+            # 2. Chiama DALL-E 3
+            response = self.client.images.generate(
+                model="dall-e-3",
+                prompt=f"A fantasy book cover illustration. {visual_description} Digital art style, detailed, cinematic lighting.",
+                size="1024x1024",
+                quality="standard",
+                n=1,
+            )
+
+            image_url = response.data[0].url
+
+            # 3. Scarica e salva l'immagine
+            img_data = requests.get(image_url).content
+            with open(output_path, 'wb') as handler:
+                handler.write(img_data)
+
+            return True, "Immagine generata e salvata."
+
+        except Exception as e:
+            logger.error(f"Errore generazione immagine DALL-E: {e}")
+            # Non blocchiamo il flusso se l'immagine fallisce, restituiamo False
+            return False, f"Errore generazione immagine: {str(e)}"
     def generate_welcome_message(self):
         system_prompt = """You are the AI assistant for QuestMaster. You are enthusiastic, professional, and engaging.
         Your goal is to welcome the user to the Interactive Story Creator."""
@@ -372,7 +409,7 @@ def chat():
 
 @app.route('/api/generate-quest-stream', methods=['GET'])
 def generate_quest_stream():
-    """Genera la quest con aggiornamenti di stato in tempo reale (SSE)"""
+    """Genera la quest con aggiornamenti di stato in tempo reale (SSE) e Illustrazione opzionale"""
 
     def generate():
         session_id = request.args.get('session', 'default')
@@ -381,15 +418,46 @@ def generate_quest_stream():
             return
 
         session = user_sessions[session_id]
+        config = session['config']
 
         # 1. LORE
         yield f"data: {json.dumps({'step': 'lore', 'status': 'running', 'message': 'Writing Lore with GPT...'})}\n\n"
         try:
-            lore_path = generate_lore_document(session['config'])
+            # Assicuriamoci che la cartella esista
+            LORE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            lore_path = generate_lore_document(config)
+
+            # Leggiamo il contenuto della lore appena generata per usarla per l'immagine
+            with open(LORE_FILE, 'r', encoding='utf-8') as f:
+                lore_content = f.read()
+
             yield f"data: {json.dumps({'step': 'lore', 'status': 'complete', 'message': 'Lore Generated.'})}\n\n"
         except Exception as e:
+            logger.exception("Lore generation failed")
             yield f"data: {json.dumps({'step': 'lore', 'status': 'error', 'message': str(e)})}\n\n"
             return
+
+        # --- NUOVO PASSAGGIO: ILLUSTRAZIONE (Se richiesto) ---
+        cover_image_filename = None
+        if config.get('graphics') == 'Illustrated':
+            yield f"data: {json.dumps({'step': 'illustration', 'status': 'running', 'message': 'Painting Cover Art (DALL-E 3)...'})}\n\n"
+            try:
+                # Definisci il percorso di output nella cartella statica dei giochi
+                cover_image_filename = f"cover.jpg"
+                cover_image_path = GAME_OUTPUT_DIR / cover_image_filename
+
+                success, msg = llm.generate_cover_image(lore_content, cover_image_path)
+
+                if success:
+                    # Salviamo il nome del file nella sessione per usarlo dopo
+                    session['cover_image'] = cover_image_filename
+                    yield f"data: {json.dumps({'step': 'illustration', 'status': 'complete', 'message': 'Illustration Created.'})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'step': 'illustration', 'status': 'error', 'message': msg})}\n\n"
+                    # Non interrompiamo il flusso, continuiamo senza immagine
+            except Exception as e:
+                logger.exception("Image generation failed")
+                yield f"data: {json.dumps({'step': 'illustration', 'status': 'error', 'message': str(e)})}\n\n"
 
         # 2. PDDL
         yield f"data: {json.dumps({'step': 'pddl', 'status': 'running', 'message': 'Calculating PDDL Logic...'})}\n\n"
@@ -541,10 +609,7 @@ def update_and_regenerate():
 @app.route('/api/generate-game', methods=['POST'])
 def generate_game():
     """
-    Orchestra la generazione:
-    1. Chiama QuestPlan per creare il piano narrativo (Markdown).
-    2. Chiama creategame per creare il file HTML giocabile.
-    3. Restituisce l'URL del gioco.
+    Orchestra la generazione del gioco finale.
     """
     try:
         session_id = request.json.get('session_id', 'default')
@@ -556,24 +621,38 @@ def generate_game():
 
         # 2. ESECUZIONE QUEST PLANNER
         # Chiama la funzione importata da QuestPlan.py
-        # Nota: Passiamo stringhe di percorsi convertite da Pathlib
         plan_content = QuestPlan.run_quest_plan_generation()
 
         if not plan_content or "Error" in plan_content:
             raise Exception("Fallimento nella generazione del Quest Plan.")
 
+        # --- FIX: SALVIAMO IL FILE NEL POSTO GIUSTO ---
+        # QuestPlan lo salva nella root, noi lo forziamo in pddl_output
+        # per renderlo visibile a creategame.py
+        with open(plan_output_path, "w", encoding="utf-8") as f:
+            f.write(plan_content)
+        print(f"✅ Quest Plan salvato correttamente in: {plan_output_path}")
+        # ----------------------------------------------
+
+        # --- RECUPERO IMMAGINE (Se esiste) ---
+        cover_image_filename = user_sessions[session_id].get('cover_image')
+        cover_image_url = None
+        if cover_image_filename:
+            # L'URL relativo per il browser
+            cover_image_url = cover_image_filename
+
+
         # 3. ESECUZIONE CREATE GAME
-        # Chiama la funzione importata da creategame.py
         success = creategame.run_create_game(
             str(plan_output_path),
-            str(game_output_path)
+            str(game_output_path),
+            cover_image_url_path=cover_image_url
         )
 
         if not success:
             raise Exception("Fallimento nella generazione del file HTML del gioco.")
 
         # 4. RITORNO URL
-        # L'URL deve puntare alla cartella static dove abbiamo salvato il file
         game_url = f"/static/generated_games/{game_filename}"
 
         return jsonify({
@@ -584,7 +663,6 @@ def generate_game():
     except Exception as e:
         logger.exception("Errore generazione gioco")
         return jsonify({'success': False, 'error': str(e)})
-
 
 def parse_lore_sections(lore_text):
     """Divide il markdown della Lore in sezioni per l'editor."""
@@ -650,6 +728,7 @@ def apply_pddl_renaming(text, name_changes):
         updated_text = re.sub(pattern, new_name, updated_text)
 
     return updated_text
+
 
 
 if __name__ == '__main__':

@@ -35,12 +35,15 @@ def extract_constraints(plan_content):
     return depth, branching
 
 
-def create_game_html(quest_plan_content, output_filename="index.html"):
+def create_game_html(quest_plan_content, output_filename="index.html", cover_image_url=None):
     max_depth, branching_factor = extract_constraints(quest_plan_content)
 
     print(f"⚙️  Configurazione rilevata -> Turni Max: {max_depth}, Scelte per turno: {branching_factor}")
+    if cover_image_url:
+        print(f"🖼️  Immagine di copertina inclusa: {cover_image_url}")
 
     safe_quest_plan = quest_plan_content.replace("`", "\\`").replace('"', '\\"')
+    js_cover_url = cover_image_url if cover_image_url else ""
 
     html_content = f"""<!DOCTYPE html>
 <html lang="it">
@@ -49,7 +52,6 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuestMaster - GPT Edition</title>
     <style>
-        /* --- STILI IDENTICI AL FRONTEND --- */
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -66,11 +68,11 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 800px;
+            max-width: 1200px;
             height: 90vh;
-            max-height: 700px;
+            max-height: 800px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column;  # CAMBIATO da column a row
             overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -82,10 +84,49 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             position: relative;
+            flex-shrink: 0; 
+            z-index: 10;
+            width: 100%;
         }}
+        .main-body {{
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+            overflow: hidden;
+            width: 100%;
+        }}
+        .cover-container {{
+            flex: 1;
+            min-width: 300px;
+            max-width: 50%; /* Non occupa più del 50% */
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-right: 1px solid rgba(0, 0, 0, 0.1); /* Bordo a destra verso la chat */
+        }}
+        .cover-container img {{
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: block;
+        }}
+        .chat-container {{ 
+            flex: 2; /* La chat prende più spazio se disponibile */
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            min-width: 300px;
+            background: white;
+        }}
+        
         .header h1 {{ font-size: 2.5em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }}
         .header p {{ opacity: 0.9; font-size: 1.1em; }}
-
+        
         .connection-status {{
             position: absolute;
             top: 10px;
@@ -108,7 +149,7 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
         .assistant-message {{ background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #000; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid #e1e8ed; }}
         .user-message {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }}
         .error-message {{ background: #ff6b6b; color: white; align-self: flex-start; }}
-
+        
         /* Input Area */
         .input-area {{ padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }}
         .text-input-container {{ display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }}
@@ -222,20 +263,23 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             <h1>QuestMaster AI</h1>
             <p>GPT Adventure Engine</p>
         </div>
+        
+        <div class="main-body">
+            <div class="cover-container" id="coverContainer" style="display: none;"></div>
 
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages"></div>
-        </div>
-
-        <div class="input-area">
-            <div class="options-container" id="optionsContainer"></div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="input-area">
+                    <div class="options-container" id="optionsContainer"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const MODEL_ID = "gpt-4o"; 
         const QUEST_PLAN = `{safe_quest_plan}`;
-
+        const COVER_IMAGE_URL = "{js_cover_url}";
         const MAX_TURNS = {max_depth};
         const STD_BRANCHING = {branching_factor}; 
 
@@ -272,6 +316,9 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             document.getElementById('chatMessages').innerHTML = '';
             turnCount = 0;
             isGameOver = false;
+            if (COVER_IMAGE_URL) {{
+                addCoverImage(COVER_IMAGE_URL);
+            }}
             callGPT("Inizia l'avventura. Descrivi lo scenario iniziale.", true);
         }}
 
@@ -327,7 +374,19 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             }}
             `;
         }}
-
+        function addCoverImage(imageUrl) {{
+            const container = document.getElementById('coverContainer');
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = 'Cover Art';
+            img.onerror = () => {{
+                console.warn('Copertina non caricata:', imageUrl);
+                container.style.display = 'none';
+            }};
+            container.innerHTML = '';
+            container.appendChild(img);
+            container.style.display = 'flex';
+        }}
         async function callGPT(userAction, isStart = false) {{
             showLoading();
 
@@ -436,6 +495,7 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
             let fullText = 'LA MIA AVVENTURA\\n\\n' + '='.repeat(50) + '\\n\\n';
             
             messages.forEach((msg, index) => {{
+                if (msg.classList.contains('cover-message')) return;
                 const isUser = msg.classList.contains('user-message');
                 const label = isUser ? '[Tu]: ' : '[DM]: ';
                 const text = msg.innerText || msg.textContent;
@@ -485,16 +545,22 @@ def create_game_html(quest_plan_content, output_filename="index.html"):
     return html_content
 
 
-def run_create_game(quest_plan_path, output_html_path):
+def run_create_game(quest_plan_path, output_html_path, cover_image_url_path=None):
     """Funzione principale chiamata dal ChatBot"""
-    print("🎮 Generazione Codice Gioco HTML...")
+    print(f"🎮 Generazione Codice Gioco HTML... (Cover: {cover_image_url_path})")
 
     try:
-        QUEST_PLAN_PATH = "quest_plan.md"
-        if os.path.exists(QUEST_PLAN_PATH):
-            html_content = create_game_html(read_file(QUEST_PLAN_PATH))
+        # --- MODIFICA: Rimuovi il controllo hardcodato su "quest_plan.md" ---
+        # Usiamo direttamente il path passato come argomento (che ora ChatBot ha creato correttamente)
+
+        if os.path.exists(quest_plan_path):
+            html_content = create_game_html(
+                read_file(quest_plan_path),
+                output_filename=output_html_path,
+                cover_image_url=cover_image_url_path
+            )
         else:
-            print("❌ Manca quest_plan.md")
+            print(f"❌ Manca il file del piano: {quest_plan_path}")
             return False
 
         with open(output_html_path, "w", encoding="utf-8") as f:
@@ -504,7 +570,6 @@ def run_create_game(quest_plan_path, output_html_path):
     except Exception as e:
         print(f"Errore creazione gioco: {e}")
         return False
-
 
 if __name__ == "__main__":
     QUEST_PLAN_PATH = "quest_plan.md"

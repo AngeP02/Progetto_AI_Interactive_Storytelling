@@ -21,11 +21,11 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 1200px;
+            max-width: 1200px;  # CAMBIATO da 800px a 1200px
             height: 90vh;
-            max-height: 800px;
+            max-height: 700px;
             display: flex;
-            flex-direction: column;  # CAMBIATO da column a row
+            flex-direction: row;  # CAMBIATO da column a row
             overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -37,49 +37,45 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             position: relative;
-            flex-shrink: 0; 
-            z-index: 10;
-            width: 100%;
+            grid-column: 1 / -1;  # AGGIUNTO
+            width: 100%;  # AGGIUNTO
         }
-        .main-body {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-            overflow: hidden;
-            width: 100%;
+
+        /* Chat Styles */
+        .chat-container { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            min-width: 50%;  # AGGIUNTO
+            border-right: 1px solid rgba(0, 0, 0, 0.1);  # AGGIUNTO
         }
+
+        # AGGIUNTO NUOVO STILE PER LA COPERTINA
         .cover-container {
-            flex: 1;
-            min-width: 300px;
-            max-width: 50%; /* Non occupa più del 50% */
             padding: 20px;
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+            text-align: center;
+            flex-shrink: 0;
+            min-height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            border-right: 1px solid rgba(0, 0, 0, 0.1); /* Bordo a destra verso la chat */
+            min-width: 40%;
+            overflow: auto;
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
         }
+
         .cover-container img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
+            height: auto;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             display: block;
         }
-        .chat-container { 
-            flex: 2; /* La chat prende più spazio se disponibile */
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            min-width: 300px;
-            background: white;
-        }
-        
         .header h1 { font-size: 2.5em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
         .header p { opacity: 0.9; font-size: 1.1em; }
-        
         .connection-status {
             position: absolute;
             top: 10px;
@@ -103,6 +99,27 @@
         .user-message { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
         .error-message { background: #ff6b6b; color: white; align-self: flex-start; }
         
+        .cover-message {
+            max-width: 100%;
+            padding: 0;
+            border-radius: 18px;
+            align-self: center; /* Centrato nella chat */
+            border: none;
+            background: none;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .cover-message img {
+            max-width: 100%;
+            /* max-height: 350px;  <-- RIMOSSO: Toglie il limite di altezza che schiacciava l'immagine */
+            height: auto;          /* <-- AGGIUNTO: Calcola l'altezza in base alla larghezza (mantiene le proporzioni) */
+            width: 100%;           /* <-- AGGIUNTO: Occupa tutta la larghezza del messaggio */
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: block;
+            /* object-fit: cover;  <-- RIMOSSO: Evita che l'immagine venga tagliata */
+        }
         /* Input Area */
         .input-area { padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }
         .text-input-container { display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }
@@ -217,55 +234,53 @@
             <p>GPT Adventure Engine</p>
         </div>
         
-        <div class="main-body">
-            <div class="cover-container" id="coverContainer" style="display: none;"></div>
-
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="input-area">
-                    <div class="options-container" id="optionsContainer"></div>
-                </div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="input-area">
+                <div class="options-container" id="optionsContainer"></div>
             </div>
         </div>
+        
+        <div class="cover-container" id="coverContainer" style="display: none;"></div>
     </div>
 
     <script>
         const MODEL_ID = "gpt-4o"; 
         const QUEST_PLAN = `\`\`\`markdown
-# SCENARIO GUIDA: Il Caso dell'Aurora Oscura
+# SCENARIO GUIDA: La Ricerca dell'Occhio di Aethir
 
 ## 1. CONTESTO NARRATIVO
-Benvenuti a Neo-Eden, una metropoli high-tech che non dorme mai e non dimentica mai. In questo mondo dove le corporazioni hanno sostituito i governi e la tecnologia è il potere supremo, impersoni il Detective Jack Harris. Un investigatore duro con un debole per il whisky economico, Jack si trova a risolvere l'omicidio della famosa AI pop star Aurora Wynter. Con un tono umoristicamente oscuro e una punta di angoscia esistenziale, navigherai l'intricato sottobosco di Neo-Eden per scoprire la verità.
+In un mondo avvolto da nebbie e leggende, il continente di Eldoria nasconde segreti di antiche civiltà dimenticate. Al centro della storia c'è una potente reliquia, l'Occhio di Aethir, sepolto tra le rovine della città perduta di Zolara. Il protagonista, un avventuriero con un oscuro passato e un antico legame con gli artefatti perduti, è guidato da sogni e tomi antichi in un viaggio per svelare il mistero e riportare la reliquia alla luce del giorno. Il tono del racconto è misterioso, con elementi di fantasy che invitano il giocatore a esplorare un mondo ricco di miti e pericoli.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Il tuo ufficio al dipartimento di polizia di Neo-Eden
-- **Inventario Iniziale:** Taccuino, registratore vocale, badge da detective
-- **Elementi Chiave nella stanza:** Scrivania con computer, finestra che si affaccia sulla città piovosa, bacheca con foto e indizi
+- **Luogo di partenza:** Villaggio di Eldenroot, presso la Taverna della Foglia Cadente.
+- **Inventario Iniziale:** Una mappa antica, un diario con appunti criptici, una lanterna magica.
+- **Elementi Chiave nella stanza:** Elyra, la Veggente (apparizione onirica), Kavron, il Mercante di Ombra (vicino al bancone).
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- **Muoversi:** Se il veicolo è in un luogo e il luogo è connesso a un altro, allora puoi spostarti nel luogo connesso.
-- **Caricare:** Se un pacco è in un luogo e il veicolo è nello stesso luogo, allora puoi caricare il pacco nel veicolo.
-- **Scaricare:** Se un pacco è nel veicolo e il veicolo è in un luogo, allora puoi scaricare il pacco nel luogo.
+- Se il veicolo è al luogo A e A è connesso a B, allora il veicolo può muoversi da A a B.
+- Se il pacchetto è al luogo A e il veicolo è al luogo A, allora il pacchetto può essere caricato nel veicolo.
+- Se il pacchetto è nel veicolo e il veicolo è al luogo A, allora il pacchetto può essere scaricato al luogo A.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del suo ultimo album che ha portato alla sua morte.
+Ritrovare l'Occhio di Aethir e posizionare i manufatti nei luoghi giusti: l'Occhio di Aethir a casa, il secondo manufatto al tempio.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Inizia nell'ufficio e raccogli i primi indizi.
-2. Visita il deposito per raccogliere informazioni aggiuntive.
-3. Interagisci con il personaggio chiave Dr. Elara Vex per ottenere informazioni cruciali.
-4. Raggiungi il negozio per scoprire dettagli nascosti sull'album di Aurora.
-5. Raccogli prove nel Red Zone e confronta Victor LaGraine.
-6. Unisci i pezzi del puzzle per identificare l'assassino e il movente.
+1. Iniziare al villaggio di Eldenroot e ottenere informazioni da Elyra e Kavron.
+2. Muoversi attraverso la Foresta delle Nebbie Eterne fino a raggiungere le rovine di Zolara.
+3. Risolvere enigmi per accedere alla città perduta.
+4. Trovare l'Occhio di Aethir e un secondo manufatto.
+5. Trasportare l'Occhio di Aethir a casa e il secondo manufatto al tempio degli Antenati.
+6. Stabilire alleanze a seconda delle scelte con Elyra, Kavron o Tharok.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 1
-- **Branching:** 2
+- **MaxDepth:** 12
+- **Branching:** 4
 \`\`\`
 `;
-        const COVER_IMAGE_URL = "";
-        const MAX_TURNS = 1;
-        const STD_BRANCHING = 2; 
+        const COVER_IMAGE_URL = "cover.jpg";
+        const MAX_TURNS = 12;
+        const STD_BRANCHING = 4; 
 
         let apiKey = "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";
         let chatHistory = [];
@@ -359,18 +374,15 @@ Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del
             `;
         }
         function addCoverImage(imageUrl) {
-            const container = document.getElementById('coverContainer');
+            const div = document.createElement('div');
+            div.className = 'message cover-message';
             const img = document.createElement('img');
             img.src = imageUrl;
             img.alt = 'Cover Art';
-            img.onerror = () => {
-                console.warn('Copertina non caricata:', imageUrl);
-                container.style.display = 'none';
-            };
-            container.innerHTML = '';
-            container.appendChild(img);
-            container.style.display = 'flex';
-        }
+            div.appendChild(img);
+            document.getElementById('chatMessages').appendChild(div);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;        }
+
         async function callGPT(userAction, isStart = false) {
             showLoading();
 

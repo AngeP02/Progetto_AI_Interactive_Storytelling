@@ -1,50 +1,51 @@
-## Branching Factor (minimo e massimo)
-Il giocatore avrà la possibilità di scegliere tra 3-4 percorsi in ogni nodo decisionale importante. Queste scelte includeranno:
-- Seguire diversi percorsi nella foresta per trovare Valtoria.
-- Decidere se fidarsi di Eldrin o di altri personaggi.
-- Scegliere tra allearsi con o contrastare le diverse fazioni interessate.
-
-## Contesto Iniziale
-Nell'oscura e fitta foresta di Elderglen, si cela un villaggio dimenticato dal tempo, chiamato Valtoria. Questo insediamento non compare su nessuna mappa e la natura sembra stessa proteggerlo, nascondendolo agli occhi di chi non è destinato a trovarlo. I racconti narrano che Valtoria custodisca gli ultimi segreti della magia antica, un'arte perduta da secoli e bramata da molti. La foresta intorno al villaggio è viva, sussurrante, e le sue ombre sembrano muoversi di propria volontà. Molti avventurieri sono spariti nel tentativo di scoprire i segreti di Valtoria, ma pochi sono tornati con un ricordo confuso di luoghi che sfidano la realtà stessa.
-
-## Depth Constraints (minimo e massimo)
-Per completare la storia, il giocatore dovrà attraversare una serie di 7-12 passi, inclusi incontri con PNG, risoluzione di enigmi e scelte strategiche che influenzeranno il finale della storia.
-
-## Fazioni/Gruppi di Interesse
-- **I Guardiani delle Ombre:** Un gruppo segreto di druidi che proteggono la foresta e il villaggio dalle intrusioni esterne. Venerano la magia antica e vedono chiunque si avvicini come una minaccia.
-
-- **La Confraternita del Sole Infranto:** Un ordine di stregoni che cerca di impossessarsi del potere di Valtoria per scopi personali. Non si fermano davanti a nulla pur di ottenere ciò che vogliono.
-
-- **Gli Eccelsi di Elderglen:** Un ordine monastico che si oppone all'uso della magia antica per il suo potenziale distruttivo, temendo che possa portare alla rovina.
-
-## Intro
-# Documento di Lore: A hidden forest village holds secrets of ancient magic.
+# Documento di Lore: Exploring an enchanted forest filled with magical creatures and hidden secrets.
 
 **Genere:** Fantasy | **Tono:** Mysterious | **Lunghezza:** Medium (5-10 min)
 **Generato da:** GPT-4o
 
 ---
 
-## Luoghi Chiave
-- **La Radura degli Echi:** Un luogo incantato dove gli alberi sussurrano segreti ai viaggiatori. Qui, Elara può trovare indizi cruciali per proseguire.
+## Contesto Iniziale
 
-- **Il Tempio del Vento Sussurrante:** Un antico edificio coperto di edera che sembra sfumare nell'aria stessa. Custodisce antichi manoscritti e potenti artefatti.
-
-- **La Fonte della Rimembranza:** Una sorgente che si dice mostri visioni del passato a chiunque beva della sua acqua cristallina.
-
-- **La Caverna delle Ombre:** Un passaggio segreto che conduce al cuore di Valtoria, protetto da incantesimi e creature magiche.
-
-## Obiettivi Iniziali
-1. **Trovare Valtoria:** Scoprire l'entrata nascosta del villaggio attraverso gli indizi sparsi nella foresta.
-2. **Ottenere la fiducia di Eldrin:** Convincere il custode a rivelare i segreti del villaggio.
-3. **Svelare il proprio destino:** Comprendere le visioni inviate da Selena e il proprio legame con la magia antica.
+Nel cuore del Regno di Eldoria si estende l'Antica Foresta di Elarion, un vasto labirinto di alberi che si innalzano come colonne verso il cielo, le cui chiome sembrano sussurrare antiche magie al vento. Molti la considerano un luogo misterioso e pericoloso, dove la realtà e l'incantesimo si intrecciano in un delicato equilibrio. Le leggende narrano di una reliquia perduta, il Cuore dell'Elarion, un artefatto di immenso potere che giace nascosto nelle profondità della foresta, sorvegliato da creature magiche e protetto da enigmi millenari.
 
 ## Personaggi Principali (Giocatore e PNG chiave)
-- **Giocatore:** Un giovane avventuriero di nome Elara, dotata di una rara sensibilità alla magia, ma ignara del suo potenziale. Attratta dalla leggenda di Valtoria, inizia il suo viaggio per scoprire la verità e il proprio destino.
-  
-- **Eldrin il Custode:** Un anziano eremita, unico abitante conosciuto di Valtoria. Si dice che sappia come accedere al cuore del villaggio e ai suoi segreti, ma è noto per essere enigmatica e sfuggente.
 
-- **Selena la Veggente:** Una figura misteriosa che appare nei sogni di Elara, offrendole visioni frammentate della foresta e del suo destino legato a Valtoria.
+### Giocatore
+- **Nome:** Arion
+- **Descrizione:** Un giovane avventuriero attratto dall'ignoto, con un talento innato per la magia e un passato avvolto nel mistero. Arion è in cerca di prove della sua eredità e di un modo per comprendere la sua connessione speciale con la foresta.
 
-- **Aric il Cacciatore:** Un abile esploratore proveniente da un vicino villaggio, incontrato nella foresta. È alla ricerca di un'antica reliquia che si dice sia nascosta a Valtoria.
+### PNG Chiave
+- **Eldwin il Saggio:** Un anziano druido che vive ai margini della foresta. Custode della conoscenza perduta, offre guida e consigli, ma le sue vere intenzioni sono spesso poco chiare.
+- **Lyria la Silvana:** Una fanciulla fatata, guardiana della foresta, dotata di un potere antico quanto la terra stessa. È amica delle creature che abitano Elarion e può essere sia alleata che avversaria.
+- **Il Custode Ombra:** Un'entità enigmatica che protegge il Cuore dell'Elarion. Nessuno conosce la sua vera natura, ma si dice che sia in grado di leggere nei cuori degli uomini.
 
+## Fazioni/Gruppi di Interesse
+
+- **Il Circolo dei Druidi di Elarion:** Un gruppo di uomini e donne che dedicano la loro vita alla protezione della foresta, avversano chiunque osi infrangere l'equilibrio naturale.
+- **La Confraternita degli Esploratori:** Avventurieri che cercano ricchezze e conoscenze nella foresta, molti dei quali sono motivati da ambizioni egoistiche.
+- **Il Popolo Silvano:** Creature magiche che abitano la foresta, tra cui elfi, driadi e spiriti dei boschi, che proteggono i segreti dell'Elarion.
+
+## Luoghi Chiave
+
+- **Il Sentiero delle Ombre:** Un percorso nascosto che conduce nei recessi più oscuri della foresta. Solo chi è in sintonia con la natura riesce a trovarlo e seguirlo.
+- **Il Lago dei Riflessi:** Uno specchio d'acqua incantato capace di mostrare visioni del passato e del futuro a chi ne possiede la chiave.
+- **Il Santuario del Cuore:** Il luogo leggendario dove si dice sia custodito il Cuore dell'Elarion, accessibile solo superando prove di coraggio e saggezza.
+
+## Obiettivi Iniziali
+
+- **Scoprire il Sentiero delle Ombre:** Arion deve trovare il sentiero che lo condurrà verso il cuore della foresta.
+- **Incontrare Eldwin il Saggio:** Ricevere saggi consigli e informazioni cruciali per proseguire nel viaggio.
+- **Guadagnare la Fiducia di Lyria:** Aiutare o convincere la guardiana fatata a rivelare la posizione del Santuario del Cuore.
+
+## Branching Factor (minimo e massimo)
+
+- **Minimo:** 3 scelte per nodo
+- **Massimo:** 4 scelte per nodo
+
+## Depth Constraints (minimo e massimo)
+
+- **Minimo:** 7 passi per completare la storia
+- **Massimo:** 12 passi per completare la storia
+
+Questa ambientazione offre un ventaglio di scelte e percorsi, permettendo ai giocatori di immergersi in una narrazione ricca di misteri e magia. Ogni decisione influirà sull'andamento della storia, determinando il destino di Arion e dell'Antica Foresta di Elarion.

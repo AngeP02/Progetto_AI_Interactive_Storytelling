@@ -21,7 +21,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;  # CAMBIATO da 800px a 1200px
             height: 90vh;
             max-height: 800px;
             display: flex;
@@ -232,40 +232,39 @@
     <script>
         const MODEL_ID = "gpt-4o"; 
         const QUEST_PLAN = `\`\`\`markdown
-# SCENARIO GUIDA: Il Caso dell'Aurora Oscura
+# SCENARIO GUIDA: L'Antica Foresta di Elarion
 
 ## 1. CONTESTO NARRATIVO
-Benvenuti a Neo-Eden, una metropoli high-tech che non dorme mai e non dimentica mai. In questo mondo dove le corporazioni hanno sostituito i governi e la tecnologia è il potere supremo, impersoni il Detective Jack Harris. Un investigatore duro con un debole per il whisky economico, Jack si trova a risolvere l'omicidio della famosa AI pop star Aurora Wynter. Con un tono umoristicamente oscuro e una punta di angoscia esistenziale, navigherai l'intricato sottobosco di Neo-Eden per scoprire la verità.
+Nel cuore del Regno di Eldoria si trova l'Antica Foresta di Elarion, un luogo incantato e misterioso dove la magia si intreccia con la realtà. Arion, un giovane avventuriero con un innato talento per la magia, si addentra nella foresta alla ricerca del Cuore dell'Elarion, una leggendaria reliquia protetta da creature magiche e segreti antichi. La storia è pervasa da un tono di mistero e avventura, con scelte che influenzeranno il destino di Arion e della foresta.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Il tuo ufficio al dipartimento di polizia di Neo-Eden
-- **Inventario Iniziale:** Taccuino, registratore vocale, badge da detective
-- **Elementi Chiave nella stanza:** Scrivania con computer, finestra che si affaccia sulla città piovosa, bacheca con foto e indizi
+- **Luogo di partenza:** Ai margini della Foresta di Elarion, vicino alla dimora di Eldwin il Saggio.
+- **Inventario Iniziale:** Una mappa antica della foresta e un amuleto magico.
+- **Elementi Chiave nella stanza:** Eldwin il Saggio, la mappa della foresta, e l'ingresso al Sentiero delle Ombre.
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- **Muoversi:** Se il veicolo è in un luogo e il luogo è connesso a un altro, allora puoi spostarti nel luogo connesso.
-- **Caricare:** Se un pacco è in un luogo e il veicolo è nello stesso luogo, allora puoi caricare il pacco nel veicolo.
-- **Scaricare:** Se un pacco è nel veicolo e il veicolo è in un luogo, allora puoi scaricare il pacco nel luogo.
+- Se un veicolo si trova in un luogo e il luogo è connesso ad un altro, allora il veicolo può spostarsi.
+- Se un pacco e un veicolo si trovano nello stesso luogo, allora il pacco può essere caricato sul veicolo.
+- Se un pacco è nel veicolo e il veicolo si trova in un luogo, allora il pacco può essere scaricato nel luogo.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del suo ultimo album che ha portato alla sua morte.
+Arion deve trovare e assicurarsi il Cuore dell'Elarion, portando il pacchetto magico al Santuario del Cuore e risolvendo gli enigmi che proteggono la reliquia.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Inizia nell'ufficio e raccogli i primi indizi.
-2. Visita il deposito per raccogliere informazioni aggiuntive.
-3. Interagisci con il personaggio chiave Dr. Elara Vex per ottenere informazioni cruciali.
-4. Raggiungi il negozio per scoprire dettagli nascosti sull'album di Aurora.
-5. Raccogli prove nel Red Zone e confronta Victor LaGraine.
-6. Unisci i pezzi del puzzle per identificare l'assassino e il movente.
+1. Arion incontra Eldwin il Saggio e riceve consigli cruciali.
+2. Scoprire il Sentiero delle Ombre con l'aiuto dell'amuleto.
+3. Incontrare Lyria la Silvana e guadagnare la sua fiducia.
+4. Viaggiare attraverso il Lago dei Riflessi e ottenere visioni necessarie.
+5. Raggiungere il Santuario del Cuore superando prove di coraggio e saggezza.
+6. Ottenere il Cuore dell'Elarion, completando il viaggio.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 1
-- **Branching:** 2
-\`\`\`
-`;
-        const COVER_IMAGE_URL = "";
-        const MAX_TURNS = 1;
-        const STD_BRANCHING = 2; 
+- **MaxDepth:** 12
+- **Branching:** 3
+\`\`\``;
+        const COVER_IMAGE_URL = "cover.jpg";
+        const MAX_TURNS = 12;
+        const STD_BRANCHING = 3; 
 
         let apiKey = "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";
         let chatHistory = [];

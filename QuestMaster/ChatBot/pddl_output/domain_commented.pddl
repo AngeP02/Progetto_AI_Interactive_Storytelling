@@ -1,30 +1,30 @@
-```lisp
-(define (domain logistics-simple) ; Define the domain named logistics-simple
-  (:requirements :strips :typing) ; Specify that the domain uses STRIPS and typing
-  (:types location vehicle package) ; Declare the types: location, vehicle, and package
-  (:predicates ; Start defining predicates
-    (at-vehicle ?v - vehicle ?l - location) ; Predicate to check if a vehicle is at a location
-    (at-package ?p - package ?l - location) ; Predicate to check if a package is at a location
-    (in-vehicle ?p - package ?v - vehicle) ; Predicate to check if a package is in a vehicle
-    (connected ?from ?to - location) ; Predicate to check if two locations are connected
-  )
+```pddl
+(define (domain logistics-simple) ; Define the domain called logistics-simple
+  (:requirements :strips :typing) ; Specify that STRIPS and typing are required
+  (:types location vehicle package) ; Declare types: location, vehicle, and package
+  (:predicates ; Begin declaration of predicates
+    (at-vehicle ?v - vehicle ?l - location) ; Predicate: vehicle ?v is at location ?l
+    (at-package ?p - package ?l - location) ; Predicate: package ?p is at location ?l
+    (in-vehicle ?p - package ?v - vehicle) ; Predicate: package ?p is in vehicle ?v
+    (connected ?from ?to - location) ; Predicate: location ?from is connected to location ?to
+  ) ; End of predicates declaration
 
-  (:action move ; Define the move action
-   :parameters (?v - vehicle ?from ?to - location) ; Parameters: a vehicle and two locations
-   :precondition (and (at-vehicle ?v ?from) (connected ?from ?to)) ; Preconditions: vehicle is at the starting location and locations are connected
-   :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to)) ; Effects: vehicle is no longer at the starting location, but at the destination
-  )
+  (:action move ; Begin definition of action move
+   :parameters (?v - vehicle ?from ?to - location) ; Parameters: vehicle and two locations
+   :precondition (and (at-vehicle ?v ?from) (connected ?from ?to)) ; Precondition: vehicle at ?from and locations are connected
+   :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to)) ; Effect: vehicle is no longer at ?from, now at ?to
+  ) ; End of action move
 
-  (:action load ; Define the load action
-   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: a package, a vehicle, and a location
-   :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l)) ; Preconditions: package and vehicle are at the same location
-   :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v)) ; Effects: package is no longer at the location, but in the vehicle
-  )
+  (:action load ; Begin definition of action load
+   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: package, vehicle, and location
+   :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l)) ; Precondition: package and vehicle at the same location
+   :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v)) ; Effect: package is no longer at location, now in vehicle
+  ) ; End of action load
 
-  (:action unload ; Define the unload action
-   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: a package, a vehicle, and a location
-   :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l)) ; Preconditions: package is in the vehicle and vehicle is at the location
-   :effect (and (not (in-vehicle ?p ?v)) (at-package ?p ?l)) ; Effects: package is no longer in the vehicle, but at the location
-  )
-)
+  (:action unload ; Begin definition of action unload
+   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: package, vehicle, and location
+   :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l)) ; Precondition: package in vehicle, vehicle at location
+   :effect (and (not (in-vehicle ?p ?v)) (at-package ?p ?l)) ; Effect: package is no longer in vehicle, now at location
+  ) ; End of action unload
+) ; End of domain definition
 ```

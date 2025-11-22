@@ -21,11 +21,11 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 1200px;
+            max-width: 800px;
             height: 90vh;
-            max-height: 800px;
+            max-height: 700px;
             display: flex;
-            flex-direction: column;  # CAMBIATO da column a row
+            flex-direction: column;
             overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -37,49 +37,14 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             position: relative;
-            flex-shrink: 0; 
-            z-index: 10;
-            width: 100%;
         }
-        .main-body {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-            overflow: hidden;
-            width: 100%;
-        }
-        .cover-container {
-            flex: 1;
-            min-width: 300px;
-            max-width: 50%; /* Non occupa più del 50% */
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-right: 1px solid rgba(0, 0, 0, 0.1); /* Bordo a destra verso la chat */
-        }
-        .cover-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            display: block;
-        }
-        .chat-container { 
-            flex: 2; /* La chat prende più spazio se disponibile */
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            min-width: 300px;
-            background: white;
-        }
-        
         .header h1 { font-size: 2.5em; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
         .header p { opacity: 0.9; font-size: 1.1em; }
-        
+        .sub-header-container {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
         .connection-status {
             position: absolute;
             top: 10px;
@@ -102,7 +67,7 @@
         .assistant-message { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #000; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid #e1e8ed; }
         .user-message { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
         .error-message { background: #ff6b6b; color: white; align-self: flex-start; }
-        
+
         /* Input Area */
         .input-area { padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }
         .text-input-container { display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }
@@ -217,55 +182,56 @@
             <p>GPT Adventure Engine</p>
         </div>
         
-        <div class="main-body">
-            <div class="cover-container" id="coverContainer" style="display: none;"></div>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="/static/generated_games/cover_sess_1763766727136.jpg" alt="Cover Art" style="max-width: 100%; max-height: 300px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); object-fit: cover;">
+        </div>
+        
 
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="input-area">
-                    <div class="options-container" id="optionsContainer"></div>
-                </div>
-            </div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+        </div>
+
+        <div class="input-area">
+            <div class="options-container" id="optionsContainer"></div>
         </div>
     </div>
 
     <script>
         const MODEL_ID = "gpt-4o"; 
         const QUEST_PLAN = `\`\`\`markdown
-# SCENARIO GUIDA: Il Caso dell'Aurora Oscura
+# SCENARIO GUIDA: I Segreti di Eldoria
 
 ## 1. CONTESTO NARRATIVO
-Benvenuti a Neo-Eden, una metropoli high-tech che non dorme mai e non dimentica mai. In questo mondo dove le corporazioni hanno sostituito i governi e la tecnologia è il potere supremo, impersoni il Detective Jack Harris. Un investigatore duro con un debole per il whisky economico, Jack si trova a risolvere l'omicidio della famosa AI pop star Aurora Wynter. Con un tono umoristicamente oscuro e una punta di angoscia esistenziale, navigherai l'intricato sottobosco di Neo-Eden per scoprire la verità.
+Nel cuore di una foresta magica, avvolto da nebbie e incantesimi dimenticati, giace il villaggio di Eldoria. Questo luogo misterioso è protetto dai suoi abitanti, discendenti di una civiltà perduta, e nasconde potenti artefatti. Il nostro protagonista, un giovane avventuriero affamato di conoscenza, è alla ricerca dell'Occhio di Eldorium, un artefatto leggendario in grado di risvegliare o sigillare poteri immensi. Con un tono misterioso e un'atmosfera fantasy, il giocatore esplorerà Eldoria e i suoi dintorni, affrontando sfide magiche e scoprendo segreti antichi.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Il tuo ufficio al dipartimento di polizia di Neo-Eden
-- **Inventario Iniziale:** Taccuino, registratore vocale, badge da detective
-- **Elementi Chiave nella stanza:** Scrivania con computer, finestra che si affaccia sulla città piovosa, bacheca con foto e indizi
+- **Luogo di partenza:** Villaggio di Eldoria
+- **Inventario Iniziale:** Mappa della foresta, un diario antico, una bacchetta magica
+- **Elementi Chiave nella stanza:** Anara (la custode del villaggio), una statua runica, un fuoco magico
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- **Muoversi:** Se il veicolo è in un luogo e il luogo è connesso a un altro, allora puoi spostarti nel luogo connesso.
-- **Caricare:** Se un pacco è in un luogo e il veicolo è nello stesso luogo, allora puoi caricare il pacco nel veicolo.
-- **Scaricare:** Se un pacco è nel veicolo e il veicolo è in un luogo, allora puoi scaricare il pacco nel luogo.
+- Se il veicolo è al luogo X e X è collegato a Y, allora può muoversi da X a Y.
+- Se il pacchetto è al luogo L e il veicolo è al luogo L, allora il pacchetto può essere caricato sul veicolo.
+- Se il pacchetto è nel veicolo e il veicolo è al luogo L, allora il pacchetto può essere scaricato al luogo L.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del suo ultimo album che ha portato alla sua morte.
+Raggiungere la condizione in cui il pacchetto1 è alla casa e il pacchetto2 è al negozio.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Inizia nell'ufficio e raccogli i primi indizi.
-2. Visita il deposito per raccogliere informazioni aggiuntive.
-3. Interagisci con il personaggio chiave Dr. Elara Vex per ottenere informazioni cruciali.
-4. Raggiungi il negozio per scoprire dettagli nascosti sull'album di Aurora.
-5. Raccogli prove nel Red Zone e confronta Victor LaGraine.
-6. Unisci i pezzi del puzzle per identificare l'assassino e il movente.
+1. Inizia al villaggio di Eldoria (warehouse) con il camion e i pacchetti.
+2. Carica il pacchetto1 sul camion al villaggio.
+3. Muovi il camion dal villaggio al negozio (depot).
+4. Scarica il pacchetto2 al negozio.
+5. Muovi il camion dal negozio alla casa (home).
+6. Scarica il pacchetto1 alla casa.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 1
-- **Branching:** 2
-\`\`\`
-`;
-        const COVER_IMAGE_URL = "";
-        const MAX_TURNS = 1;
-        const STD_BRANCHING = 2; 
+- **MaxDepth:** 12
+- **Branching:** 4
+\`\`\``;
+
+        const MAX_TURNS = 12;
+        const STD_BRANCHING = 4; 
 
         let apiKey = "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";
         let chatHistory = [];
@@ -300,9 +266,6 @@ Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del
             document.getElementById('chatMessages').innerHTML = '';
             turnCount = 0;
             isGameOver = false;
-            if (COVER_IMAGE_URL) {
-                addCoverImage(COVER_IMAGE_URL);
-            }
             callGPT("Inizia l'avventura. Descrivi lo scenario iniziale.", true);
         }
 
@@ -358,19 +321,7 @@ Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del
             }
             `;
         }
-        function addCoverImage(imageUrl) {
-            const container = document.getElementById('coverContainer');
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = 'Cover Art';
-            img.onerror = () => {
-                console.warn('Copertina non caricata:', imageUrl);
-                container.style.display = 'none';
-            };
-            container.innerHTML = '';
-            container.appendChild(img);
-            container.style.display = 'flex';
-        }
+
         async function callGPT(userAction, isStart = false) {
             showLoading();
 
@@ -479,7 +430,6 @@ Scoprire l'identità dell'assassino di Aurora Wynter e comprendere il valore del
             let fullText = 'LA MIA AVVENTURA\n\n' + '='.repeat(50) + '\n\n';
             
             messages.forEach((msg, index) => {
-                if (msg.classList.contains('cover-message')) return;
                 const isUser = msg.classList.contains('user-message');
                 const label = isUser ? '[Tu]: ' : '[DM]: ';
                 const text = msg.innerText || msg.textContent;
