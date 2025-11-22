@@ -3,25 +3,20 @@ import sys
 import re
 from dotenv import load_dotenv
 
-# Carica variabili d'ambiente
 load_dotenv()
 API_KEY = os.environ.get("OPENAI_API_KEY", "")
-
 
 def read_file(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
-        print(f"❌ File non trovato: {path}")
+        print(f"File non trovato: {path}")
         sys.exit(1)
 
 
 def extract_constraints(plan_content):
-    """
-    Estrae i valori numerici di Branching e MaxDepth dal testo del Quest Plan (Markdown).
-    """
-    depth = 10  # Default ridotto per testare prima la fine
+    depth = 7
     branching = 3
 
     depth_match = re.search(r"\*\*MaxDepth:\*\*\s*(\d+)", plan_content, re.IGNORECASE)
@@ -38,10 +33,9 @@ def extract_constraints(plan_content):
 def create_game_html(quest_plan_content, output_filename="index.html", cover_image_url=None):
     max_depth, branching_factor = extract_constraints(quest_plan_content)
 
-    print(f"⚙️  Configurazione rilevata -> Turni Max: {max_depth}, Scelte per turno: {branching_factor}")
+    print(f"Configurazione rilevata -> Turni Max: {max_depth}, Scelte per turno: {branching_factor}")
     if cover_image_url:
-        print(f"🖼️  Immagine di copertina inclusa: {cover_image_url}")
-
+        print(f"Immagine di copertina inclusa: {cover_image_url}")
     safe_quest_plan = quest_plan_content.replace("`", "\\`").replace('"', '\\"')
     js_cover_url = cover_image_url if cover_image_url else ""
 
@@ -98,14 +92,14 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         .cover-container {{
             flex: 1;
             min-width: 300px;
-            max-width: 50%; /* Non occupa più del 50% */
+            max-width: 50%;
             padding: 20px;
             background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border-right: 1px solid rgba(0, 0, 0, 0.1); /* Bordo a destra verso la chat */
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
         }}
         .cover-container img {{
             max-width: 100%;
@@ -116,7 +110,7 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
             display: block;
         }}
         .chat-container {{ 
-            flex: 2; /* La chat prende più spazio se disponibile */
+            flex: 2;
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
@@ -139,7 +133,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         .status-online {{ background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; }}
         .status-offline {{ background: rgba(220, 53, 69, 0.8); color: white; }}
 
-        /* Chat Styles */
         .chat-container {{ flex: 1; display: flex; flex-direction: column; overflow: hidden; }}
         .chat-messages {{ flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }}
 
@@ -150,7 +143,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         .user-message {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }}
         .error-message {{ background: #ff6b6b; color: white; align-self: flex-start; }}
         
-        /* Input Area */
         .input-area {{ padding: 20px; background: rgba(247, 250, 252, 0.9); border-top: 1px solid rgba(0,0,0,0.1); }}
         .text-input-container {{ display: none; margin-bottom: 15px; flex-direction: row; gap: 10px; }}
         .text-input-container.active {{ display: flex; }}
@@ -165,7 +157,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         }}
         .option-button:hover {{ background: #4facfe; color: white; transform: translateY(-2px); }}
 
-        /* Loading & Progress */
         .loading-overlay {{ position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }}
         .loading-overlay.active {{ display: flex; }}
         .loading-spinner {{ width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid white; border-radius: 50%; animation: spin 1s linear infinite; }}
@@ -177,7 +168,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         .progress-step.complete {{ opacity: 1; color: #27ae60; font-weight: bold; }}
         .progress-step.error {{ opacity: 1; color: #c0392b; font-weight: bold; }}
 
-        /* Modal API Key */
         .api-modal-overlay {{
             position: fixed;
             top: 0;
@@ -230,7 +220,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
         }}
         .api-modal button:hover {{ transform: translateY(-2px); box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3); }}
 
-        /* PDF Button */
         .pdf-button {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -518,7 +507,6 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
             const lineHeight = 7;
             let yPosition = margin;
 
-            // Dividi il testo in linee
             const lines = doc.splitTextToSize(fullText, maxWidth);
 
             lines.forEach(line => {{
@@ -541,18 +529,14 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
 
     with open(output_filename, "w", encoding="utf-8") as f:
         f.write(html_content)
-    print(f"✅ Gioco Generato! File: {output_filename}")
+    print(f"Gioco Generato! File: {output_filename}")
     return html_content
 
 
 def run_create_game(quest_plan_path, output_html_path, cover_image_url_path=None):
-    """Funzione principale chiamata dal ChatBot"""
-    print(f"🎮 Generazione Codice Gioco HTML... (Cover: {cover_image_url_path})")
+    print(f"Generazione Codice Gioco HTML... (Cover: {cover_image_url_path})")
 
     try:
-        # --- MODIFICA: Rimuovi il controllo hardcodato su "quest_plan.md" ---
-        # Usiamo direttamente il path passato come argomento (che ora ChatBot ha creato correttamente)
-
         if os.path.exists(quest_plan_path):
             html_content = create_game_html(
                 read_file(quest_plan_path),
@@ -560,12 +544,10 @@ def run_create_game(quest_plan_path, output_html_path, cover_image_url_path=None
                 cover_image_url=cover_image_url_path
             )
         else:
-            print(f"❌ Manca il file del piano: {quest_plan_path}")
+            print(f"Manca il file del piano: {quest_plan_path}")
             return False
-
         with open(output_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
-
         return True
     except Exception as e:
         print(f"Errore creazione gioco: {e}")
@@ -576,4 +558,4 @@ if __name__ == "__main__":
     if os.path.exists(QUEST_PLAN_PATH):
         create_game_html(read_file(QUEST_PLAN_PATH))
     else:
-        print("❌ Manca quest_plan.md")
+        print("Manca quest_plan.md")

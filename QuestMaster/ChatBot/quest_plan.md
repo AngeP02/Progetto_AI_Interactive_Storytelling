@@ -1,31 +1,31 @@
 ```markdown
-# SCENARIO GUIDA: L'Antica Foresta di Elarion
+# SCENARIO GUIDA: L'Ombra di Ravenwood
 
 ## 1. CONTESTO NARRATIVO
-Nel cuore del Regno di Eldoria si trova l'Antica Foresta di Elarion, un luogo incantato e misterioso dove la magia si intreccia con la realtà. Arion, un giovane avventuriero con un innato talento per la magia, si addentra nella foresta alla ricerca del Cuore dell'Elarion, una leggendaria reliquia protetta da creature magiche e segreti antichi. La storia è pervasa da un tono di mistero e avventura, con scelte che influenzeranno il destino di Arion e della foresta.
+La città di Ravenwood è avvolta da una perenne coltre di nebbia, un luogo decadente pieno di segreti oscuri e vicoli inquietanti. Gli omicidi inspiegabili che hanno scosso la città lasciano il protagonista, un investigatore privato dal passato tormentato, a risolvere questo mistero tenebroso. Con un tono dark, la storia si sviluppa attraverso intrighi e decisioni cruciali.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Ai margini della Foresta di Elarion, vicino alla dimora di Eldwin il Saggio.
-- **Inventario Iniziale:** Una mappa antica della foresta e un amuleto magico.
-- **Elementi Chiave nella stanza:** Eldwin il Saggio, la mappa della foresta, e l'ingresso al Sentiero delle Ombre.
+- **Luogo di partenza:** Biblioteca Abbandonata di Ravenwood
+- **Inventario Iniziale:** Taccuino, lente d'ingrandimento, revolver scarico
+- **Elementi Chiave nella stanza:** Vecchi libri, un simbolo misterioso inciso su un tavolo, un biglietto con un appuntamento
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- Se un veicolo si trova in un luogo e il luogo è connesso ad un altro, allora il veicolo può spostarsi.
-- Se un pacco e un veicolo si trovano nello stesso luogo, allora il pacco può essere caricato sul veicolo.
-- Se un pacco è nel veicolo e il veicolo si trova in un luogo, allora il pacco può essere scaricato nel luogo.
+- Per spostarsi da un luogo all'altro, il percorso deve essere connesso (es. "Se sei al magazzino, puoi andare al deposito").
+- Per caricare un pacco su un veicolo, sia il pacco che il veicolo devono essere nello stesso luogo (es. "Se il pacco è al magazzino e il veicolo è al magazzino, puoi caricare il pacco nel veicolo").
+- Per scaricare un pacco da un veicolo, il veicolo deve essere al luogo desiderato (es. "Se il pacco è nel veicolo e il veicolo è al negozio, puoi scaricare il pacco").
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Arion deve trovare e assicurarsi il Cuore dell'Elarion, portando il pacchetto magico al Santuario del Cuore e risolvendo gli enigmi che proteggono la reliquia.
+Risolvi il mistero degli omicidi raccogliendo prove e identificando il colpevole, assicurandoti che il simbolo enigmatico non minacci più la cittadinanza.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Arion incontra Eldwin il Saggio e riceve consigli cruciali.
-2. Scoprire il Sentiero delle Ombre con l'aiuto dell'amuleto.
-3. Incontrare Lyria la Silvana e guadagnare la sua fiducia.
-4. Viaggiare attraverso il Lago dei Riflessi e ottenere visioni necessarie.
-5. Raggiungere il Santuario del Cuore superando prove di coraggio e saggezza.
-6. Ottenere il Cuore dell'Elarion, completando il viaggio.
+1. Esamina la scena dell'ultimo omicidio al Vicolo del Corvo.
+2. Interroga Elena Blackwood per ottenere informazioni sul legame con la vittima.
+3. Infiltrati nella Confraternita del Corvo per scoprire le loro intenzioni.
+4. Esplora il Sanatorio di Ravenwood per raccogliere indizi sul Dottor Graves.
+5. Svela il segreto del Reverendo Caldwell nella Chiesa di San Michele.
+6. Collega i pezzi del puzzle per identificare il colpevole e il significato del simbolo.
 
 ## 6. VINCOLI DI GIOCO
 - **MaxDepth:** 12
-- **Branching:** 3
+- **Branching:** 4
 ```

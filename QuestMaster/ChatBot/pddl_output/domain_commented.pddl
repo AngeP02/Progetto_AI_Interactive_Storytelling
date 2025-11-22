@@ -1,30 +1,30 @@
-```pddl
-(define (domain logistics-simple) ; Define the domain called logistics-simple
-  (:requirements :strips :typing) ; Specify that STRIPS and typing are required
-  (:types location vehicle package) ; Declare types: location, vehicle, and package
-  (:predicates ; Begin declaration of predicates
-    (at-vehicle ?v - vehicle ?l - location) ; Predicate: vehicle ?v is at location ?l
-    (at-package ?p - package ?l - location) ; Predicate: package ?p is at location ?l
-    (in-vehicle ?p - package ?v - vehicle) ; Predicate: package ?p is in vehicle ?v
-    (connected ?from ?to - location) ; Predicate: location ?from is connected to location ?to
-  ) ; End of predicates declaration
-
-  (:action move ; Begin definition of action move
-   :parameters (?v - vehicle ?from ?to - location) ; Parameters: vehicle and two locations
-   :precondition (and (at-vehicle ?v ?from) (connected ?from ?to)) ; Precondition: vehicle at ?from and locations are connected
-   :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to)) ; Effect: vehicle is no longer at ?from, now at ?to
-  ) ; End of action move
-
-  (:action load ; Begin definition of action load
-   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: package, vehicle, and location
-   :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l)) ; Precondition: package and vehicle at the same location
-   :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v)) ; Effect: package is no longer at location, now in vehicle
-  ) ; End of action load
-
-  (:action unload ; Begin definition of action unload
-   :parameters (?p - package ?v - vehicle ?l - location) ; Parameters: package, vehicle, and location
-   :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l)) ; Precondition: package in vehicle, vehicle at location
-   :effect (and (not (in-vehicle ?p ?v)) (at-package ?p ?l)) ; Effect: package is no longer in vehicle, now at location
-  ) ; End of action unload
-) ; End of domain definition
+```lisp
+(define (domain logistics-simple) ; Definisce un dominio chiamato "logistics-simple"
+                  (:requirements :strips :typing) ; Specifica i requisiti STRIPS e il supporto per i tipi
+                  (:types location vehicle package) ; Definisce i tipi di oggetti: location, vehicle, package
+                  (:predicates ; Inizio della definizione dei predicati
+                    (at-vehicle ?v - vehicle ?l - location) ; Predicato: un veicolo è in una determinata posizione
+                    (at-package ?p - package ?l - location) ; Predicato: un pacco è in una determinata posizione
+                    (in-vehicle ?p - package ?v - vehicle) ; Predicato: un pacco è all'interno di un veicolo
+                    (connected ?from ?to - location) ; Predicato: due posizioni sono collegate
+                  ) ; Fine della definizione dei predicati
+                
+                  (:action move ; Definisce l'azione "move"
+                   :parameters (?v - vehicle ?from ?to - location) ; Parametri: un veicolo, posizione di partenza e arrivo
+                   :precondition (and (at-vehicle ?v ?from) (connected ?from ?to)) ; Precondizioni: il veicolo è nella posizione iniziale e le posizioni sono collegate
+                   :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to)) ; Effetti: il veicolo non è più nella posizione iniziale ed è nella posizione finale
+                  ) ; Fine della definizione dell'azione "move"
+                
+                  (:action load ; Definisce l'azione "load"
+                   :parameters (?p - package ?v - vehicle ?l - location) ; Parametri: un pacco, un veicolo e una posizione
+                   :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l)) ; Precondizioni: il pacco e il veicolo sono nella stessa posizione
+                   :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v)) ; Effetti: il pacco non è più nella posizione ed è nel veicolo
+                  ) ; Fine della definizione dell'azione "load"
+                
+                  (:action unload ; Definisce l'azione "unload"
+                   :parameters (?p - package ?v - vehicle ?l - location) ; Parametri: un pacco, un veicolo e una posizione
+                   :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l)) ; Precondizioni: il pacco è nel veicolo e il veicolo è nella posizione
+                   :effect (and (not (in-vehicle ?p ?v)) (at-package ?p ?l)) ; Effetti: il pacco non è più nel veicolo ed è nella posizione
+                  ) ; Fine della definizione dell'azione "unload"
+                ) ; Fine del dominio
 ```

@@ -1,27 +1,27 @@
 ```lisp
-(define (problem delivery-medium) ; Define the problem named 'delivery-medium'
-  (:domain logistics-simple) ; Specify that this problem uses the 'logistics-simple' domain
-  (:objects ; Declare the objects in the problem
-    warehouse depot shop home - location ; Define 'warehouse', 'depot', 'shop', and 'home' as locations
-    truck - vehicle ; Define 'truck' as a vehicle
-    package1 package2 - package ; Define 'package1' and 'package2' as packages
+(define (problem delivery-medium) ; Definisce il problema chiamato "delivery-medium".
+  (:domain logistics-simple) ; Specifica che il problema appartiene al dominio "logistics-simple".
+  (:objects ; Inizia la dichiarazione degli oggetti usati nel problema.
+    warehouse depot shop home - location ; Definisce i luoghi disponibili: magazzino, deposito, negozio, casa.
+    truck - vehicle ; Definisce un veicolo: il camion.
+    package1 package2 - package ; Definisce due pacchi: package1 e package2.
   )
-  (:init ; Define the initial state of the problem
-    (at-vehicle truck warehouse) ; The truck is initially at the warehouse
-    (at-package package1 warehouse) ; Package1 is initially at the warehouse
-    (at-package package2 depot) ; Package2 is initially at the depot
-
-    (connected warehouse depot) ; The warehouse is connected to the depot
-    (connected depot warehouse) ; The depot is connected back to the warehouse
-    (connected depot shop) ; The depot is connected to the shop
-    (connected shop depot) ; The shop is connected back to the depot
-    (connected shop home) ; The shop is connected to the home
-    (connected home shop) ; The home is connected back to the shop
+  (:init ; Inizia la specifica dello stato iniziale del problema.
+    (at-vehicle truck warehouse) ; Il camion si trova inizialmente al magazzino.
+    (at-package package1 warehouse) ; Il pacco1 si trova inizialmente al magazzino.
+    (at-package package2 depot) ; Il pacco2 si trova inizialmente al deposito.
+    
+    (connected warehouse depot) ; Il magazzino è connesso al deposito.
+    (connected depot warehouse) ; Il deposito è connesso al magazzino.
+    (connected depot shop) ; Il deposito è connesso al negozio.
+    (connected shop depot) ; Il negozio è connesso al deposito.
+    (connected shop home) ; Il negozio è connesso alla casa.
+    (connected home shop) ; La casa è connessa al negozio.
   )
-  (:goal ; Define the goal state to be achieved
-    (and ; Both conditions must be true to satisfy the goal
-      (at-package package1 home) ; Package1 must be at the home
-      (at-package package2 shop) ; Package2 must be at the shop
+  (:goal ; Inizia la specifica delle condizioni obiettivo del problema.
+    (and ; Tutte le condizioni seguenti devono essere soddisfatte.
+      (at-package package1 home) ; Il pacco1 deve essere consegnato a casa.
+      (at-package package2 shop) ; Il pacco2 deve essere consegnato al negozio.
     )
   )
 )

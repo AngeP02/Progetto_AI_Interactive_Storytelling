@@ -1,8 +1,8 @@
-import re
 import os
 import json
 import logging
 import webbrowser
+import re
 from threading import Timer
 from pathlib import Path
 import requests
@@ -10,42 +10,22 @@ from flask import Flask, request, jsonify, render_template_string, Response, str
 from flask_cors import CORS
 from dotenv import load_dotenv
 from openai import OpenAI
+from QuestMaster.Generate_PDDL.GenerazionePddl import generate_valid_pddl_guaranteed
+from QuestMaster.Lore.GenerazioneLore import generate_lore_document
+from QuestMaster.Game import CreazioneGioco, QuestPlan
 
-from QuestMaster.Game import creategame, QuestPlan
-
-# Carica variabili d'ambiente
 load_dotenv()
 
-# Import esistenti (Assicurati che questi file esistano o adattali se necessario)
-try:
-    from QuestMaster.Generate_PDDL.no_LLM_2 import generate_valid_pddl_guaranteed
-    from QuestMaster.Lore.Lore2 import generate_lore_document
-except ImportError:
-    print("⚠️ ATTENZIONE: Moduli QuestMaster non trovati. Assicurati della struttura delle cartelle.")
-
-
-    # Mock functions per evitare crash se mancano i file durante il test del chatbot
-    def generate_valid_pddl_guaranteed(**kwargs):
-        return (True, "PDDL Mock Generato")
-
-
-    def generate_lore_document(config):
-        return "path/to/mock_lore.md"
-
-# Configurazione Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SCRIPT_DIR = Path(__file__).resolve().parent
 LORE_FILE = SCRIPT_DIR.parent / "Lore" / "Generated_Lore" / "Lore.md"
 OUTPUT_FOLDER = SCRIPT_DIR / "pddl_output"
-# Modifica il path se necessario
 FAST_DOWNWARD = r"C:\Users\ANGELICA\Desktop\SOFTWARE\FASTDOWNWARD\fast-downward-24.06.1\fast-downward.py"
 HUMAN_LOOP_FILE = BASE_DIR / "HumanInTheLoop" / "Frontend.html"
 GAME_OUTPUT_DIR = BASE_DIR / "static" / "generated_games"
 GAME_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-app = Flask(__name__,
-            static_folder=str(BASE_DIR / "static"),
-            template_folder=str(BASE_DIR / "ChatBot"))
+app = Flask(__name__,static_folder=str(BASE_DIR / "static"),template_folder=str(BASE_DIR / "ChatBot"))
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)
@@ -56,127 +36,105 @@ class QuestMasterLLM:
     def __init__(self):
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            logger.error("❌ OPENAI_API_KEY mancante nel file .env!")
-
+            logger.error("OPENAI_API_KEY mancante nel file .env")
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o"
         self.conversation_history = []
 
     def call_gpt(self, user_prompt, system_prompt="", json_mode=False):
-        """
-        Gestisce la chiamata a OpenAI.
-        """
         try:
             messages = [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ]
-
             kwargs = {
                 "model": self.model,
                 "messages": messages,
                 "temperature": 0.7,
             }
-
             if json_mode:
                 kwargs["response_format"] = {"type": "json_object"}
-
             response = self.client.chat.completions.create(**kwargs)
             return response.choices[0].message.content.strip()
-
         except Exception as e:
             logger.error(f"Errore chiamata OpenAI: {e}")
-            return "Mi dispiace, sto avendo problemi di connessione con il cervello neurale (OpenAI Error)."
+            return "Errore di connessione a GPT"
 
     def generate_cover_image(self, lore_text, output_path):
-        """
-        Genera un'immagine di copertina basata sul testo della Lore usando DALL-E 3.
-        """
         try:
-            # 1. Crea un prompt visivo riassumendo la Lore
             system_prompt = "You are an expert visual artist and prompt engineer for generative AI."
-            summary_prompt = f"""Read the following fantasy backstory (Lore) and create a detailed, atmospheric visual description suitable for a book cover image. Focus on the main setting, mood, and central conflict. The description should be vivid and concise (max 100 words).
-
+            summary_prompt = f"""Read the following backstory (Lore) and create a detailed, atmospheric visual description suitable for a book cover image. Focus on the main setting, mood, and central conflict. The description should be vivid and concise (max 100 words).
             LORE:
-            {lore_text[:2000]}... (truncated for brevity)
+            {lore_text[:2000]}
             """
             visual_description = self.call_gpt(summary_prompt, system_prompt)
             logger.info(f"DALL-E Prompt generated: {visual_description}")
-
-            # 2. Chiama DALL-E 3
             response = self.client.images.generate(
                 model="dall-e-3",
-                prompt=f"A fantasy book cover illustration. {visual_description} Digital art style, detailed, cinematic lighting.",
+                prompt=f"A book cover illustration. {visual_description} Digital art style, detailed, cinematic lighting.",
                 size="1024x1024",
                 quality="standard",
                 n=1,
             )
-
             image_url = response.data[0].url
-
-            # 3. Scarica e salva l'immagine
             img_data = requests.get(image_url).content
             with open(output_path, 'wb') as handler:
                 handler.write(img_data)
-
             return True, "Immagine generata e salvata."
-
         except Exception as e:
             logger.error(f"Errore generazione immagine DALL-E: {e}")
-            # Non blocchiamo il flusso se l'immagine fallisce, restituiamo False
             return False, f"Errore generazione immagine: {str(e)}"
-    def generate_welcome_message(self):
-        system_prompt = """You are the AI assistant for QuestMaster. You are enthusiastic, professional, and engaging.
-        Your goal is to welcome the user to the Interactive Story Creator."""
 
-        prompt = """Generate a short, warm welcome message (max 60 words).
-        Explain that you combine LLM creativity with PDDL logic.
-        Ask if they want:
-        1. Manual Setup
-        2. Random Mode"""
+    def generate_welcome_message(self):
+        system_prompt = """Sei l'assistente AI di QuestMaster. Sei entusiasta, professionale e coinvolgente.
+        Il tuo obiettivo è dare il benvenuto all'utente nell'Interactive Story Creator."""
+
+        prompt = """Genera un breve e caloroso messaggio di benvenuto (massimo 60 parole).
+        Spiega che unisci la creatività LLM alla logica PDDL.
+        Chiedi se desiderano:
+        1. Impostazione manuale
+        2. Modalità casuale"""
 
         return self.call_gpt(prompt, system_prompt)
 
     def generate_genres(self):
-        system_prompt = "You are a fiction expert. Output strictly valid JSON."
-        prompt = """Generate a list of 10 diverse story genres.
-        Return JSON format: {"genres": ["Fantasy", "Sci-Fi", ...]}"""
-
+        system_prompt = "Sei un esperto di narrativa. Genera un JSON rigorosamente valido."
+        prompt = """Genera un elenco di 10 generi di storie diversi.
+        Formato JSON restituito: {"genres": ["Fantasy", "Fantascienza", ...]}"""
         response = self.call_gpt(prompt, system_prompt, json_mode=True)
         try:
             data = json.loads(response)
             return data.get("genres", [])
         except:
-            return ["Fantasy", "Sci-Fi", "Mystery", "Horror", "Cyberpunk", "Western", "Romance", "Thriller",
-                    "Historical", "Comedy"]
+            return ["Fantasy", "Fantascienza", "Mistero", "Horror", "Cyberpunk", "Western", "Romantico", "Thriller",
+            "Storico", "Commedia"]
 
     def generate_tones(self):
-        system_prompt = "You are a storytelling expert. Output strictly valid JSON."
-        prompt = """Generate 4 distinct narrative tones.
-        Return JSON format: {"tones": ["Dark", "Epic", ...]}"""
-
+        system_prompt = "Sei un esperto di storytelling. Genera un JSON rigorosamente valido."
+        prompt = """Genera 4 toni narrativi distinti.
+        Formato JSON restituito: {"tones": ["Dark", "Epic", ...]}"""
         response = self.call_gpt(prompt, system_prompt, json_mode=True)
         try:
             data = json.loads(response)
             return data.get("tones", [])
         except:
-            return ["Epic & Solemn", "Dark & Gritty", "Light & Humorous", "Mysterious & Surreal"]
+            return ["Epico", "Oscuro", "Leggero e umoristico", "Misterioso e surreale"]
 
     def process_custom_genre(self, custom_genre):
-        system_prompt = "You are a literary critic."
-        prompt = f"The user chose the genre: '{custom_genre}'. Write a very short (15 words max) encouraging comment about it."
+        system_prompt = "Sei un critico letterario."
+        prompt = f"L'utente ha scelto il genere: '{custom_genre}'. Scrivi un commento molto breve (massimo 15 parole) incoraggiante al riguardo."
         return self.call_gpt(prompt, system_prompt)
 
     def generate_random_config(self):
-        system_prompt = "You are a creative Game Master. Output strictly valid JSON."
-        prompt = """Generate a RANDOM adventure configuration.
-        Return JSON format:
+        system_prompt = "Sei un Game Master creativo. Genera un JSON rigorosamente valido."
+        prompt = """Genera una configurazione di avventura CASUALE.
+        Restituisci il formato JSON:
         {
             "genre": "string",
-            "length": "Short (2-5 min) | Medium (5-10 min) | Long (10+ min)",
+            "length": "Breve (2-5 min) | Medio (5-10 min) | Lungo (10+ min)",
             "tone": "string",
-            "graphics": "Illustrated | Text-Only",
-            "theme": "string (max 100 chars)"
+            "graphics": "Illustrato | Solo testo",
+            "theme": "stringa (max 100 caratteri)"
         }"""
 
         response = self.call_gpt(prompt, system_prompt, json_mode=True)
@@ -185,38 +143,36 @@ class QuestMasterLLM:
         except Exception as e:
             logger.error(f"Error parsing random config: {e}")
             return {
-                "genre": "Steampunk",
-                "length": "Medium (5-10 min)",
-                "tone": "Adventurous",
-                "graphics": "Illustrated",
-                "theme": "A clockwork robot searches for its creator."
+                "genere": "Steampunk",
+                "durata": "Media (5-10 min)",
+                "tono": "Avventuroso",
+                "grafica": "Illustrato",
+                "tema": "Un robot meccanico alla ricerca del suo creatore."
             }
 
     def generate_contextual_response(self, user_input, context):
-        system_prompt = f"You are the QuestMaster assistant. Context: {context}. Be concise, engaging, and professional."
+        system_prompt = f"Sei l'assistente di QuestMaster. Contesto: {context}. Sii conciso, coinvolgente e professionale."
 
-        # --- MODIFICA QUI: Istruzioni più specifiche per evitare risposte generiche o liste duplicate ---
         instructions = {
-            "manual_mode_start": "Acknowledge manual mode enthusiastically. Ask the user to select a GENRE from the options below. IMPORTANT: Do NOT list specific genres in the text, just ask them to choose.",
+            "manual_mode_start": "Riconosci con entusiasmo la modalità manuale. Chiedi all'utente di selezionare un GENERE tra le opzioni seguenti. IMPORTANTE: NON elencare generi specifici nel testo, chiedi semplicemente di scegliere.",
 
-            "genre_explanation": "The user chose this genre. Write a very brief positive comment about it (max 10 words), then ask to select the story LENGTH.",
+            "genre_explanation": "L'utente ha scelto questo genere. Scrivi un breve commento positivo al riguardo (massimo 10 parole), quindi chiedi di selezionare la LUNGHEZZA della storia.",
 
-            "length_explanation": "The user chose this length. Acknowledge the choice specifically (e.g., 'Great, a medium adventure!'), then ask to select the narrative TONE.",
+            "length_explanation": "L'utente ha scelto questa lunghezza. Riconosci in modo specifico la scelta (ad esempio, 'Ottimo, un'avventura di media difficoltà!'), quindi chiedi di selezionare il TONO narrativo.",
 
-            "tone_explanation": "The user chose this tone. Acknowledge it, then ask to select the GRAPHICAL mode (Illustrated vs Text).",
+            "tone_explanation": "L'utente ha scelto questo tono. Riconoscilo, quindi chiedi di selezionare la modalità GRAFICA (Illustrata vs Testo).",
 
-            "graphics_explanation": "The user chose this graphics mode. Acknowledge it, then enthusiastically ask for a short PLOT/THEME description.",
+            "graphics_explanation": "L'utente ha scelto questa modalità grafica. Riconoscilo, quindi chiedi con entusiasmo un breve Descrizione TRAMA/TEMA.",
 
-            "random_mode_intro": "Enthusiastically announce that you are generating a unique random adventure configuration."
+            "random_mode_intro": "Annuncia con entusiasmo che stai generando una configurazione di avventura casuale unica."
         }
 
-        specific_instruction = instructions.get(context, "Reply to the user input.")
-        prompt = f"User Input: '{user_input}'. Instruction: {specific_instruction}"
+        specific_instruction = instructions.get(context, "Rispondi all'input dell'utente.")
+        prompt = f"Input utente: '{user_input}'. Istruzione: {specific_instruction}"
 
         return self.call_gpt(prompt, system_prompt)
 
 
-# Inizializzazione LLM
 llm = QuestMasterLLM()
 user_sessions = {}
 
@@ -233,7 +189,6 @@ def index():
 
 @app.route('/api/health', methods=['GET'])
 def health():
-    """Verifica la connessione a OpenAI"""
     status = "offline"
     try:
         llm.client.models.list()
@@ -273,7 +228,6 @@ def chat():
         session = user_sessions[session_id]
         response_data = {'success': True}
 
-        # --- LOGICA STATI CHAT ---
         if current_step == 'welcome':
             if user_choice == 'Random Mode':
                 intro = llm.generate_contextual_response(user_choice, "random_mode_intro")
@@ -409,7 +363,6 @@ def chat():
 
 @app.route('/api/generate-quest-stream', methods=['GET'])
 def generate_quest_stream():
-    """Genera la quest con aggiornamenti di stato in tempo reale (SSE) e Illustrazione opzionale"""
 
     def generate():
         session_id = request.args.get('session', 'default')
@@ -420,46 +373,34 @@ def generate_quest_stream():
         session = user_sessions[session_id]
         config = session['config']
 
-        # 1. LORE
         yield f"data: {json.dumps({'step': 'lore', 'status': 'running', 'message': 'Writing Lore with GPT...'})}\n\n"
         try:
-            # Assicuriamoci che la cartella esista
             LORE_FILE.parent.mkdir(parents=True, exist_ok=True)
             lore_path = generate_lore_document(config)
-
-            # Leggiamo il contenuto della lore appena generata per usarla per l'immagine
             with open(LORE_FILE, 'r', encoding='utf-8') as f:
                 lore_content = f.read()
-
             yield f"data: {json.dumps({'step': 'lore', 'status': 'complete', 'message': 'Lore Generated.'})}\n\n"
         except Exception as e:
             logger.exception("Lore generation failed")
             yield f"data: {json.dumps({'step': 'lore', 'status': 'error', 'message': str(e)})}\n\n"
             return
 
-        # --- NUOVO PASSAGGIO: ILLUSTRAZIONE (Se richiesto) ---
         cover_image_filename = None
         if config.get('graphics') == 'Illustrated':
             yield f"data: {json.dumps({'step': 'illustration', 'status': 'running', 'message': 'Painting Cover Art (DALL-E 3)...'})}\n\n"
             try:
-                # Definisci il percorso di output nella cartella statica dei giochi
                 cover_image_filename = f"cover.jpg"
                 cover_image_path = GAME_OUTPUT_DIR / cover_image_filename
-
                 success, msg = llm.generate_cover_image(lore_content, cover_image_path)
-
                 if success:
-                    # Salviamo il nome del file nella sessione per usarlo dopo
                     session['cover_image'] = cover_image_filename
                     yield f"data: {json.dumps({'step': 'illustration', 'status': 'complete', 'message': 'Illustration Created.'})}\n\n"
                 else:
                     yield f"data: {json.dumps({'step': 'illustration', 'status': 'error', 'message': msg})}\n\n"
-                    # Non interrompiamo il flusso, continuiamo senza immagine
             except Exception as e:
                 logger.exception("Image generation failed")
                 yield f"data: {json.dumps({'step': 'illustration', 'status': 'error', 'message': str(e)})}\n\n"
 
-        # 2. PDDL
         yield f"data: {json.dumps({'step': 'pddl', 'status': 'running', 'message': 'Calculating PDDL Logic...'})}\n\n"
         try:
             success, msg = generate_valid_pddl_guaranteed(
@@ -474,11 +415,8 @@ def generate_quest_stream():
             yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': str(e)})}\n\n"
             return
 
-        # 3. Comments / Finalize
         yield f"data: {json.dumps({'step': 'comments', 'status': 'running', 'message': 'Finalizing...'})}\n\n"
         yield f"data: {json.dumps({'step': 'comments', 'status': 'complete', 'message': 'Done.'})}\n\n"
-
-        # 4. Done
         yield f"data: {json.dumps({'step': 'done', 'status': 'complete', 'message': 'Quest Ready!', 'redirect': f'/review.html?session={session_id}'})}\n\n"
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
@@ -486,36 +424,25 @@ def generate_quest_stream():
 
 @app.route('/review.html')
 def review_page():
-    """
-    Carica la pagina HTML di revisione dalla cartella HumanInTheLoop
-    """
     try:
         if not HUMAN_LOOP_FILE.exists():
             return f"<h1>Errore</h1><p>File non trovato: {HUMAN_LOOP_FILE}</p><p>Controlla che il file esista in QuestMaster/HumanInTheLoop/Frontend.html</p>", 404
-
         with open(HUMAN_LOOP_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
         return render_template_string(content)
     except Exception as e:
         return f"<h1>Errore Server</h1><p>{str(e)}</p>", 500
 
-
-# --- API PER LA PAGINA DI REVISIONE (HUMAN IN THE LOOP) ---
-
 @app.route('/api/get-lore', methods=['POST'])
 def get_lore():
-    """Carica il contenuto del file Lore.md."""
     try:
         if not LORE_FILE.exists():
-            # Se il file non esiste, creane uno dummy per evitare crash
             return jsonify({
                 'success': True,
                 'sections': {'Errore': 'File Lore.md non trovato nel percorso specificato.'}
             })
-
         with open(LORE_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
-
         sections = parse_lore_sections(content)
         return jsonify({'success': True, 'sections': sections})
     except Exception as e:
@@ -524,33 +451,23 @@ def get_lore():
 
 @app.route('/api/get-pddl', methods=['POST'])
 def get_pddl():
-    """Carica Domain e Problem PDDL."""
     try:
-        # Assumiamo nomi standard per i file generati
-        # 1. Percorsi dei file commentati
         domain_path = OUTPUT_FOLDER / "domain_commented.pddl"
         problem_path = OUTPUT_FOLDER / "problem_commented.pddl"
-
-        # 2. Fallback: Se i file commentati non esistono, usa quelli standard
         if not domain_path.exists():
             domain_path = OUTPUT_FOLDER / "domain.pddl"
-
         if not problem_path.exists():
             problem_path = OUTPUT_FOLDER / "problem.pddl"
-
         domain_content = ""
         problem_content = ""
         editable_names = []
-
         if domain_path.exists():
             with open(domain_path, 'r', encoding='utf-8') as f:
                 domain_content = f.read()
-
         if problem_path.exists():
             with open(problem_path, 'r', encoding='utf-8') as f:
                 problem_content = f.read()
                 editable_names = extract_pddl_objects(problem_content)
-
         return jsonify({
             'success': True,
             'domain': domain_content if domain_content else "; Domain file not found",
@@ -563,113 +480,70 @@ def get_pddl():
 
 @app.route('/api/update-and-regenerate', methods=['POST'])
 def update_and_regenerate():
-    """Riceve le modifiche dall'utente, aggiorna i file e (simula) la rigenerazione."""
     try:
         data = request.json
         new_lore = data.get('lore', '')
         name_changes = data.get('names', {})  # Dizionario { old_name: new_name }
-
-        # 1. Salva la Lore aggiornata (sovrascrittura)
         if new_lore:
             with open(LORE_FILE, 'w', encoding='utf-8') as f:
                 f.write(new_lore)
-
-        # 2. Applica la rinomina ai file PDDL (Domain e Problem)
         if name_changes:
             domain_path = OUTPUT_FOLDER / "domain.pddl"
             problem_path = OUTPUT_FOLDER / "problem.pddl"
-
-            # Aggiorna DOMAIN
             if domain_path.exists():
                 with open(domain_path, 'r', encoding='utf-8') as f:
                     domain_content = f.read()
-
                 new_domain = apply_pddl_renaming(domain_content, name_changes)
-
                 with open(domain_path, 'w', encoding='utf-8') as f:
                     f.write(new_domain)
-
-            # Aggiorna PROBLEM
             if problem_path.exists():
                 with open(problem_path, 'r', encoding='utf-8') as f:
                     problem_content = f.read()
-
                 new_problem = apply_pddl_renaming(problem_content, name_changes)
-
                 with open(problem_path, 'w', encoding='utf-8') as f:
                     f.write(new_problem)
-
-
         return jsonify({'success': True, 'message': 'Lore e PDDL aggiornati con successo.'})
-
     except Exception as e:
         logger.error(f"Errore aggiornamento: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/generate-game', methods=['POST'])
 def generate_game():
-    """
-    Orchestra la generazione del gioco finale.
-    """
     try:
         session_id = request.json.get('session_id', 'default')
-
-        # File intermedi e finali
         plan_output_path = OUTPUT_FOLDER / "quest_plan.md"
         game_filename = f"game_{session_id}.html"
         game_output_path = GAME_OUTPUT_DIR / game_filename
-
-        # 2. ESECUZIONE QUEST PLANNER
-        # Chiama la funzione importata da QuestPlan.py
         plan_content = QuestPlan.run_quest_plan_generation()
-
         if not plan_content or "Error" in plan_content:
             raise Exception("Fallimento nella generazione del Quest Plan.")
-
-        # --- FIX: SALVIAMO IL FILE NEL POSTO GIUSTO ---
-        # QuestPlan lo salva nella root, noi lo forziamo in pddl_output
-        # per renderlo visibile a creategame.py
         with open(plan_output_path, "w", encoding="utf-8") as f:
             f.write(plan_content)
-        print(f"✅ Quest Plan salvato correttamente in: {plan_output_path}")
-        # ----------------------------------------------
-
-        # --- RECUPERO IMMAGINE (Se esiste) ---
+        print(f"Quest Plan salvato correttamente in: {plan_output_path}")
         cover_image_filename = user_sessions[session_id].get('cover_image')
         cover_image_url = None
         if cover_image_filename:
-            # L'URL relativo per il browser
             cover_image_url = cover_image_filename
-
-
-        # 3. ESECUZIONE CREATE GAME
-        success = creategame.run_create_game(
+        success = CreazioneGioco.run_create_game(
             str(plan_output_path),
             str(game_output_path),
             cover_image_url_path=cover_image_url
         )
-
         if not success:
             raise Exception("Fallimento nella generazione del file HTML del gioco.")
-
-        # 4. RITORNO URL
         game_url = f"/static/generated_games/{game_filename}"
-
         return jsonify({
             'success': True,
             'game_url': game_url
         })
-
     except Exception as e:
         logger.exception("Errore generazione gioco")
         return jsonify({'success': False, 'error': str(e)})
 
 def parse_lore_sections(lore_text):
-    """Divide il markdown della Lore in sezioni per l'editor."""
     sections = {}
     current_section = "Intro"
     buffer = []
-
     for line in lore_text.split('\n'):
         if line.strip().startswith('## '):
             if buffer:
@@ -678,69 +552,41 @@ def parse_lore_sections(lore_text):
             buffer = []
         else:
             buffer.append(line)
-
     if buffer:
         sections[current_section] = '\n'.join(buffer).strip()
-
     return sections
 
 def extract_pddl_objects(problem_text):
-    """Estrae nomi di oggetti modificabili dal Problem PDDL (logica semplificata)."""
     objects = []
     try:
-        # Cerca la sezione (:objects ...)
         match = re.search(r'\(:objects(.*?)\)', problem_text, re.DOTALL)
         if match:
             content = match.group(1)
-            # Pulisci e dividi, ignorando i tipi (es. - location)
             tokens = content.split()
             for i, token in enumerate(tokens):
                 if not token.startswith('-') and (i + 1 >= len(tokens) or not tokens[i + 1].startswith('-')):
-                    # Filtro grezzo, in produzione serve un parser migliore
                     if token.isalnum():
                         objects.append(token)
     except Exception:
         pass
-    return list(set(objects))  # Rimuovi duplicati
-
-
-import re
-
+    return list(set(objects))
 
 def apply_pddl_renaming(text, name_changes):
-    """
-    Sostituisce tutte le occorrenze dei vecchi nomi con i nuovi nel testo.
-    Usa le regex (\b) per assicurarsi di cambiare solo parole intere.
-    Es: cambia 'key' ma NON 'keyboard'.
-    """
     if not name_changes:
         return text
-
     updated_text = text
     for old_name, new_name in name_changes.items():
-        # Ignora se il nome è vuoto
         if not old_name or not new_name:
             continue
-
-        # Crea un pattern che cerca la parola esatta (word boundary \b)
-        # re.escape è importante nel caso i nomi contengano caratteri speciali
         pattern = r'\b' + re.escape(old_name) + r'\b'
         updated_text = re.sub(pattern, new_name, updated_text)
-
     return updated_text
 
 
-
 if __name__ == '__main__':
-    print("🚀 QuestMaster Backend (OpenAI Edition) Starting...")
-
-
+    print("QuestMaster Backend (OpenAI Edition) Starting...")
     def open_browser():
         webbrowser.open_new_tab('http://127.0.0.1:5000')
-
-
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         Timer(1, open_browser).start()
-
-        # AGGIUNGI use_reloader=False QUI SOTTO
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

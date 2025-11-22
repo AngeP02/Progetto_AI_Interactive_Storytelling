@@ -14,11 +14,8 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url("/static/img/SfondoChatbot.png");
-            /* Impedisce la ripetizione dell'immagine */
             background-repeat: no-repeat;
-            /* L'immagine copre l'intera area */
             background-size: cover;
-            /* Rende l'immagine fissa durante lo scrolling */
             background-attachment: fixed;
             min-height: 100vh;
             display: flex;
@@ -299,7 +296,6 @@
             <h1>Human in the loop</h1>
         </div>
 
-        <!-- LORE EDITOR -->
         <div class="section">
             <h2>Lore</h2>
             <div id="loreEditor"></div>
@@ -310,7 +306,6 @@
             <div class="name-editor" id="nameEditor"></div>
         </div>
 
-        <!-- PDDL VIEWER -->
         <div class="section">
             <h2>Visualizzazione PDDL</h2>
             <details>
@@ -323,13 +318,11 @@
             </details>
         </div>
 
-        <!-- REFLECTION SUGGESTIONS -->
         <div id="reflectionSuggestions" class="suggestions" style="display: none;">
             <h3>💡 Suggerimenti del Reflection Agent</h3>
             <div id="suggestionsList"></div>
         </div>
 
-        <!-- ACTION BUTTONS -->
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="goBack()">Indietro</button>
             <button class="btn btn-primary" onclick="regenerate()">Rigenera Piano</button>
