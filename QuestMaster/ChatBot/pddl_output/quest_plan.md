@@ -1,31 +1,30 @@
 ```markdown
-# SCENARIO GUIDA: L'Ombra di Ravenwood
+# SCENARIO GUIDA: L'Ombra senza Volto
 
 ## 1. CONTESTO NARRATIVO
-La città di Ravenwood è avvolta da una perenne coltre di nebbia, un luogo decadente pieno di segreti oscuri e vicoli inquietanti. Gli omicidi inspiegabili che hanno scosso la città lasciano il protagonista, un investigatore privato dal passato tormentato, a risolvere questo mistero tenebroso. Con un tono dark, la storia si sviluppa attraverso intrighi e decisioni cruciali.
+Nella città oscura di Eldergloom, una perenne nebbia avvolge le strade tortuose, celando segreti e verità. In questo ambiente tetro, il giocatore assume il ruolo di un detective privato e astuto, incaricato di risolvere il mistero della morte di un collezionista d'arte e della scomparsa di un dipinto maledetto noto come "L'Ombra senza Volto". Il tono è cupo e misterioso, riflettendo le complessità e i pericoli della città.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Biblioteca Abbandonata di Ravenwood
-- **Inventario Iniziale:** Taccuino, lente d'ingrandimento, revolver scarico
-- **Elementi Chiave nella stanza:** Vecchi libri, un simbolo misterioso inciso su un tavolo, un biglietto con un appuntamento
+- **Luogo di partenza:** Ingresso di Eldergloom
+- **Inventario Iniziale:** Nessun oggetto
+- **Elementi Chiave nella stanza:** Chiave di bronzo, porta principale chiusa
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- Per spostarsi da un luogo all'altro, il percorso deve essere connesso (es. "Se sei al magazzino, puoi andare al deposito").
-- Per caricare un pacco su un veicolo, sia il pacco che il veicolo devono essere nello stesso luogo (es. "Se il pacco è al magazzino e il veicolo è al magazzino, puoi caricare il pacco nel veicolo").
-- Per scaricare un pacco da un veicolo, il veicolo deve essere al luogo desiderato (es. "Se il pacco è nel veicolo e il veicolo è al negozio, puoi scaricare il pacco").
+- Se il detective è in una stanza con una chiave, allora può raccoglierla.
+- Se il detective possiede la chiave corretta, allora può sbloccare la porta corrispondente.
+- Se la porta è sbloccata, allora il detective può attraversarla per spostarsi in un'altra stanza.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Risolvi il mistero degli omicidi raccogliendo prove e identificando il colpevole, assicurandoti che il simbolo enigmatico non minacci più la cittadinanza.
+Il detective deve raggiungere la collezione di quadri per risolvere il mistero e trovare il dipinto "L'Ombra senza Volto".
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Esamina la scena dell'ultimo omicidio al Vicolo del Corvo.
-2. Interroga Elena Blackwood per ottenere informazioni sul legame con la vittima.
-3. Infiltrati nella Confraternita del Corvo per scoprire le loro intenzioni.
-4. Esplora il Sanatorio di Ravenwood per raccogliere indizi sul Dottor Graves.
-5. Svela il segreto del Reverendo Caldwell nella Chiesa di San Michele.
-6. Collega i pezzi del puzzle per identificare il colpevole e il significato del simbolo.
+1. Raccogliere la chiave di bronzo all'ingresso di Eldergloom.
+2. Usare la chiave di bronzo per sbloccare la porta principale ed entrare nello studio del collezionista.
+3. Raccogliere la chiave dorata nello studio del collezionista.
+4. Usare la chiave dorata per sbloccare la porta del quadro scomparso.
+5. Entrare nella collezione di quadri per completare il caso.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 12
-- **Branching:** 4
+- **MaxDepth:** 6
+- **Branching:** 3
 ```

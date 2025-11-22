@@ -1,28 +1,25 @@
-```lisp
-(define (problem delivery-medium) ; Definisce il problema chiamato "delivery-medium".
-  (:domain logistics-simple) ; Specifica che il problema appartiene al dominio "logistics-simple".
-  (:objects ; Inizia la dichiarazione degli oggetti usati nel problema.
-    warehouse depot shop home - location ; Definisce i luoghi disponibili: magazzino, deposito, negozio, casa.
-    truck - vehicle ; Definisce un veicolo: il camion.
-    package1 package2 - package ; Definisce due pacchi: package1 e package2.
+```pddl
+(define (problem quest-medium) ; Definisce il problema chiamato "quest-medium"
+  (:domain keys-doors-simple) ; Specifica il dominio di appartenenza, "keys-doors-simple"
+  (:objects
+    ingresso_eldersgloom studio_collezionista collezione_quadri camera_segreta - location ; Definisce le location
+    detective - agent ; Definisce l'agente "detective"
+    chiave_di_bronzo chiave_dorata - key ; Definisce le chiavi
+    porta_principale porta_quadro_scomparso - door ; Definisce le porte
   )
-  (:init ; Inizia la specifica dello stato iniziale del problema.
-    (at-vehicle truck warehouse) ; Il camion si trova inizialmente al magazzino.
-    (at-package package1 warehouse) ; Il pacco1 si trova inizialmente al magazzino.
-    (at-package package2 depot) ; Il pacco2 si trova inizialmente al deposito.
-    
-    (connected warehouse depot) ; Il magazzino è connesso al deposito.
-    (connected depot warehouse) ; Il deposito è connesso al magazzino.
-    (connected depot shop) ; Il deposito è connesso al negozio.
-    (connected shop depot) ; Il negozio è connesso al deposito.
-    (connected shop home) ; Il negozio è connesso alla casa.
-    (connected home shop) ; La casa è connessa al negozio.
+  (:init
+    (at detective ingresso_eldersgloom) ; Il detective si trova all'ingresso di Eldersgloom
+    (key-at chiave_di_bronzo ingresso_eldersgloom) ; La chiave di bronzo è all'ingresso di Eldersgloom
+    (key-at chiave_dorata studio_collezionista) ; La chiave dorata è nello studio del collezionista
+    (door-between porta_principale ingresso_eldersgloom studio_collezionista) ; La porta principale collega l'ingresso di Eldersgloom e lo studio del collezionista
+    (door-between porta_quadro_scomparso studio_collezionista collezione_quadri) ; La porta del quadro scomparso collega lo studio del collezionista e la collezione di quadri
+    (locked porta_principale) ; La porta principale è chiusa a chiave
+    (locked porta_quadro_scomparso) ; La porta del quadro scomparso è chiusa a chiave
+    (unlocks chiave_di_bronzo porta_principale) ; La chiave di bronzo apre la porta principale
+    (unlocks chiave_dorata porta_quadro_scomparso) ; La chiave dorata apre la porta del quadro scomparso
   )
-  (:goal ; Inizia la specifica delle condizioni obiettivo del problema.
-    (and ; Tutte le condizioni seguenti devono essere soddisfatte.
-      (at-package package1 home) ; Il pacco1 deve essere consegnato a casa.
-      (at-package package2 shop) ; Il pacco2 deve essere consegnato al negozio.
-    )
+  (:goal
+    (at detective collezione_quadri) ; L'obiettivo è che il detective si trovi nella collezione di quadri
   )
 )
 ```

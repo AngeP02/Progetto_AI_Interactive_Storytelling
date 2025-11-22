@@ -246,7 +246,6 @@ def chat():
                     'next_step': 'final_confirmation'
                 })
             elif user_choice == 'Manual Setup':
-                # Qui chiediamo a GPT di introdurre la scelta, ma SENZA elencare i generi nel testo
                 msg = llm.generate_contextual_response(user_choice, "manual_mode_start")
                 genres = llm.generate_genres()
                 response_data.update({
@@ -264,7 +263,6 @@ def chat():
                 })
             else:
                 session['config']['genre'] = user_choice
-                # Qui GPT commenterà il genere scelto e chiederà la lunghezza
                 msg = llm.generate_contextual_response(user_choice, "genre_explanation")
                 response_data.update({
                     'message': msg,
@@ -284,7 +282,6 @@ def chat():
 
         elif current_step == 'length_selection':
             session['config']['length'] = user_choice
-            # Qui GPT riconoscerà la scelta della lunghezza prima di chiedere il tono
             msg = llm.generate_contextual_response(user_choice, "length_explanation")
             tones = llm.generate_tones()
             response_data.update({

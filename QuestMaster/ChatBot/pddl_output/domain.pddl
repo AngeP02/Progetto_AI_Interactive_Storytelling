@@ -1,28 +1,27 @@
-(define (domain logistics-simple)
+(define (domain keys-doors-simple)
                   (:requirements :strips :typing)
-                  (:types location vehicle package)
+                  (:types location key door agent)
                   (:predicates
-                    (at-vehicle ?v - vehicle ?l - location)
-                    (at-package ?p - package ?l - location)
-                    (in-vehicle ?p - package ?v - vehicle)
-                    (connected ?from ?to - location)
+                    (at ?a - agent ?l - location)
+                    (key-at ?k - key ?l - location)
+                    (has-key ?a - agent ?k - key)
+                    (door-between ?d - door ?l1 ?l2 - location)
+                    (locked ?d - door)
+                    (unlocks ?k - key ?d - door)
                   )
-                
                   (:action move
-                   :parameters (?v - vehicle ?from ?to - location)
-                   :precondition (and (at-vehicle ?v ?from) (connected ?from ?to))
-                   :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to))
+                   :parameters (?a - agent ?from ?to - location ?d - door)
+                   :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
+                   :effect (and (not (at ?a ?from)) (at ?a ?to))
                   )
-                
-                  (:action load
-                   :parameters (?p - package ?v - vehicle ?l - location)
-                   :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l))
-                   :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v))
+                  (:action pick-key
+                   :parameters (?a - agent ?k - key ?l - location)
+                   :precondition (and (at ?a ?l) (key-at ?k ?l))
+                   :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
                   )
-                
-                  (:action unload
-                   :parameters (?p - package ?v - vehicle ?l - location)
-                   :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l))
-                   :effect (and (not (in-vehicle ?p ?v)) (at-package ?p ?l))
+                  (:action unlock
+                   :parameters (?a - agent ?k - key ?d - door ?l - location)
+                   :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
+                   :effect (not (locked ?d))
                   )
                 )

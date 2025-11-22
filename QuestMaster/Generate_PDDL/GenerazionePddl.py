@@ -3,6 +3,7 @@ import sys
 import re
 import subprocess
 import logging
+import json
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
 from dataclasses import dataclass
@@ -60,9 +61,7 @@ class ValidatedPDDL:
     expected_plan_length: int
     description: str
 
-#Pddl validi risolvibili
 class PDDLLibrary:
-
     @staticmethod
     def get_keys_doors_easy() -> ValidatedPDDL:
         domain = """(define (domain keys-doors-simple)
@@ -76,19 +75,16 @@ class PDDLLibrary:
                     (locked ?d - door)
                     (unlocks ?k - key ?d - door)
                   )
-                
                   (:action move
                    :parameters (?a - agent ?from ?to - location ?d - door)
                    :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
                    :effect (and (not (at ?a ?from)) (at ?a ?to))
                   )
-                
                   (:action pick-key
                    :parameters (?a - agent ?k - key ?l - location)
                    :precondition (and (at ?a ?l) (key-at ?k ?l))
                    :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
                   )
-                
                   (:action unlock
                    :parameters (?a - agent ?k - key ?d - door ?l - location)
                    :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
@@ -130,19 +126,16 @@ class PDDLLibrary:
                     (locked ?d - door)
                     (unlocks ?k - key ?d - door)
                   )
-                
                   (:action move
                    :parameters (?a - agent ?from ?to - location ?d - door)
                    :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
                    :effect (and (not (at ?a ?from)) (at ?a ?to))
                   )
-                
                   (:action pick-key
                    :parameters (?a - agent ?k - key ?l - location)
                    :precondition (and (at ?a ?l) (key-at ?k ?l))
                    :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
                   )
-                
                   (:action unlock
                    :parameters (?a - agent ?k - key ?d - door ?l - location)
                    :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
@@ -162,13 +155,10 @@ class PDDLLibrary:
                     (at hero entrance)
                     (key-at bronze_key entrance)
                     (key-at golden_key hall)
-                
                     (door-between main_door entrance hall)
                     (door-between treasure_door hall treasure_room)
-                
                     (locked main_door)
                     (locked treasure_door)
-                
                     (unlocks bronze_key main_door)
                     (unlocks golden_key treasure_door)
                   )
@@ -191,19 +181,16 @@ class PDDLLibrary:
                 (locked ?d - door)
                 (unlocks ?k - key ?d - door)
               )
-            
               (:action move
                :parameters (?a - agent ?from ?to - location ?d - door)
                :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
                :effect (and (not (at ?a ?from)) (at ?a ?to))
               )
-            
               (:action pick-key
                :parameters (?a - agent ?k - key ?l - location)
                :precondition (and (at ?a ?l) (key-at ?k ?l))
                :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
               )
-            
               (:action unlock
                :parameters (?a - agent ?k - key ?d - door ?l - location)
                :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
@@ -221,22 +208,18 @@ class PDDLLibrary:
                   )
                   (:init
                     (at hero entrance)
-                
                     (key-at copper_key entrance)
                     (key-at silver_key courtyard)
                     (key-at golden_key armory)
                     (key-at master_key library)
-                
                     (door-between gate1 entrance courtyard)
                     (door-between gate2 courtyard armory)
                     (door-between gate3 armory library)
                     (door-between gate4 library throne_room)
-                
                     (locked gate1)
                     (locked gate2)
                     (locked gate3)
                     (locked gate4)
-                
                     (unlocks copper_key gate1)
                     (unlocks silver_key gate2)
                     (unlocks golden_key gate3)
@@ -259,19 +242,16 @@ class PDDLLibrary:
                     (in-vehicle ?p - package ?v - vehicle)
                     (connected ?from ?to - location)
                   )
-                
                   (:action move
                    :parameters (?v - vehicle ?from ?to - location)
                    :precondition (and (at-vehicle ?v ?from) (connected ?from ?to))
                    :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to))
                   )
-                
                   (:action load
                    :parameters (?p - package ?v - vehicle ?l - location)
                    :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l))
                    :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v))
                   )
-                
                   (:action unload
                    :parameters (?p - package ?v - vehicle ?l - location)
                    :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l))
@@ -289,7 +269,6 @@ class PDDLLibrary:
                   (:init
                     (at-vehicle truck warehouse)
                     (at-package parcel warehouse)
-                
                     (connected warehouse shop)
                     (connected shop warehouse)
                     (connected shop home)
@@ -312,19 +291,16 @@ class PDDLLibrary:
                     (in-vehicle ?p - package ?v - vehicle)
                     (connected ?from ?to - location)
                   )
-                
                   (:action move
                    :parameters (?v - vehicle ?from ?to - location)
                    :precondition (and (at-vehicle ?v ?from) (connected ?from ?to))
                    :effect (and (not (at-vehicle ?v ?from)) (at-vehicle ?v ?to))
                   )
-                
                   (:action load
                    :parameters (?p - package ?v - vehicle ?l - location)
                    :precondition (and (at-package ?p ?l) (at-vehicle ?v ?l))
                    :effect (and (not (at-package ?p ?l)) (in-vehicle ?p ?v))
                   )
-                
                   (:action unload
                    :parameters (?p - package ?v - vehicle ?l - location)
                    :precondition (and (in-vehicle ?p ?v) (at-vehicle ?v ?l))
@@ -343,7 +319,6 @@ class PDDLLibrary:
                     (at-vehicle truck warehouse)
                     (at-package package1 warehouse)
                     (at-package package2 depot)
-                
                     (connected warehouse depot)
                     (connected depot warehouse)
                     (connected depot shop)
@@ -360,169 +335,170 @@ class PDDLLibrary:
                 )"""
         return ValidatedPDDL(domain, problem, 11, "Medium logistics: deliver 2 packages")
 
-
 class SmartPDDLSelector:
     def __init__(self, lore_content: str):
         self.lore = lore_content
         self.library = PDDLLibrary()
-
     def select_best_pddl(self) -> ValidatedPDDL:
-        analysis = self._analyze_lore()
-        logger.info(f"Analisi Lore:")
-        logger.info(f"   - Genere rilevato: {analysis['genre']}")
-        logger.info(f"   - Depth target: {analysis['depth_min']}-{analysis['depth_max']}")
-        logger.info(f"   - Difficoltà: {analysis['difficulty']}")
-
-        if analysis['genre'] in ['fantasy', 'adventure', 'mystery']:
-            template_type = 'keys_doors'
-        else:
-            template_type = 'logistics'
-
-        if analysis['difficulty'] == DifficultyLevel.EASY:
-            if template_type == 'keys_doors':
+        logger.info("Avvio analisi LLM per selezione Template PDDL...")
+        template_type, difficulty = self._analyze_lore_with_llm()
+        logger.info(f"Analisi LLM completata:")
+        logger.info(f"   - Tipo Scenario: {template_type}")
+        logger.info(f"   - Difficoltà: {difficulty}")
+        pddl = None
+        if template_type == 'keys_doors':
+            if difficulty == DifficultyLevel.EASY:
                 pddl = self.library.get_keys_doors_easy()
-            else:
-                pddl = self.library.get_logistics_easy()
-        elif analysis['difficulty'] == DifficultyLevel.MEDIUM:
-            if template_type == 'keys_doors':
+            elif difficulty == DifficultyLevel.MEDIUM:
                 pddl = self.library.get_keys_doors_medium()
             else:
-                pddl = self.library.get_logistics_medium()
-        else:  # HARD
-            if template_type == 'keys_doors':
                 pddl = self.library.get_keys_doors_hard()
+        else:
+            if difficulty == DifficultyLevel.EASY:
+                pddl = self.library.get_logistics_easy()
             else:
-                pddl = self.library.get_logistics_medium()  # Fallback
+                pddl = self.library.get_logistics_medium()
 
         logger.info(f"Selezionato: {pddl.description}")
-        logger.info(f"Piano atteso: ~{pddl.expected_plan_length} azioni")
-
         return pddl
 
-    def _analyze_lore(self) -> Dict:
-        lore_lower = self.lore.lower()
-        match = re.search(r'genere[:\s]*([^\n|]+)', self.lore, re.IGNORECASE)
-        if match:
-            genre = match.group(1).strip()
-            logger.info(f"Genere rilevato dal testo: {genre}")
-        else:
-            prompt = f"""
-            Leggi la seguente storia e identificane il genere.
-            Scegline esattamente una da questa lista:
-            ["Fantasy", "Romantico", "Drammatico", "Horror", "Commedia", "Fantascienza", "Mistero", "Storico", "Avventura"].
-            Rispondi solo con la parola del genere.
+    def _analyze_lore_with_llm(self) -> Tuple[str, DifficultyLevel]:
+        prompt = f"""
+        Analizza la seguente storia (LORE) e determina come configurare un problema di pianificazione PDDL.
+        LORE:
+        "{self.lore[:2500]}"
+        Devi scegliere:
+        1. TIPO: 
+           - 'keys_doors' (se ci sono dungeon, esplorazione, chiavi, porte, avventura fantasy/mystery)
+           - 'logistics' (se ci sono spostamenti di oggetti, corrieri, veicoli, consegne, sci-fi commerciale)
+        2. DIFFICOLTÀ (basata sulla complessità e lunghezza della storia):
+           - 'easy' (storia breve, pochi luoghi)
+           - 'medium' (storia media, più oggetti)
+           - 'hard' (storia lunga, complessa, molti oggetti)
+        Rispondi ESATTAMENTE con un JSON valido nel seguente formato:
+        {{
+            "type": "keys_doors",
+            "difficulty": "medium"
+        }}
+        Non aggiungere altro testo.
+        """
+        system_prompt = "Sei un assistente AI che classifica storie per la generazione procedurale di livelli."
+        response = call_gpt(prompt, system_prompt)
+        detected_type = 'keys_doors'
+        detected_diff = DifficultyLevel.EASY
+        if response:
+            try:
+                clean_json = response.replace("```json", "").replace("```", "").strip()
+                data = json.loads(clean_json)
+                detected_type = data.get('type', 'keys_doors')
+                diff_str = data.get('difficulty', 'easy')
+                if diff_str == 'hard':
+                    detected_diff = DifficultyLevel.HARD
+                elif diff_str == 'medium':
+                    detected_diff = DifficultyLevel.MEDIUM
+                else:
+                    detected_diff = DifficultyLevel.EASY
 
-            LORE:
-            {self.lore}
-            """
-            system_prompt = "Sei un modello di classificazione del testo che identifica il genere letterario di una determinata storia."
-            result = call_gpt(prompt, system_prompt)
+            except json.JSONDecodeError:
+                logger.error(f"Errore nel parsing del JSON dall'LLM. Uso default. Risposta raw: {response}")
+            except Exception as e:
+                logger.error(f"Errore generico analisi LLM: {e}")
 
-            if result:
-                genre = result.strip().lower()
-                logger.info(f"Genere rilevato da LLM: {genre}")
-            else:
-                genre = "generic"
-                logger.warning("Nessuna risposta valida da LLM, uso 'generic'.")
-
-        depth_min, depth_max = 5, 10
-        depth_patterns = [
-            r'depth[:\s]+(\d+)\s*-\s*(\d+)',
-            r'(\d+)\s*-\s*(\d+)\s+azioni',
-            r'min[:\s]+(\d+).*max[:\s]+(\d+)',
-        ]
-
-        for pattern in depth_patterns:
-            match = re.search(pattern, lore_lower)
-            if match:
-                depth_min = int(match.group(1))
-                depth_max = int(match.group(2))
-                break
-
-        depth_section = re.search(r'depth constraints.*?(\d+)\s*-\s*(\d+)', lore_lower, re.DOTALL)
-        if depth_section:
-            depth_min = int(depth_section.group(1))
-            depth_max = int(depth_section.group(2))
-        if depth_max <= 3:
-            difficulty = DifficultyLevel.EASY
-        elif depth_max <= 5:
-            difficulty = DifficultyLevel.MEDIUM
-        else:
-            difficulty = DifficultyLevel.HARD
-        return {
-            'genre': genre,
-            'depth_min': depth_min,
-            'depth_max': depth_max,
-            'difficulty': difficulty
-        }
+        return detected_type, detected_diff
 
 class PDDLPersonalizer:
     def __init__(self, lore_content: str):
         self.lore = lore_content
 
     def personalize(self, pddl: ValidatedPDDL) -> ValidatedPDDL:
-        names = self._extract_names()
-        if not names['locations'] or not names['characters']:
-            logger.info("Nomi insufficienti nel lore, uso template originale")
+        logger.info("Avvio personalizzazione semantica con LLM...")
+        placeholders = self._extract_placeholders(pddl.problem)
+        if not placeholders:
+            logger.info("Nessun placeholder trovato, salto personalizzazione.")
             return pddl
-
-        logger.info(f"Personalizzo PDDL con nomi dal lore...")
-        domain_personalized = pddl.domain
+        mapping = self._get_mapping_from_llm(placeholders)
+        if not mapping:
+            logger.warning("Mapping fallito o vuoto, uso template originale.")
+            return pddl
         problem_personalized = pddl.problem
-        if 'keys-doors' in pddl.problem:
-            location_mapping = self._create_location_mapping_keys_doors(names['locations'])
-            for old, new in location_mapping.items():
-                problem_personalized = problem_personalized.replace(old, new)
-        if names['characters']:
-            hero_name = self._sanitize_name(names['characters'][0])
-            problem_personalized = problem_personalized.replace('hero', hero_name)
-        logger.info(
-            f"PDDL personalizzato con {len(names['locations'])} location e {len(names['characters'])} personaggi")
+        count = 0
+        for generic, specific in mapping.items():
+            if generic in problem_personalized:
+                safe_name = self._sanitize_name(specific)
+                if safe_name:
+                    problem_personalized = problem_personalized.replace(generic, safe_name)
+                    count += 1
+        logger.info(f"Applicate {count} sostituzioni semantiche.")
         return ValidatedPDDL(
-            domain_personalized,
+            pddl.domain,
             problem_personalized,
             pddl.expected_plan_length,
-            pddl.description + " (personalizzato)"
+            pddl.description + " (Personalizzato AI)"
         )
 
-    def _extract_names(self) -> Dict[str, List[str]]:
-        all_names = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', self.lore)
-        common_words = {'The', 'A', 'An', 'I', 'You', 'He', 'She', 'They', 'We'}
-        all_names = [n for n in all_names if n not in common_words]
-        locations = []
-        characters = []
-        for name in all_names[:10]:  # Max 10
-            if any(kw in name.lower() for kw in ['room', 'hall', 'tower', 'cave', 'forest', 'lab', 'district']):
-                locations.append(name)
-            else:
-                characters.append(name)
-        return {
-            'locations': locations[:6],  # Max 6 location
-            'characters': characters[:3]  # Max 3 personaggi
-        }
+    def _extract_placeholders(self, pddl_text: str) -> List[str]:
 
-    def _create_location_mapping_keys_doors(self, lore_locations: List[str]) -> Dict[str, str]:
-        generic = ['entrance', 'courtyard', 'armory', 'library', 'vault', 'throne_room',
-                   'room1', 'room2', 'hall', 'treasure_room', 'secret_chamber']
-        mapping = {}
-        for i, gen in enumerate(generic):
-            if i < len(lore_locations):
-                new_name = self._sanitize_name(lore_locations[i])
-                mapping[gen] = new_name
-        return mapping
+        known_tokens = [
+            "room1", "room2", "entrance", "hall", "treasure_room", "secret_chamber",
+            "courtyard", "armory", "library", "vault", "throne_room",
+            "hero",
+            "silver_key", "bronze_key", "golden_key", "copper_key", "master_key",
+            "main_door", "treasure_door", "gate1", "gate2", "gate3", "gate4",
+            "warehouse", "shop", "home", "depot",
+            "truck",
+            "parcel", "package", "package1", "package2"
+        ]
+
+        found = []
+        for token in known_tokens:
+            if token in pddl_text:
+                found.append(token)
+        return found
+
+    def _get_mapping_from_llm(self, placeholders: List[str]) -> Dict[str, str]:
+        placeholders_str = ", ".join(placeholders)
+        prompt = f"""
+        Ho una storia e un set di oggetti generici di un template PDDL.
+        Il tuo compito è rinominare gli oggetti generici usando nomi estratti dalla storia, mantenendo coerenza semantica.
+        STORIA:
+        "{self.lore[:2000]}"
+        OGGETTI GENERICI DA RIMPIAZZARE:
+        [{placeholders_str}]
+        ISTRUZIONI:
+        1. Per ogni oggetto generico, trova un nome corrispondente nella storia.
+        2. Esempio: se 'hero' è Mario nella storia, mappa "hero": "mario".
+        3. Esempio: se 'room1' è una Cripta, mappa "room1": "cripta_oscura".
+        4. I nomi devono essere in formato PDDL valido: solo lettere minuscole, numeri e underscore (_). NIENTE SPAZI.
+        5. Se non trovi un nome esatto, inventane uno coerente con il tema della storia.
+        Restituisci ESATTAMENTE un JSON key-value:
+        {{
+            "hero": "nome_nella_storia",
+            "room1": "nome_luogo_1",
+            ...
+        }}
+        """
+        system_prompt = "Sei un esperto di mapping semantico per videogiochi."
+        response = call_gpt(prompt, system_prompt)
+        try:
+            clean_json = response.replace("```json", "").replace("```", "").strip()
+            mapping = json.loads(clean_json)
+            return mapping
+        except Exception as e:
+            logger.error(f"Errore parsing JSON mapping: {e}")
+            return {}
 
     def _sanitize_name(self, name: str) -> str:
         name = name.lower().strip()
-        name = re.sub(r'[^a-z0-9_]', '_', name)
-        name = re.sub(r'_+', '_', name)
-        return name.strip('_')
-
+        name = re.sub(r'\s+', '_', name)
+        name = re.sub(r'[^a-z0-9_]', '', name)
+        return name
 
 class FastDownwardValidator:
     def __init__(self, fd_path: str):
         self.fd_path = Path(fd_path)
         if not self.fd_path.exists():
             raise FileNotFoundError(f"Fast Downward non trovato: {fd_path}")
+
     def validate(self, domain_path: Path, problem_path: Path, save_plan_to: Optional[Path] = None) -> Tuple[
         bool, str, str]:
         python_exe = sys.executable
@@ -533,12 +509,14 @@ class FastDownwardValidator:
             str(problem_path.resolve()),
             "--search", "astar(lmcut())"
         ]
+
         env = os.environ.copy()
         keys_to_remove = [k for k in env.keys() if 'PYCHARM' in k.upper() or 'JETBRAINS' in k.upper()]
         for key in keys_to_remove:
             del env[key]
         if 'PYTHONSTARTUP' in env:
             del env['PYTHONSTARTUP']
+
         try:
             logger.info("Validazione Fast Downward...")
             result = subprocess.run(
@@ -550,6 +528,7 @@ class FastDownwardValidator:
                 env=env
             )
             output = result.stdout + "\n" + result.stderr
+
             if "Solution found!" in output or "Plan found!" in output:
                 possible_locations = [
                     self.fd_path.parent / "sas_plan",
@@ -562,6 +541,7 @@ class FastDownwardValidator:
                         with open(plan_path, 'r') as f:
                             plan_content = f.read()
                         break
+
                 if plan_content:
                     if save_plan_to:
                         output_plan_path = save_plan_to / "sas_plan"
@@ -574,16 +554,15 @@ class FastDownwardValidator:
                         logger.info(f"✓ Piano salvato in: {readable_plan_path}")
                     return True, plan_content, output
                 else:
-                    return True, "Soluzione trovata", output
-            logger.warning("Nessuna soluzione trovata — avvio Reflection Agent per rigenerare il piano...")
+                    return True, "Soluzione trovata (file piano non recuperato)", output
 
+            logger.warning("Nessuna soluzione trovata — avvio Reflection Agent...")
             try:
                 reflection_result = self.run_reflection_agent(domain_path, problem_path)
                 if reflection_result:
                     logger.info("Riprovo la validazione dopo Reflection Agent...")
                     return self.validate(domain_path, problem_path, save_plan_to)
                 else:
-                    logger.error("Reflection Agent non ha generato un nuovo piano valido.")
                     return False, "Reflection fallita: nessuna soluzione trovata", output
             except Exception as e:
                 logger.exception("Errore durante il reflection agent")
@@ -596,34 +575,25 @@ class FastDownwardValidator:
 
     def run_reflection_agent(self, domain_path: Path, problem_path: Path) -> bool:
         try:
-            logger.info("Avvio Reflection Agent per analizzare i file PDDL...")
+            logger.info("Analisi errori PDDL con Reflection Agent...")
             with open(domain_path, "r", encoding="utf-8") as f:
                 domain_content = f.read()
             with open(problem_path, "r", encoding="utf-8") as f:
                 problem_content = f.read()
-            system_prompt = (
-                "Sei un esperto di PDDL. Il tuo compito è analizzare un domain e una definizione di problem "
-                "che non sono riusciti a produrre un piano valido in Fast Downward. Devi identificare problemi strutturali"
-                "o logici (precondizioni mancanti, obiettivi incoerenti, azioni impossibili)"
-                "e produrre una versione corretta che sia comunque fedele allo scenario originale."
-            )
-
+            system_prompt = "Sei un esperto di PDDL. Correggi errori logici in domini e problemi."
             user_prompt = f"""
             Il seguente domain PDDL e il problem non hanno prodotto alcun piano valido.
             Domain:
             {domain_content}
             Problem:
             {problem_content}
-            1. Identifica il problema più probabile che impedisce la generazione del piano.
-            2. Modifica il PDDL il meno possibile per risolvere il problema.
-            3. Mantieni la sintassi rigorosamente valida e coerente con i requisiti di Fast Downward.
-            4. Restituisci solo il domain e il problem corretti, formattati esattamente come:
+            Identifica l'errore (es. locked door senza chiave, grafo non connesso).
+            Restituisci SOLO il domain e il problem corretti, formattati esattamente come:
             ---DOMAIN---
             <domain corretto>
             ---PROBLEM---
             <problem risolto>
             """
-
             response = call_gpt(user_prompt, system_prompt)
             domain_fixed, problem_fixed = None, None
             match_domain = re.search(r"---DOMAIN---(.*?)---PROBLEM---", response, re.DOTALL)
@@ -631,14 +601,17 @@ class FastDownwardValidator:
             if match_domain and match_problem:
                 domain_fixed = match_domain.group(1).strip()
                 problem_fixed = match_problem.group(1).strip()
+
             if not domain_fixed or not problem_fixed:
-                logger.error("Il Reflection Agent non ha restituito un PDDL valido.")
+                logger.error("Il Reflection Agent non ha restituito un formato valido.")
                 return False
+
             with open(domain_path, "w", encoding="utf-8") as f:
                 f.write(domain_fixed)
             with open(problem_path, "w", encoding="utf-8") as f:
                 f.write(problem_fixed)
-            logger.info("Reflection Agent completato: file PDDL aggiornati.")
+
+            logger.info("Reflection Agent: file PDDL aggiornati e salvati.")
             return True
         except Exception as e:
             logger.exception("Errore nel Reflection Agent")
@@ -660,26 +633,27 @@ class FastDownwardValidator:
         readable.append("=" * 60)
         return '\n'.join(readable)
 
-def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: str, personalize: bool = True) -> Tuple[bool, str]:
+def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: str, personalize: bool = True) -> Tuple[
+    bool, str]:
     logger.info("=" * 70)
-    logger.info("GENERAZIONE PDDL - STRATEGIA GARANTITA")
-    logger.info("Usa template pre-validati + personalizzazione sicura (GPT-4o Enhanced)")
+    logger.info("GENERAZIONE PDDL - STRATEGIA IBRIDA (Template + LLM Reasoning)")
     logger.info("=" * 70)
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with open(lore_path, 'r', encoding='utf-8') as f:
         lore_content = f.read()
 
-    logger.info("\nSTEP 1: Selezione template pre-validato...")
+    logger.info("\nSTEP 1: Analisi Lore e Selezione Template...")
     selector = SmartPDDLSelector(lore_content)
     pddl = selector.select_best_pddl()
+
     if personalize:
-        logger.info("\n STEP 2: Personalizzazione nomi...")
+        logger.info("\nSTEP 2: Personalizzazione Semantica...")
         personalizer = PDDLPersonalizer(lore_content)
         pddl = personalizer.personalize(pddl)
     else:
         logger.info("\nSTEP 2: Skip personalizzazione")
+
     logger.info("\nSTEP 3: Salvataggio file...")
     domain_path = output_dir / "domain.pddl"
     problem_path = output_dir / "problem.pddl"
@@ -688,9 +662,11 @@ def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: s
     with open(problem_path, 'w') as f:
         f.write(pddl.problem)
     logger.info(f"✓ File salvati in: {output_dir}")
-    logger.info("\nSTEP 4: Validazione finale...")
+
+    logger.info("\nSTEP 4: Validazione finale con Fast Downward...")
     validator = FastDownwardValidator(fd_path)
     success, message, output = validator.validate(domain_path, problem_path, save_plan_to=output_dir)
+
     if success:
         logger.info("\nSUCCESSO GARANTITO!")
         logger.info(f"File generati:")
@@ -698,75 +674,61 @@ def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: s
         logger.info(f"   - Problem: {problem_path}")
         logger.info(f"   - Piano: {output_dir / 'plan_readable.txt'}")
         aggiunta_commenti_LLM(domain_path, problem_path)
-        return True, "PDDL valido garantito"
+        return True, "PDDL valido generato e personalizzato."
     else:
-        logger.error(f"\nValidazione fallita (imprevisto): {message}")
+        logger.error(f"\nValidazione fallita: {message}")
         return False, f"Errore validazione: {message}"
 
 
 def aggiunta_commenti_LLM(domain_path: Path, problem_path: Path):
-    domain_text = domain_path.read_text(encoding="utf-8")
-    problem_text = problem_path.read_text(encoding="utf-8")
-
-    system_prompt = """Sei un esperto in pianificazione dell'IA e PDDL (Planning Domain Definition Language).
-    Il tuo compito è annotare i file PDDL con commenti in linea chiari e concisi.
-    NON modificare o riordinare alcuna riga e non rimuovere le parentesi.
-    Ogni commento deve essere sulla stessa riga, preceduto da un punto e virgola (;).
-    Mantieni i commenti brevi, chiari e descrittivi in linguaggio naturale.
-    """
-
-    prompt_template = """Di seguito è riportato un file PDDL.
-    Aggiungi un breve commento in linea a ogni riga, spiegando la funzione di quella riga in un linguaggio semplice.
-    NON modificare la struttura, la spaziatura o la sintassi.
-    Aggiungi commenti solo alla fine delle righe, utilizzando ';' come marcatore di commento.
-    Restituisci SOLO il PDDL annotato, nient'altro.
-    FILE PDDL:
-    {content}
-    """
-    print("Aggiunta commenti al domain...")
-    domain_commented = call_gpt(
-        prompt_template.format(content=domain_text),
-        system_prompt
-    )
-
-    print("Aggiunta commenti al problem...")
-    problem_commented = call_gpt(
-        prompt_template.format(content=problem_text),
-        system_prompt
-    )
-    if not domain_commented or not problem_commented:
-        print("Impossibile generare i file commentati. Controlla la connessione OpenAI.")
-        return None
-
-    domain_out = domain_path.parent / f"{domain_path.stem}_commented.pddl"
-    problem_out = problem_path.parent / f"{problem_path.stem}_commented.pddl"
-    domain_out.write_text(domain_commented, encoding="utf-8")
-    problem_out.write_text(problem_commented, encoding="utf-8")
-
-    print(f"File commentati salvati in:\n   - {domain_out}\n   - {problem_out}")
-    return domain_out, problem_out
-
-
-def check_ollama_available() -> bool:
-    return check_openai_available()
+    try:
+        domain_text = domain_path.read_text(encoding="utf-8")
+        problem_text = problem_path.read_text(encoding="utf-8")
+        system_prompt = "Sei un esperto PDDL. Aggiungi commenti brevi dopo ';' per spiegare le righe."
+        prompt_template = """Annota il seguente codice PDDL con commenti. Non modificare la logica.
+        CODICE:
+        {content}
+        """
+        logger.info("Aggiunta commenti al domain...")
+        domain_commented = call_gpt(prompt_template.format(content=domain_text), system_prompt)
+        logger.info("Aggiunta commenti al problem...")
+        problem_commented = call_gpt(prompt_template.format(content=problem_text), system_prompt)
+        if domain_commented and problem_commented:
+            domain_out = domain_path.parent / f"{domain_path.stem}_commented.pddl"
+            problem_out = problem_path.parent / f"{problem_path.stem}_commented.pddl"
+            domain_out.write_text(domain_commented, encoding="utf-8")
+            problem_out.write_text(problem_commented, encoding="utf-8")
+            logger.info(f"File commentati salvati.")
+            return domain_out, problem_out
+    except Exception as e:
+        logger.warning(f"Salto aggiunta commenti per errore: {e}")
+    return None
 
 
 if __name__ == '__main__':
     SCRIPT_DIR = Path(__file__).resolve().parent
     LORE_FILE = SCRIPT_DIR.parent / "Lore" / "Generated_Lore" / "Lore.md"
     OUTPUT_FOLDER = SCRIPT_DIR / "pddl_output_guaranteed"
+
     FAST_DOWNWARD = r"C:\Users\ANGELICA\Desktop\SOFTWARE\FASTDOWNWARD\fast-downward-24.06.1\fast-downward.py"
+
     if not LORE_FILE.exists():
-        print(f" Lore non trovato: {LORE_FILE}")
-        exit(1)
+        logger.error(f"File Lore non trovato: {LORE_FILE}")
+        LORE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(LORE_FILE, "w") as f:
+            f.write(
+                "Genere: Fantasy. Un cavaliere di nome Artu deve trovare la chiave sacra nella foresta proibita per aprire il portale.")
+        logger.info("Creato file Lore di test.")
+
     if not Path(FAST_DOWNWARD).exists():
-        print(f" Fast Downward non trovato: {FAST_DOWNWARD}")
-        exit(1)
-    print("\n Generazione PDDL GARANTITA (GPT Edition)...\n")
-    success, message = generate_valid_pddl_guaranteed(
+        logger.error(f"Fast Downward non trovato a: {FAST_DOWNWARD}")
+        logger.warning("Lo script proseguirà ma la validazione fallirà.")
+
+    print("\n--- Generazione PDDL AI IBRIDA ---\n")
+    success, msg = generate_valid_pddl_guaranteed(
         lore_path=LORE_FILE,
         output_dir=OUTPUT_FOLDER,
         fd_path=FAST_DOWNWARD,
         personalize=True
     )
-    print(message)
+    print("\nESITO:", msg)

@@ -1,56 +1,54 @@
 # Documento di Lore: Nessuna
 
-**Genere:** Giallo | **Tono:** Dark | **Lunghezza:** Medium (5-10 min)
+**Genere:** Giallo | **Tono:** Dark | **Lunghezza:** Short (2-5 min)
 **Generato da:** GPT-4o
 
 ---
 
 ## Contesto Iniziale
 
-La città di Ravenwood, avvolta da una perenne coltre di nebbia, è un luogo che ha visto giorni migliori. Una volta un fiorente centro di commercio e cultura, è ora una città decadente piena di segreti oscuri e vicoli inquietanti. Gli abitanti vivono in uno stato di perpetuo sospetto, dove ogni ombra potrebbe nascondere un pericolo. Negli ultimi mesi, una serie di omicidi inspiegabili ha gettato la popolazione nel panico. Le vittime, apparentemente senza alcun legame tra loro, sono state trovate in diversi quartieri della città, con un solo comune denominatore: un enigmatico simbolo inciso sulla scena del crimine.
+Nella città oscura di Eldergloom, una nebbia perenne avvolge le strade strette e tortuose, oscurando la verità tanto quanto il sole. È una città in cui i segreti si nascondono dietro ogni angolo e la fiducia è una moneta rara. La storia si apre in un piovoso crepuscolo, quando un noto collezionista d'arte viene trovato morto nel suo studio, con la sua collezione di quadri antichi intatta, ad eccezione di un dipinto mancante: "L'Ombra senza Volto". Questo quadro è noto non solo per il suo valore inestimabile, ma anche per la sua misteriosa storia di maledizioni e tragedie. Il giocatore viene coinvolto nel caso come detective privato, incaricato di risolvere il mistero prima che la nebbia di Eldergloom inghiotta ogni indizio.
 
 ## Personaggi Principali (Giocatore e PNG chiave)
 
-- **Il Giocatore/Investigatore**: Un detective privato dal passato tormentato, con una reputazione di risolvere i casi più difficili. La sua mente acuta è oscurata da un'ombra di tragedia personale che lo rende un lupo solitario.
+- **Il Giocatore (Detective):** Un detective privato disilluso ma astuto, noto per il suo acume nel risolvere i casi più intricati. Porta con sé il fardello di un passato tormentato, che lo rende sospettoso di tutti.
 
-- **Elena Blackwood**: Un'influente giornalista locale, sempre alla ricerca di uno scoop. Ha un legame personale con una delle vittime e non si fermerà davanti a nulla per scoprire la verità.
+- **Madame Lysandra:** Una misteriosa collezionista d'arte dai modi eleganti, conosciuta per il suo interesse nei dipinti maledetti. Ha un legame oscuro con il dipinto scomparso.
 
-- **Il Reverendo Caldwell**: Un prete dalla fede vacillante, che gestisce la chiesa in cui molti degli abitanti trovano rifugio. Nasconde un segreto che potrebbe essere la chiave per risolvere il mistero.
+- **Capitano Murdock:** Il capo della polizia locale, un uomo di poche parole ma di molte azioni, che nasconde più di quanto non mostri.
 
-- **Il Dottor Malcolm Graves**: Un rinomato psichiatra che ha trattato alcune delle vittime. È un uomo di scienza ma nasconde un lato oscuro che il giocatore dovrà svelare.
+- **Il Fantasma dell’Artista:** Uno spirito inquieto che si dice perseguiti chiunque possieda "L'Ombra senza Volto". La sua presenza è percepita solo nei momenti di grande tensione.
 
 ## Fazioni/Gruppi di Interesse
 
-- **La Confraternita del Corvo**: Un'antica società segreta con radici in tutta Ravenwood. Si vocifera che siano coinvolti in rituali oscuri e abbiano un ruolo negli omicidi.
+- **La Gilda dei Collezionisti:** Un gruppo elitario di collezionisti d'arte, alcuni dei quali sono disposti a tutto pur di ottenere pezzi rari. Sono noti per la loro influenza e i metodi spietati.
 
-- **La Polizia Locale**: Un gruppo corrotto e inefficace, più interessato a coprire le proprie tracce che a risolvere i crimini. Alcuni membri potrebbero essere alleati, ma di chi ci si può fidare?
-
-- **Il Circolo dei Ribelli**: Un gruppo di cittadini stanchi della corruzione e del degrado, pronti a prendere la giustizia nelle proprie mani. La loro interferenza potrebbe aiutare o complicare l'indagine.
+- **I Guardiani dell’Ombra:** Una setta segreta che venera l'artista defunto, credendo che i suoi quadri siano portali verso altre dimensioni. Temono che il dipinto nelle mani sbagliate possa scatenare disastri.
 
 ## Luoghi Chiave
 
-- **La Biblioteca Abbandonata di Ravenwood**: Un tempo centro di conoscenza, ora luogo di incontri clandestini e indizi oscuri riguardanti la Confraternita.
+- **Studio del Collezionista:** Il luogo del delitto, pieno di quadri inquietanti e sculture contorte. L'aria è pesante di mistero e tensione.
 
-- **Il Vicolo del Corvo**: Una strada stretta e opprimente dove si è verificato il primo omicidio. Le pareti sembrano sussurrare storie di tradimenti e segreti.
+- **La Galleria di Madame Lysandra:** Un luogo opulento e ricco di storia, dove il lusso nasconde segreti oscuri.
 
-- **Il Sanatorio di Ravenwood**: Un ospedale psichiatrico ormai chiuso che ospita documenti sui pazienti e segreti sul Dottor Graves.
-
-- **La Chiesa di San Michele**: Uno dei pochi luoghi di pace rimasti, ma le sue mura nascondono verità scomode.
+- **Cimitero Vecchio di Eldergloom:** Un luogo avvolto da leggende, dove si dice che l'artista sia stato sepolto in una tomba senza nome.
 
 ## Obiettivi Iniziali
 
-1. Esaminare la scena dell'ultimo omicidio per raccogliere indizi cruciali.
-2. Interrogare Elena Blackwood riguardo al suo legame con la vittima.
-3. Infiltrarsi nella Confraternita del Corvo per scoprire le loro vere intenzioni.
+- Indagare sulla scena del crimine e raccogliere indizi relativi alla morte del collezionista e alla scomparsa del dipinto.
+
+- Scoprire i legami tra i personaggi e il quadro maledetto.
+
+- Determinare il ruolo del dipinto nella morte e nella sua storia oscura.
 
 ## Branching Factor (minimo e massimo)
 
-- Minimo: 3 scelte per nodo, garantendo al giocatore una varietà di approcci diversi per ogni situazione.
-- Massimo: 4 scelte per nodo, permettendo una maggiore profondità di trama e possibilità di esplorare diverse strategie.
+- **Minimo:** 2 scelte per nodo
+- **Massimo:** 3 scelte per nodo
 
 ## Depth Constraints (minimo e massimo)
 
-- Minimo: 7 passi necessari per completare la storia, consentendo una risoluzione rapida ma significativa del mistero.
-- Massimo: 12 passi per garantire una narrazione più complessa e dettagliata, esplorando ogni sfumatura del caso.
+- **Minimo:** 3 passi per completare la storia
+- **Massimo:** 6 passi per completare la storia
 
-Questa narrativa gialla, avvolta da un tono oscuro, offre un mondo ricco di intrighi e segreti da svelare, dove ogni decisione porterà il giocatore più vicino alla verità o lo condurrà lungo sentieri pericolosi.
+In questo mondo di ombre e inganni, il giocatore dovrà navigare tra alleanze pericolose e verità nascoste, per svelare il mistero che avvolge "L'Ombra senza Volto". La nebbia di Eldergloom si farà sempre più fitta, e solo il più astuto potrà illuminare le tenebre.

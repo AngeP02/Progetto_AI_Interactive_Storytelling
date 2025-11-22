@@ -2,14 +2,13 @@
 PIANO DI AZIONI
 ============================================================
 
-Step 1: load package1 truck warehouse
-Step 2: move truck warehouse depot
-Step 3: load package2 truck depot
-Step 4: move truck depot shop
-Step 5: unload package2 truck shop
-Step 6: move truck shop home
-Step 7: unload package1 truck home
+Step 1: pick-key detective chiave_di_bronzo ingresso_eldersgloom
+Step 2: unlock detective chiave_di_bronzo porta_principale ingresso_eldersgloom
+Step 3: move detective ingresso_eldersgloom studio_collezionista porta_principale
+Step 4: pick-key detective chiave_dorata studio_collezionista
+Step 5: unlock detective chiave_dorata porta_quadro_scomparso studio_collezionista
+Step 6: move detective studio_collezionista collezione_quadri porta_quadro_scomparso
 
 ============================================================
-Piano completato in 7 passi
+Piano completato in 6 passi
 ============================================================
