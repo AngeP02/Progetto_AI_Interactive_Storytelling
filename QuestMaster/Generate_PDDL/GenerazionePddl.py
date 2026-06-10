@@ -773,7 +773,7 @@ def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: s
                     logger.error("Impossibile fare parsing dei blocchi corretti dal Reflection Agent.")
 
             else:
-                logger.error("❌ L'AI ha fallito l'auto-correzione per 3 volte. ATTIVAZIONE FALLBACK DI EMERGENZA.")
+                logger.error("L'AI ha fallito l'auto-correzione per 3 volte. ATTIVAZIONE FALLBACK DI EMERGENZA.")
                 template_type, difficulty = selector._analyze_lore_with_llm()
                 logger.info(f"Fallback → Selezione automatica template tipo: {template_type}, difficoltà: {difficulty.value}")
                 if template_type == 'keys_doors':

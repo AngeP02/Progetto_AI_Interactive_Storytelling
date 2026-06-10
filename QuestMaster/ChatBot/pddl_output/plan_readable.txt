@@ -2,9 +2,13 @@
 PIANO DI AZIONI
 ============================================================
 
-Step 1: acquire_key arin seguaci_dell_ombra castle_elarion
-Step 2: restore_sigil arin seguaci_dell_ombra castle_elarion
+Step 1: pick-key eroe_prescelto chiave_bronzo ingresso_montagna_ombre
+Step 2: unlock eroe_prescelto chiave_bronzo porta_principale_eldoria ingresso_montagna_ombre
+Step 3: move eroe_prescelto ingresso_montagna_ombre sala_regia porta_principale_eldoria
+Step 4: pick-key eroe_prescelto chiave_oro sala_regia
+Step 5: unlock eroe_prescelto chiave_oro porta_tesoro sala_regia
+Step 6: move eroe_prescelto sala_regia stanza_tesoro_thalorax porta_tesoro
 
 ============================================================
-Piano completato in 2 passi
+Piano completato in 6 passi
 ============================================================

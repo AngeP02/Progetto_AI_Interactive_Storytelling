@@ -1,24 +1,29 @@
 ```markdown
-# SCENARIO GUIDA: La Rinascita di Elarion
+# SCENARIO GUIDA: La Rinascita del Drago Thalorax
 
 ## 1. CONTESTO NARRATIVO
-Nel cuore dell'antico regno di Elarion, un'ombra oscura minaccia di avvolgere la terra. Arin, un fabbricante d'armi dal cuore puro, si trova a dover affrontare un destino inaspettato. La sua missione: ripristinare un antico sigillo magico che protegge il regno dalle forze oscure. In un'epica avventura fantasy, Arin deve navigare tra intrighi di corte e alleanze instabili per salvare Elarion.
+Nel cuore del regno di Eldoria, un antico drago chiamato Thalorax il Conquistatore minaccia di risvegliarsi, portando distruzione. L'Eroe Prescelto, un giovane avventuriero con un'eredità magica, deve fermare il drago con l'aiuto di potenti alleati. La storia è un'epica avventura fantasy in cui il fato del regno è appeso a un filo.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Castello di Elarion
-- **Inventario Iniziale:** Nessuno
-- **Elementi Chiave nella stanza:** Chiave Arcana, Regina Elara, Elder Morghen, Lord Kael
+- **Luogo di partenza:** Ingresso della Montagna delle Ombre
+- **Inventario Iniziale:** Nessun oggetto iniziale
+- **Elementi Chiave nella stanza:** Chiave di bronzo
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- Se Arin è in un luogo e c'è un oggetto, allora può acquisire l'oggetto.
-- Se Arin possiede la Chiave Arcana e si trova al sigillo, allora può ripristinare il sigillo.
+- Se l'Eroe Prescelto si trova in una stanza con una chiave, allora può raccogliere la chiave.
+- Se l'Eroe Prescelto possiede la chiave corretta ed è davanti a una porta chiusa, allora può sbloccare la porta.
+- Se una porta è sbloccata, allora l'Eroe Prescelto può attraversarla per muoversi in una nuova stanza.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Ripristinare il sigillo magico per proteggere il regno di Elarion dalle forze oscure.
+Raggiungere la stanza del tesoro di Thalorax.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-- **Passo 1: acquire_key arin seguaci_dell_ombra castle_elarion** → Arin trova e prende la Chiave Arcana nascosta nel Castello di Elarion, tra le ombre dei traditori.
-- **Passo 2: restore_sigil arin seguaci_dell_ombra castle_elarion** → Con la Chiave Arcana in mano, Arin si avvicina al sigillo magico e, con un gesto solenne, lo ripristina, salvando il regno.
+- Passo 1: pick-key eroe_prescelto chiave_bronzo ingresso_montagna_ombre → L'Eroe Prescelto raccoglie la Chiave di Bronzo all'ingresso della Montagna delle Ombre.
+- Passo 2: unlock eroe_prescelto chiave_bronzo porta_principale_eldoria ingresso_montagna_ombre → L'Eroe Prescelto usa la Chiave di Bronzo per sbloccare la Porta Principale di Eldoria.
+- Passo 3: move eroe_prescelto ingresso_montagna_ombre sala_regia porta_principale_eldoria → L'Eroe Prescelto attraversa la Porta Principale e si sposta nella Sala Regia.
+- Passo 4: pick-key eroe_prescelto chiave_oro sala_regia → L'Eroe Prescelto trova e raccoglie la Chiave d'Oro nella Sala Regia.
+- Passo 5: unlock eroe_prescelto chiave_oro porta_tesoro sala_regia → L'Eroe Prescelto usa la Chiave d'Oro per sbloccare la Porta del Tesoro.
+- Passo 6: move eroe_prescelto sala_regia stanza_tesoro_thalorax porta_tesoro → L'Eroe Prescelto attraversa la Porta del Tesoro e arriva nella Stanza del Tesoro di Thalorax.
 
 ## 6. VINCOLI DI GIOCO
 - **MaxDepth:** 12

@@ -1,29 +1,23 @@
-(define (problem elarion-rescue)
-  (:domain elarion)
-  
-  (:objects
-    arin - hero
-    queen_elara elder_morghen lord_kael - character
-    castle_elarion forest_luminara catacombs_morvaan - location
-    key_arcane - object
-    guardiani_delle_rune clan_dei_forgiatori seguaci_dell_ombra - faction
-  )
-  
-  (:init
-    (at arin castle_elarion)
-    (at queen_elara castle_elarion)
-    (at elder_morghen castle_elarion)
-    (at lord_kael castle_elarion)
-    (clear_path castle_elarion forest_luminara)
-    (clear_path forest_luminara catacombs_morvaan)
-    (aligned arin clan_dei_forgiatori)
-    (aligned queen_elara guardiani_delle_rune)
-    (aligned lord_kael seguaci_dell_ombra)
-    (not (sigil_intact))
-    (at key_arcane castle_elarion) ; Aggiunto per permettere ad arin di acquisire la chiave
-  )
-  
-  (:goal
-    (sigil_intact)
-  )
-)
+(define (problem quest-medium)
+                  (:domain keys-doors-simple)
+                  (:objects
+                    ingresso_montagna_ombre sala_regia stanza_tesoro_thalorax cella_magica - location
+                    eroe_prescelto - agent
+                    chiave_bronzo chiave_oro - key
+                    porta_principale_eldoria porta_tesoro - door
+                  )
+                  (:init
+                    (at eroe_prescelto ingresso_montagna_ombre)
+                    (key-at chiave_bronzo ingresso_montagna_ombre)
+                    (key-at chiave_oro sala_regia)
+                    (door-between porta_principale_eldoria ingresso_montagna_ombre sala_regia)
+                    (door-between porta_tesoro sala_regia stanza_tesoro_thalorax)
+                    (locked porta_principale_eldoria)
+                    (locked porta_tesoro)
+                    (unlocks chiave_bronzo porta_principale_eldoria)
+                    (unlocks chiave_oro porta_tesoro)
+                  )
+                  (:goal
+                    (at eroe_prescelto stanza_tesoro_thalorax)
+                  )
+                )
