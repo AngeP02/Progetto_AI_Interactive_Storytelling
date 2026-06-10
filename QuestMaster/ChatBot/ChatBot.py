@@ -13,6 +13,7 @@ from openai import OpenAI
 from QuestMaster.Generate_PDDL.GenerazionePddl import generate_valid_pddl_guaranteed
 from QuestMaster.Lore.GenerazioneLore import generate_lore_document
 from QuestMaster.Game import CreazioneGioco, QuestPlan
+import base64
 
 load_dotenv()
 
@@ -62,27 +63,44 @@ class QuestMasterLLM:
 
     def generate_cover_image(self, lore_text, output_path):
         try:
-            system_prompt = "You are an expert visual artist and prompt engineer for generative AI."
-            summary_prompt = f"""Read the following backstory (Lore) and create a detailed, atmospheric visual description suitable for a book cover image. Focus on the main setting, mood, and central conflict. The description should be vivid and concise (max 100 words).
-            LORE:
-            {lore_text[:2000]}
-            """
+            system_prompt = "Sei un esperto artista visivo e ingegnere di prompt per l'IA generativa."
+            summary_prompt = f"""Leggi il seguente testo (Lore) e crea una descrizione visiva dettagliata e suggestiva, 
+            adatta all'immagine di copertina di un libro/storia. 
+            Concentrati sull'ambientazione principale, sull'atmosfera e sul conflitto centrale.
+            La descrizione deve essere vivida e concisa (massimo 50 parole).
+              LORE:
+              {lore_text[:2000]}
+              """
             visual_description = self.call_gpt(summary_prompt, system_prompt)
-            logger.info(f"DALL-E Prompt generated: {visual_description}")
+            logger.info(f"Prompt generated: {visual_description}")
             response = self.client.images.generate(
-                model="dall-e-3",
+                model="gpt-image-1-mini",
                 prompt=f"A book cover illustration. {visual_description} Digital art style, detailed, cinematic lighting.",
                 size="1024x1024",
-                quality="standard",
+                quality="low",
                 n=1,
             )
-            image_url = response.data[0].url
-            img_data = requests.get(image_url).content
-            with open(output_path, 'wb') as handler:
-                handler.write(img_data)
-            return True, "Immagine generata e salvata."
+
+            image_obj = response.data[0]
+            img_data = None
+            if hasattr(image_obj, 'url') and image_obj.url:
+                img_data = requests.get(image_obj.url).content
+            elif hasattr(image_obj, 'b64_json') and image_obj.b64_json:
+                img_data = base64.b64decode(image_obj.b64_json)
+            elif isinstance(image_obj, dict):
+                if image_obj.get('url'):
+                    img_data = requests.get(image_obj['url']).content
+                elif image_obj.get('b64_json'):
+                    img_data = base64.b64decode(image_obj['b64_json'])
+            if img_data:
+                with open(output_path, 'wb') as handler:
+                    handler.write(img_data)
+                return True, "Immagine generata e salvata con successo."
+            else:
+                raise ValueError(f"Impossibile estrarre i dati dell'immagine dalla risposta dell'API: {image_obj}")
+
         except Exception as e:
-            logger.error(f"Errore generazione immagine DALL-E: {e}")
+            logger.error(f"Errore generazione immagine: {e}")
             return False, f"Errore generazione immagine: {str(e)}"
 
     def generate_welcome_message(self):
@@ -357,6 +375,41 @@ def chat():
         logger.exception("Chat Error")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/apply-reflection', methods=['POST'])
+def apply_reflection():
+    try:
+        data = request.json
+        reflection_text = data.get('reflection_text', '')
+
+        import re
+        match_domain = re.search(r"---DOMAIN---(.*?)---PROBLEM---", reflection_text, re.DOTALL)
+        match_problem = re.search(r"---PROBLEM---(.*)", reflection_text, re.DOTALL)
+
+        if not match_domain or not match_problem:
+            return jsonify({'success': False, 'error': 'Formato suggerimento non valido.'})
+
+        domain_fixed = match_domain.group(1).strip()
+        problem_fixed = match_problem.group(1).strip()
+
+        domain_path = OUTPUT_FOLDER / "domain.pddl"
+        problem_path = OUTPUT_FOLDER / "problem.pddl"
+
+        with open(domain_path, 'w', encoding='utf-8') as f:
+            f.write(domain_fixed)
+        with open(problem_path, 'w', encoding='utf-8') as f:
+            f.write(problem_fixed)
+
+        from QuestMaster.Generate_PDDL.GenerazionePddl import FastDownwardValidator
+        validator = FastDownwardValidator(FAST_DOWNWARD)
+        success, message, _ = validator.validate(domain_path, problem_path, save_plan_to=OUTPUT_FOLDER)
+
+        return jsonify({
+            'success': success,
+            'message': 'Correzioni applicate e PDDL rivalidato.' if success else f'Rivalidazione fallita: {message}'
+        })
+    except Exception as e:
+        logger.exception("Errore apply-reflection")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/generate-quest-stream', methods=['GET'])
 def generate_quest_stream():
@@ -383,7 +436,8 @@ def generate_quest_stream():
             return
 
         cover_image_filename = None
-        if config.get('graphics') == 'Illustrated':
+        graphics_pref = str(config.get('graphics', '')).lower()
+        if 'illustrat' in graphics_pref:
             yield f"data: {json.dumps({'step': 'illustration', 'status': 'running', 'message': 'Painting Cover Art (DALL-E 3)...'})}\n\n"
             try:
                 cover_image_filename = f"cover.jpg"
@@ -397,7 +451,6 @@ def generate_quest_stream():
             except Exception as e:
                 logger.exception("Image generation failed")
                 yield f"data: {json.dumps({'step': 'illustration', 'status': 'error', 'message': str(e)})}\n\n"
-
         yield f"data: {json.dumps({'step': 'pddl', 'status': 'running', 'message': 'Calculating PDDL Logic...'})}\n\n"
         try:
             success, msg = generate_valid_pddl_guaranteed(
@@ -406,8 +459,17 @@ def generate_quest_stream():
                 fd_path=FAST_DOWNWARD,
                 personalize=True
             )
-            status = 'complete' if success else 'error'
-            yield f"data: {json.dumps({'step': 'pddl', 'status': status, 'message': msg})}\n\n"
+            if success:
+                yield f"data: {json.dumps({'step': 'pddl', 'status': 'complete', 'message': msg})}\n\n"
+            elif "REFLECTION_PENDING::" in msg:
+                suggestion = msg.split("REFLECTION_PENDING::", 1)[1]
+                explanation = suggestion.split("---DOMAIN---")[0].replace("---SPIEGAZIONE---", "").strip()
+                session['reflection_suggestion'] = suggestion
+                yield f"data: {json.dumps({'step': 'pddl', 'status': 'reflection_needed', 'message': explanation, 'full_suggestion': suggestion})}\n\n"
+                return
+            else:
+                yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': msg})}\n\n"
+                return
         except Exception as e:
             yield f"data: {json.dumps({'step': 'pddl', 'status': 'error', 'message': str(e)})}\n\n"
             return
@@ -480,7 +542,7 @@ def update_and_regenerate():
     try:
         data = request.json
         new_lore = data.get('lore', '')
-        name_changes = data.get('names', {})  # Dizionario { old_name: new_name }
+        name_changes = data.get('names', {})
         if new_lore:
             with open(LORE_FILE, 'w', encoding='utf-8') as f:
                 f.write(new_lore)

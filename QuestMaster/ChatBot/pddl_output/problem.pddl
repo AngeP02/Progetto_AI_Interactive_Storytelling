@@ -1,23 +1,29 @@
-(define (problem quest-medium)
-                  (:domain keys-doors-simple)
-                  (:objects
-                    ingresso_eldersgloom studio_collezionista collezione_quadri camera_segreta - location
-                    detective - agent
-                    chiave_di_bronzo chiave_dorata - key
-                    porta_principale porta_quadro_scomparso - door
-                  )
-                  (:init
-                    (at detective ingresso_eldersgloom)
-                    (key-at chiave_di_bronzo ingresso_eldersgloom)
-                    (key-at chiave_dorata studio_collezionista)
-                    (door-between porta_principale ingresso_eldersgloom studio_collezionista)
-                    (door-between porta_quadro_scomparso studio_collezionista collezione_quadri)
-                    (locked porta_principale)
-                    (locked porta_quadro_scomparso)
-                    (unlocks chiave_di_bronzo porta_principale)
-                    (unlocks chiave_dorata porta_quadro_scomparso)
-                  )
-                  (:goal
-                    (at detective collezione_quadri)
-                  )
-                )
+(define (problem elarion-rescue)
+  (:domain elarion)
+  
+  (:objects
+    arin - hero
+    queen_elara elder_morghen lord_kael - character
+    castle_elarion forest_luminara catacombs_morvaan - location
+    key_arcane - object
+    guardiani_delle_rune clan_dei_forgiatori seguaci_dell_ombra - faction
+  )
+  
+  (:init
+    (at arin castle_elarion)
+    (at queen_elara castle_elarion)
+    (at elder_morghen castle_elarion)
+    (at lord_kael castle_elarion)
+    (clear_path castle_elarion forest_luminara)
+    (clear_path forest_luminara catacombs_morvaan)
+    (aligned arin clan_dei_forgiatori)
+    (aligned queen_elara guardiani_delle_rune)
+    (aligned lord_kael seguaci_dell_ombra)
+    (not (sigil_intact))
+    (at key_arcane castle_elarion) ; Aggiunto per permettere ad arin di acquisire la chiave
+  )
+  
+  (:goal
+    (sigil_intact)
+  )
+)

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from dotenv import load_dotenv
 from openai import OpenAI
+import re
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -335,52 +336,96 @@ class PDDLLibrary:
                 )"""
         return ValidatedPDDL(domain, problem, 11, "Medium logistics: deliver 2 packages")
 
+
 class SmartPDDLSelector:
     def __init__(self, lore_content: str):
         self.lore = lore_content
         self.library = PDDLLibrary()
+
     def select_best_pddl(self) -> ValidatedPDDL:
-        logger.info("Avvio analisi LLM per selezione Template PDDL...")
+        logger.info("STEP 1a: Tentativo generazione PDDL da Lore con LLM...")
+        generated = self._generate_pddl_from_lore()
+        if generated:
+            logger.info("Generazione LLM riuscita.")
+            return generated
+        logger.warning("Generazione LLM fallita, fallback su template...")
         template_type, difficulty = self._analyze_lore_with_llm()
-        logger.info(f"Analisi LLM completata:")
-        logger.info(f"   - Tipo Scenario: {template_type}")
-        logger.info(f"   - Difficoltà: {difficulty}")
-        pddl = None
+        logger.info(f"Fallback → tipo: {template_type}, difficoltà: {difficulty}")
         if template_type == 'keys_doors':
             if difficulty == DifficultyLevel.EASY:
-                pddl = self.library.get_keys_doors_easy()
+                return self.library.get_keys_doors_easy()
             elif difficulty == DifficultyLevel.MEDIUM:
-                pddl = self.library.get_keys_doors_medium()
+                return self.library.get_keys_doors_medium()
             else:
-                pddl = self.library.get_keys_doors_hard()
+                return self.library.get_keys_doors_hard()
         else:
             if difficulty == DifficultyLevel.EASY:
-                pddl = self.library.get_logistics_easy()
+                return self.library.get_logistics_easy()
             else:
-                pddl = self.library.get_logistics_medium()
+                return self.library.get_logistics_medium()
 
-        logger.info(f"Selezionato: {pddl.description}")
-        return pddl
+    def _generate_pddl_from_lore(self) -> Optional[ValidatedPDDL]:
+        depth_match = re.search(r"[Dd]epth.*?(\d+)\s*[-–]\s*(\d+)", self.lore)
+        branch_match = re.search(r"[Bb]ranching.*?(\d+)\s*[-–]\s*(\d+)", self.lore)
+        max_depth = int(depth_match.group(2)) if depth_match else 10
+        max_branch = int(branch_match.group(2)) if branch_match else 3
+
+        prompt = f"""
+            Sei un esperto di PDDL (Planning Domain Definition Language) per videogiochi narrativi.
+            Devi generare un dominio e un problema PDDL basandoti ESCLUSIVAMENTE sulla storia seguente.
+            
+            STORIA (LORE):
+            {self.lore[:3000]}
+            
+            VINCOLI DI PIANIFICAZIONE:
+            - Il piano soluzione deve avere tra 3 e {max_depth} azioni.
+            - Ogni stato deve avere tra 2 e {max_branch} azioni applicabili (branching factor).
+            
+            ISTRUZIONI:
+            1. Crea tipi, predicati e azioni coerenti con il mondo della storia (non usare nomi generici come "room1" o "hero").
+            2. Il dominio deve avere almeno 3 azioni distinte.
+            3. Il problema deve avere uno stato iniziale e un goal chiaramente raggiungibili.
+            4. Il PDDL deve essere sintatticamente corretto e risolvibile.
+            5. Usa solo :requirements :strips :typing.
+            
+            Restituisci SOLO nel formato seguente, senza altro testo:
+            ---DOMAIN---
+            (define (domain ...)
+              ...
+            )
+            ---PROBLEM---
+            (define (problem ...)
+              ...
+            )
+        """
+        system_prompt = "Sei un esperto PDDL. Rispondi SOLO con il codice PDDL richiesto, nel formato esatto."
+        response = call_gpt(prompt, system_prompt)
+
+        if not response:
+            return None
+        try:
+            match_domain = re.search(r"---DOMAIN---(.*?)---PROBLEM---", response, re.DOTALL)
+            match_problem = re.search(r"---PROBLEM---(.*)", response, re.DOTALL)
+            if not match_domain or not match_problem:
+                logger.warning("LLM non ha rispettato il formato richiesto.")
+                return None
+            domain = match_domain.group(1).strip()
+            problem = match_problem.group(1).strip()
+            if "(define" not in domain or "(define" not in problem:
+                logger.warning("PDDL generato malformato.")
+                return None
+            return ValidatedPDDL(domain, problem, max_depth, "Generato da Lore (LLM)")
+        except Exception as e:
+            logger.error(f"Errore parsing PDDL generato da LLM: {e}")
+            return None
 
     def _analyze_lore_with_llm(self) -> Tuple[str, DifficultyLevel]:
         prompt = f"""
-        Analizza la seguente storia (LORE) e determina come configurare un problema di pianificazione PDDL.
-        LORE:
-        "{self.lore[:2500]}"
-        Devi scegliere:
-        1. TIPO: 
-           - 'keys_doors' (se ci sono dungeon, esplorazione, chiavi, porte, avventura fantasy/mystery)
-           - 'logistics' (se ci sono spostamenti di oggetti, corrieri, veicoli, consegne, sci-fi commerciale)
-        2. DIFFICOLTÀ (basata sulla complessità e lunghezza della storia):
-           - 'easy' (storia breve, pochi luoghi)
-           - 'medium' (storia media, più oggetti)
-           - 'hard' (storia lunga, complessa, molti oggetti)
-        Rispondi ESATTAMENTE con un JSON valido nel seguente formato:
-        {{
-            "type": "keys_doors",
-            "difficulty": "medium"
-        }}
-        Non aggiungere altro testo.
+            Analizza la seguente storia (LORE) e determina come configurare un problema di pianificazione PDDL.
+            LORE: "{self.lore[:2500]}"
+            Rispondi ESATTAMENTE con un JSON valido:
+            {{"type": "keys_doors", "difficulty": "medium"}}
+            Non aggiungere altro testo.
         """
         system_prompt = "Sei un assistente AI che classifica storie per la generazione procedurale di livelli."
         response = call_gpt(prompt, system_prompt)
@@ -392,18 +437,11 @@ class SmartPDDLSelector:
                 data = json.loads(clean_json)
                 detected_type = data.get('type', 'keys_doors')
                 diff_str = data.get('difficulty', 'easy')
-                if diff_str == 'hard':
-                    detected_diff = DifficultyLevel.HARD
-                elif diff_str == 'medium':
-                    detected_diff = DifficultyLevel.MEDIUM
-                else:
-                    detected_diff = DifficultyLevel.EASY
-
-            except json.JSONDecodeError:
-                logger.error(f"Errore nel parsing del JSON dall'LLM. Uso default. Risposta raw: {response}")
+                detected_diff = (DifficultyLevel.HARD if diff_str == 'hard'
+                                 else DifficultyLevel.MEDIUM if diff_str == 'medium'
+                                 else DifficultyLevel.EASY)
             except Exception as e:
-                logger.error(f"Errore generico analisi LLM: {e}")
-
+                logger.error(f"Errore analisi LLM fallback: {e}")
         return detected_type, detected_diff
 
 class PDDLPersonalizer:
@@ -458,24 +496,24 @@ class PDDLPersonalizer:
     def _get_mapping_from_llm(self, placeholders: List[str]) -> Dict[str, str]:
         placeholders_str = ", ".join(placeholders)
         prompt = f"""
-        Ho una storia e un set di oggetti generici di un template PDDL.
-        Il tuo compito è rinominare gli oggetti generici usando nomi estratti dalla storia, mantenendo coerenza semantica.
-        STORIA:
-        "{self.lore[:2000]}"
-        OGGETTI GENERICI DA RIMPIAZZARE:
-        [{placeholders_str}]
-        ISTRUZIONI:
-        1. Per ogni oggetto generico, trova un nome corrispondente nella storia.
-        2. Esempio: se 'hero' è Mario nella storia, mappa "hero": "mario".
-        3. Esempio: se 'room1' è una Cripta, mappa "room1": "cripta_oscura".
-        4. I nomi devono essere in formato PDDL valido: solo lettere minuscole, numeri e underscore (_). NIENTE SPAZI.
-        5. Se non trovi un nome esatto, inventane uno coerente con il tema della storia.
-        Restituisci ESATTAMENTE un JSON key-value:
-        {{
-            "hero": "nome_nella_storia",
-            "room1": "nome_luogo_1",
-            ...
-        }}
+            Hai una storia e un set di oggetti generici di un template PDDL.
+            Il tuo compito è rinominare gli oggetti generici usando nomi estratti dalla storia, mantenendo coerenza semantica.
+            STORIA:
+            "{self.lore[:2000]}"
+            OGGETTI GENERICI DA RIMPIAZZARE:
+            [{placeholders_str}]
+            ISTRUZIONI:
+            1. Per ogni oggetto generico, trova un nome corrispondente nella storia.
+            2. Esempio: se 'hero' è Mario nella storia, mappa "hero": "mario".
+            3. Esempio: se 'room1' è una Cripta, mappa "room1": "cripta_oscura".
+            4. I nomi devono essere in formato PDDL valido: solo lettere minuscole, numeri e underscore (_). NIENTE SPAZI.
+            5. Se non trovi un nome esatto, inventane uno coerente con il tema della storia.
+            Restituisci ESATTAMENTE un JSON key-value:
+            {{
+                "hero": "nome_nella_storia",
+                "room1": "nome_luogo_1",
+                ...
+            }}
         """
         system_prompt = "Sei un esperto di mapping semantico per videogiochi."
         response = call_gpt(prompt, system_prompt)
@@ -555,15 +593,10 @@ class FastDownwardValidator:
                     return True, plan_content, output
                 else:
                     return True, "Soluzione trovata (file piano non recuperato)", output
-
-            logger.warning("Nessuna soluzione trovata — avvio Reflection Agent...")
+            logger.warning("Nessuna soluzione trovata — avvio analisi Reflection Agent")
             try:
-                reflection_result = self.run_reflection_agent(domain_path, problem_path)
-                if reflection_result:
-                    logger.info("Riprovo la validazione dopo Reflection Agent...")
-                    return self.validate(domain_path, problem_path, save_plan_to)
-                else:
-                    return False, "Reflection fallita: nessuna soluzione trovata", output
+                suggestion = self.get_reflection_suggestion(domain_path, problem_path)
+                return False, f"REFLECTION_PENDING::{suggestion}", output
             except Exception as e:
                 logger.exception("Errore durante il reflection agent")
                 return False, f"Errore reflection: {e}", output
@@ -633,6 +666,37 @@ class FastDownwardValidator:
         readable.append("=" * 60)
         return '\n'.join(readable)
 
+    def get_reflection_suggestion(self, domain_path: Path, problem_path: Path) -> str:
+        try:
+            with open(domain_path, "r", encoding="utf-8") as f:
+                domain_content = f.read()
+            with open(problem_path, "r", encoding="utf-8") as f:
+                problem_content = f.read()
+
+            system_prompt = "Sei un esperto di PDDL. Analizza errori logici e proponi correzioni."
+            user_prompt = f"""
+                Il seguente domain PDDL e problem non producono un piano valido.
+                Domain:
+                {domain_content}
+                Problem:
+                {problem_content}
+    
+                Identifica il problema (es. porta bloccata senza chiave, grafo non connesso).
+                Spiega in italiano (2-3 frasi) qual è l'errore e come correggerlo.
+                Poi restituisci i file corretti nel formato ESATTO:
+                ---SPIEGAZIONE---
+                <spiegazione breve dell'errore>
+                ---DOMAIN---
+                <domain corretto>
+                ---PROBLEM---
+                <problem corretto>
+            """
+            return call_gpt(user_prompt, system_prompt)
+        except Exception as e:
+            logger.exception("Errore get_reflection_suggestion")
+            return f"Impossibile analizzare il PDDL: {e}"
+
+
 def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: str, personalize: bool = True) -> Tuple[
     bool, str]:
     logger.info("=" * 70)
@@ -644,8 +708,19 @@ def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: s
         lore_content = f.read()
 
     logger.info("\nSTEP 1: Analisi Lore e Selezione Template...")
+
+    depth_match = re.search(r"[Dd]epth.*?(\d+)\s*[-–]\s*(\d+)", lore_content)
+    max_depth = int(depth_match.group(2)) if depth_match else 10
+    logger.info(f"Vincolo MaxDepth rilevato dalla Lore: {max_depth}")
+
     selector = SmartPDDLSelector(lore_content)
     pddl = selector.select_best_pddl()
+
+    if pddl.expected_plan_length > max_depth:
+        logger.warning(
+            f"Il template selezionato ha piano atteso di {pddl.expected_plan_length} passi, "
+            f"superiore al MaxDepth della Lore ({max_depth})."
+        )
 
     if personalize:
         logger.info("\nSTEP 2: Personalizzazione Semantica...")
@@ -657,29 +732,80 @@ def generate_valid_pddl_guaranteed(lore_path: Path, output_dir: Path, fd_path: s
     logger.info("\nSTEP 3: Salvataggio file...")
     domain_path = output_dir / "domain.pddl"
     problem_path = output_dir / "problem.pddl"
-    with open(domain_path, 'w') as f:
+
+    with open(domain_path, 'w', encoding='utf-8') as f:
         f.write(pddl.domain)
-    with open(problem_path, 'w') as f:
+    with open(problem_path, 'w', encoding='utf-8') as f:
         f.write(pddl.problem)
     logger.info(f"✓ File salvati in: {output_dir}")
 
-    logger.info("\nSTEP 4: Validazione finale con Fast Downward...")
+    logger.info("\nSTEP 4: Validazione finale con Fast Downward ed eventuale Reflection...")
     validator = FastDownwardValidator(fd_path)
-    success, message, output = validator.validate(domain_path, problem_path, save_plan_to=output_dir)
 
-    if success:
-        logger.info("\nSUCCESSO GARANTITO!")
-        logger.info(f"File generati:")
-        logger.info(f"   - Domain: {domain_path}")
-        logger.info(f"   - Problem: {problem_path}")
-        logger.info(f"   - Piano: {output_dir / 'plan_readable.txt'}")
-        aggiunta_commenti_LLM(domain_path, problem_path)
-        return True, "PDDL valido generato e personalizzato."
-    else:
-        logger.error(f"\nValidazione fallita: {message}")
-        return False, f"Errore validazione: {message}"
+    MAX_ATTEMPTS = 3  # Numero massimo di tentativi di auto-correzione
 
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        logger.info(f"--- Tentativo di validazione {attempt}/{MAX_ATTEMPTS} ---")
+        success, message, output = validator.validate(domain_path, problem_path, save_plan_to=output_dir)
 
+        if success:
+            logger.info("\nSUCCESSO GARANTITO!")
+            logger.info(f"File generati e validati con successo al tentativo {attempt}.")
+            aggiunta_commenti_LLM(domain_path, problem_path)
+            return True, "PDDL valido generato e personalizzato con successo."
+
+        if "REFLECTION_PENDING::" in message:
+            if attempt < MAX_ATTEMPTS:
+                logger.warning(f"Validazione fallita. L'Agente di Reflection tenta l'auto-correzione automatica...")
+                raw_suggestion = message.split("REFLECTION_PENDING::", 1)[1]
+                match_domain = re.search(r"---DOMAIN---(.*?)---PROBLEM---", raw_suggestion, re.DOTALL)
+                match_problem = re.search(r"---PROBLEM---(.*)", raw_suggestion, re.DOTALL)
+
+                if match_domain and match_problem:
+                    domain_fixed = re.sub(r"```[a-zA-Z]*", "", match_domain.group(1)).replace("```", "").strip()
+                    problem_fixed = re.sub(r"```[a-zA-Z]*", "", match_problem.group(1)).replace("```", "").strip()
+                    domain_path.write_text(domain_fixed, encoding="utf-8")
+                    problem_path.write_text(problem_fixed, encoding="utf-8")
+                    logger.info(
+                        f"✓ File PDDL aggiornati automaticamente dall'Agente (Pronto per il tentativo {attempt + 1}).")
+                    continue
+                else:
+                    logger.error("Impossibile fare parsing dei blocchi corretti dal Reflection Agent.")
+
+            else:
+                logger.error("❌ L'AI ha fallito l'auto-correzione per 3 volte. ATTIVAZIONE FALLBACK DI EMERGENZA.")
+                template_type, difficulty = selector._analyze_lore_with_llm()
+                logger.info(f"Fallback → Selezione automatica template tipo: {template_type}, difficoltà: {difficulty.value}")
+                if template_type == 'keys_doors':
+                    if difficulty == DifficultyLevel.EASY:
+                        safe_pddl = selector.library.get_keys_doors_easy()
+                    elif difficulty == DifficultyLevel.MEDIUM:
+                        safe_pddl = selector.library.get_keys_doors_medium()
+                    else:
+                        safe_pddl = selector.library.get_keys_doors_hard()
+                else:
+                    if difficulty == DifficultyLevel.EASY:
+                        safe_pddl = selector.library.get_logistics_easy()
+                    else:
+                        safe_pddl = selector.library.get_logistics_medium()
+                if personalize:
+                    logger.info("Avvio personalizzazione semantica del template di emergenza...")
+                    personalizer = PDDLPersonalizer(lore_content)
+                    safe_pddl = personalizer.personalize(safe_pddl)
+                domain_path.write_text(safe_pddl.domain, encoding="utf-8")
+                problem_path.write_text(safe_pddl.problem, encoding="utf-8")
+
+                success_fb, msg_fb, _ = validator.validate(domain_path, problem_path, save_plan_to=output_dir)
+
+                if success_fb:
+                    aggiunta_commenti_LLM(domain_path, problem_path)
+                    return True, "Generazione completata con successo tramite Template di Fallback strutturato."
+                else:
+                    return False, f"Errore critico. Anche il template di fallback ha fallito la validazione: {msg_fb}"
+        else:
+            return False, message
+
+    return False, "Impossibile generare un PDDL valido."
 def aggiunta_commenti_LLM(domain_path: Path, problem_path: Path):
     try:
         domain_text = domain_path.read_text(encoding="utf-8")

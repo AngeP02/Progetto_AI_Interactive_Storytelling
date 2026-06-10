@@ -1,30 +1,26 @@
 ```markdown
-# SCENARIO GUIDA: L'Ombra senza Volto
+# SCENARIO GUIDA: La Rinascita di Elarion
 
 ## 1. CONTESTO NARRATIVO
-Nella città oscura di Eldergloom, una perenne nebbia avvolge le strade tortuose, celando segreti e verità. In questo ambiente tetro, il giocatore assume il ruolo di un detective privato e astuto, incaricato di risolvere il mistero della morte di un collezionista d'arte e della scomparsa di un dipinto maledetto noto come "L'Ombra senza Volto". Il tono è cupo e misterioso, riflettendo le complessità e i pericoli della città.
+Nel cuore dell'antico regno di Elarion, un'ombra oscura minaccia di avvolgere la terra. Arin, un fabbricante d'armi dal cuore puro, si trova a dover affrontare un destino inaspettato. La sua missione: ripristinare un antico sigillo magico che protegge il regno dalle forze oscure. In un'epica avventura fantasy, Arin deve navigare tra intrighi di corte e alleanze instabili per salvare Elarion.
 
 ## 2. STATO INIZIALE
-- **Luogo di partenza:** Ingresso di Eldergloom
-- **Inventario Iniziale:** Nessun oggetto
-- **Elementi Chiave nella stanza:** Chiave di bronzo, porta principale chiusa
+- **Luogo di partenza:** Castello di Elarion
+- **Inventario Iniziale:** Nessuno
+- **Elementi Chiave nella stanza:** Chiave Arcana, Regina Elara, Elder Morghen, Lord Kael
 
 ## 3. REGOLE DEL MONDO (Logica Semplificata)
-- Se il detective è in una stanza con una chiave, allora può raccoglierla.
-- Se il detective possiede la chiave corretta, allora può sbloccare la porta corrispondente.
-- Se la porta è sbloccata, allora il detective può attraversarla per spostarsi in un'altra stanza.
+- Se Arin è in un luogo e c'è un oggetto, allora può acquisire l'oggetto.
+- Se Arin possiede la Chiave Arcana e si trova al sigillo, allora può ripristinare il sigillo.
 
 ## 4. OBIETTIVO FINALE (GOAL)
-Il detective deve raggiungere la collezione di quadri per risolvere il mistero e trovare il dipinto "L'Ombra senza Volto".
+Ripristinare il sigillo magico per proteggere il regno di Elarion dalle forze oscure.
 
 ## 5. SEQUENZA DI EVENTI (Suggerita)
-1. Raccogliere la chiave di bronzo all'ingresso di Eldergloom.
-2. Usare la chiave di bronzo per sbloccare la porta principale ed entrare nello studio del collezionista.
-3. Raccogliere la chiave dorata nello studio del collezionista.
-4. Usare la chiave dorata per sbloccare la porta del quadro scomparso.
-5. Entrare nella collezione di quadri per completare il caso.
+- **Passo 1: acquire_key arin seguaci_dell_ombra castle_elarion** → Arin trova e prende la Chiave Arcana nascosta nel Castello di Elarion, tra le ombre dei traditori.
+- **Passo 2: restore_sigil arin seguaci_dell_ombra castle_elarion** → Con la Chiave Arcana in mano, Arin si avvicina al sigillo magico e, con un gesto solenne, lo ripristina, salvando il regno.
 
 ## 6. VINCOLI DI GIOCO
-- **MaxDepth:** 6
+- **MaxDepth:** 12
 - **Branching:** 3
 ```

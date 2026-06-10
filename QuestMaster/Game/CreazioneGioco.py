@@ -376,20 +376,20 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
             container.appendChild(img);
             container.style.display = 'flex';
         }}
-        async function callGPT(userAction, isStart = false) {{
+        async function callGPT(userAction, isStart = false, displayText = "") {{
             showLoading();
-
+        
             if (!isStart) turnCount++;
-
+        
             let messages = [{{ role: "system", content: buildSystemPrompt() }}];
             const recentHistory = chatHistory.slice(-8);
             messages = messages.concat(recentHistory);
             messages.push({{ role: "user", content: `AZIONE: ${{userAction}}` }});
-
+        
             try {{
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {{
                     method: 'POST',
-                    headers: {{ 
+                    headers: {{
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${{apiKey}}`
                     }},
@@ -399,18 +399,17 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
                         response_format: {{ type: "json_object" }}
                     }})
                 }});
-
+        
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
-
+        
                 const aiText = data.choices[0].message.content;
                 const gameData = JSON.parse(aiText);
-
+        
                 if (!isStart) chatHistory.push({{ role: "user", content: userAction }});
                 chatHistory.push({{ role: "assistant", content: aiText }});
-
-                updateUI(gameData, userAction, isStart);
-
+                updateUI(gameData, displayText || userAction, isStart);
+        
             }} catch (error) {{
                 console.error(error);
                 addMessage(error.message, 'error');
@@ -456,7 +455,7 @@ def create_game_html(quest_plan_content, output_filename="index.html", cover_ima
                     const btn = document.createElement('button');
                     btn.className = 'option-button';
                     btn.innerText = c.text;
-                    btn.onclick = () => callGPT(c.action);
+                    btn.onclick = () => callGPT(c.action, false, c.text);
                     container.appendChild(btn);
                 }});
             }}

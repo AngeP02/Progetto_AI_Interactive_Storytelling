@@ -1,29 +1,35 @@
 ```pddl
-(define (domain keys-doors-simple)
-  (:requirements :strips :typing) ; Specifies the use of STRIPS and typing features
-  (:types location key door agent) ; Declares the types used in the domain
+(define (domain elarion)
+  (:requirements :strips :typing) ; Specifica i requisiti del dominio: STRIPS e tipizzazione
+
+  (:types
+    hero character location object faction ; Definisce i tipi di oggetti nel dominio
+  )
+
   (:predicates
-    (at ?a - agent ?l - location) ; Specifies the agent's location
-    (key-at ?k - key ?l - location) ; Specifies the location of a key
-    (has-key ?a - agent ?k - key) ; Specifies the key possession of an agent
-    (door-between ?d - door ?l1 ?l2 - location) ; Specifies the door's location between two locations
-    (locked ?d - door) ; Specifies if a door is locked
-    (unlocks ?k - key ?d - door) ; Specifies if a key can unlock a door
+    (at ?c - character ?l - location) ; Verifica se un personaggio si trova in una location
+    (possession ?h - hero ?o - object) ; Verifica se un eroe possiede un oggetto
+    (aligned ?c - character ?f - faction) ; Verifica se un personaggio è allineato a una fazione
+    (clear_path ?l1 - location ?l2 - location) ; Verifica se c'è un percorso libero tra due location
+    (sigil_intact) ; Verifica se il sigillo è intatto
   )
+
   (:action move
-   :parameters (?a - agent ?from ?to - location ?d - door) ; Parameters for the move action
-   :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d))) ; Preconditions for moving
-   :effect (and (not (at ?a ?from)) (at ?a ?to)) ; Effects of the move action
+    :parameters (?c - character ?from - location ?to - location) ; Parametri: un personaggio e due location
+    :precondition (and (at ?c ?from) (clear_path ?from ?to)) ; Precondizioni: il personaggio è nella location di partenza e il percorso è libero
+    :effect (and (not (at ?c ?from)) (at ?c ?to)) ; Effetti: il personaggio non è più nella location di partenza e si trova nella location di arrivo
   )
-  (:action pick-key
-   :parameters (?a - agent ?k - key ?l - location) ; Parameters for the pick-key action
-   :precondition (and (at ?a ?l) (key-at ?k ?l)) ; Preconditions for picking up a key
-   :effect (and (not (key-at ?k ?l)) (has-key ?a ?k)) ; Effects of picking up a key
+
+  (:action acquire_key
+    :parameters (?h - hero ?o - object ?l - location) ; Parametri: un eroe, un oggetto e una location
+    :precondition (and (at ?h ?l) (not (possession ?h ?o))) ; Precondizioni: l'eroe è nella location e non possiede già l'oggetto
+    :effect (possession ?h ?o) ; Effetto: l'eroe acquisisce il possesso dell'oggetto
   )
-  (:action unlock
-   :parameters (?a - agent ?k - key ?d - door ?l - location) ; Parameters for the unlock action
-   :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d)) ; Preconditions for unlocking a door
-   :effect (not (locked ?d)) ; Effects of unlocking a door
+
+  (:action restore_sigil
+    :parameters (?h - hero ?o - object ?l - location) ; Parametri: un eroe, un oggetto e una location
+    :precondition (and (at ?h ?l) (possession ?h ?o) (not (sigil_intact))) ; Precondizioni: l'eroe è nella location, possiede l'oggetto, e il sigillo non è intatto
+    :effect (sigil_intact) ; Effetto: il sigillo viene restaurato
   )
 )
 ```

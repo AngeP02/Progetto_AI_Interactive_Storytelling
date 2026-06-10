@@ -1,27 +1,33 @@
-(define (domain keys-doors-simple)
-                  (:requirements :strips :typing)
-                  (:types location key door agent)
-                  (:predicates
-                    (at ?a - agent ?l - location)
-                    (key-at ?k - key ?l - location)
-                    (has-key ?a - agent ?k - key)
-                    (door-between ?d - door ?l1 ?l2 - location)
-                    (locked ?d - door)
-                    (unlocks ?k - key ?d - door)
-                  )
-                  (:action move
-                   :parameters (?a - agent ?from ?to - location ?d - door)
-                   :precondition (and (at ?a ?from) (door-between ?d ?from ?to) (not (locked ?d)))
-                   :effect (and (not (at ?a ?from)) (at ?a ?to))
-                  )
-                  (:action pick-key
-                   :parameters (?a - agent ?k - key ?l - location)
-                   :precondition (and (at ?a ?l) (key-at ?k ?l))
-                   :effect (and (not (key-at ?k ?l)) (has-key ?a ?k))
-                  )
-                  (:action unlock
-                   :parameters (?a - agent ?k - key ?d - door ?l - location)
-                   :precondition (and (at ?a ?l) (has-key ?a ?k) (unlocks ?k ?d) (locked ?d))
-                   :effect (not (locked ?d))
-                  )
-                )
+(define (domain elarion)
+  (:requirements :strips :typing)
+  
+  (:types
+    hero character location object faction
+  )
+  
+  (:predicates
+    (at ?c - character ?l - location)
+    (possession ?h - hero ?o - object)
+    (aligned ?c - character ?f - faction)
+    (clear_path ?l1 - location ?l2 - location)
+    (sigil_intact)
+  )
+  
+  (:action move
+    :parameters (?c - character ?from - location ?to - location)
+    :precondition (and (at ?c ?from) (clear_path ?from ?to))
+    :effect (and (not (at ?c ?from)) (at ?c ?to))
+  )
+  
+  (:action acquire_key
+    :parameters (?h - hero ?o - object ?l - location)
+    :precondition (and (at ?h ?l) (not (possession ?h ?o)))
+    :effect (possession ?h ?o)
+  )
+  
+  (:action restore_sigil
+    :parameters (?h - hero ?o - object ?l - location)
+    :precondition (and (at ?h ?l) (possession ?h ?o) (not (sigil_intact)))
+    :effect (sigil_intact)
+  )
+)

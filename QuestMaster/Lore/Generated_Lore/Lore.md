@@ -1,54 +1,70 @@
-# Documento di Lore: Nessuna
+# Documento di Lore: Un antico regno in pericolo, salvato da eroi inaspettati
 
-**Genere:** Giallo | **Tono:** Dark | **Lunghezza:** Short (2-5 min)
+**Genere:** Fantasy | **Tono:** Epico | **Lunghezza:** Medio (5-10 min)
 **Generato da:** GPT-4o
 
 ---
 
 ## Contesto Iniziale
 
-Nella città oscura di Eldergloom, una nebbia perenne avvolge le strade strette e tortuose, oscurando la verità tanto quanto il sole. È una città in cui i segreti si nascondono dietro ogni angolo e la fiducia è una moneta rara. La storia si apre in un piovoso crepuscolo, quando un noto collezionista d'arte viene trovato morto nel suo studio, con la sua collezione di quadri antichi intatta, ad eccezione di un dipinto mancante: "L'Ombra senza Volto". Questo quadro è noto non solo per il suo valore inestimabile, ma anche per la sua misteriosa storia di maledizioni e tragedie. Il giocatore viene coinvolto nel caso come detective privato, incaricato di risolvere il mistero prima che la nebbia di Eldergloom inghiotta ogni indizio.
+Nel cuore dell'antico regno di Elarion, un'ombra oscura si estende dalle Terre Desolate di Morvaan. Un tempo, Elarion era una terra di pace e prosperità, governata saggiamente dalla regina Elara, protetta da antichi incantesimi che sigillavano le forze oscure nelle profondità del suolo. Tuttavia, una profezia dimenticata raccontava del ritorno di questi mali quando il sigillo si sarebbe indebolito. Ora, con i primi segni di disgregazione del sigillo, il regno è minacciato da creature di tenebra che emergono dalle rovine dimenticate, e l'ultimo baluardo della luce rischia di soccombere.
 
 ## Personaggi Principali (Giocatore e PNG chiave)
 
-- **Il Giocatore (Detective):** Un detective privato disilluso ma astuto, noto per il suo acume nel risolvere i casi più intricati. Porta con sé il fardello di un passato tormentato, che lo rende sospettoso di tutti.
+1. **Giocatore (L'eroe Inaspettato):** 
+   - Nome: Arin, il Fabbricante d'Armi
+   - Descrizione: Conosciuto per la sua abilità nel forgiare armi, Arin non ha mai cercato la gloria. La sua umiltà e il suo cuore puro lo rendono un eroe improbabile, ma il suo potenziale è nascosto nelle sue abilità artigianali e nella sua capacità di unire le persone.
 
-- **Madame Lysandra:** Una misteriosa collezionista d'arte dai modi eleganti, conosciuta per il suo interesse nei dipinti maledetti. Ha un legame oscuro con il dipinto scomparso.
+2. **Regina Elara:**
+   - Descrizione: La saggia e giusta regina di Elarion, determinata a proteggere il suo regno. Si affida agli eroi per salvare la sua terra, pur essendo consapevole delle minacce che la circondano.
 
-- **Capitano Murdock:** Il capo della polizia locale, un uomo di poche parole ma di molte azioni, che nasconde più di quanto non mostri.
+3. **Elder Morghen:**
+   - Descrizione: Un vecchio saggio e custode della biblioteca magica di Elarion. Offre guida e conoscenza sulla profezia e sugli incantesimi perduti.
 
-- **Il Fantasma dell’Artista:** Uno spirito inquieto che si dice perseguiti chiunque possieda "L'Ombra senza Volto". La sua presenza è percepita solo nei momenti di grande tensione.
+4. **Lord Kael:**
+   - Descrizione: Un nobile che segretamente brama il potere e potrebbe essere alleato delle forze oscure. Il suo tradimento è nascosto, ma il suo aiuto sembra sempre avere secondi fini.
 
 ## Fazioni/Gruppi di Interesse
 
-- **La Gilda dei Collezionisti:** Un gruppo elitario di collezionisti d'arte, alcuni dei quali sono disposti a tutto pur di ottenere pezzi rari. Sono noti per la loro influenza e i metodi spietati.
+1. **Guardiani delle Rune:**
+   - Un ordine di maghi e guerrieri dedicati a proteggere il sigillo magico. Hanno perso molti membri nelle recenti battaglie contro le creature oscure.
 
-- **I Guardiani dell’Ombra:** Una setta segreta che venera l'artista defunto, credendo che i suoi quadri siano portali verso altre dimensioni. Temono che il dipinto nelle mani sbagliate possa scatenare disastri.
+2. **Clan dei Forgiatori:**
+   - Il clan di Arin, rinomato per la creazione di armi e armature. Sono neutrali nella maggior parte dei conflitti, concentrati sull'artigianato.
+
+3. **Seguaci dell'Ombra:**
+   - Un culto segreto che desidera vedere il ritorno delle tenebre per ottenere potere e dominio. Hanno infiltrati in diversi luoghi del regno.
 
 ## Luoghi Chiave
 
-- **Studio del Collezionista:** Il luogo del delitto, pieno di quadri inquietanti e sculture contorte. L'aria è pesante di mistero e tensione.
+1. **Castello di Elarion:**
+   - Situato su una collina, è la sede del potere della regina Elara e il luogo dove le decisioni cruciali prendono forma.
 
-- **La Galleria di Madame Lysandra:** Un luogo opulento e ricco di storia, dove il lusso nasconde segreti oscuri.
+2. **Foresta di Luminara:**
+   - Una foresta incantata che nasconde segreti antichi e creature magiche. È un luogo di prova per chi cerca di dimostrare il proprio valore.
 
-- **Cimitero Vecchio di Eldergloom:** Un luogo avvolto da leggende, dove si dice che l'artista sia stato sepolto in una tomba senza nome.
+3. **Catacombe di Morvaan:**
+   - Un antico sistema di caverne e gallerie sotto le Terre Desolate, contenente il sigillo magico che ora si sta rompendo.
 
 ## Obiettivi Iniziali
 
-- Indagare sulla scena del crimine e raccogliere indizi relativi alla morte del collezionista e alla scomparsa del dipinto.
+1. **Ripristinare il Sigillo Magico:**
+   - Trovare e utilizzare la chiave arcana nascosta all'interno della Foresta di Luminara per rafforzare il sigillo.
 
-- Scoprire i legami tra i personaggi e il quadro maledetto.
+2. **Unire le Fazioni:**
+   - Convincere i Guardiani delle Rune e il Clan dei Forgiatori a collaborare per fronteggiare la minaccia comune.
 
-- Determinare il ruolo del dipinto nella morte e nella sua storia oscura.
+3. **Scoprire il Traditore:**
+   - Indagare e rivelare il tradimento all'interno della corte, identificando gli infiltrati dei Seguaci dell'Ombra.
 
 ## Branching Factor (minimo e massimo)
 
-- **Minimo:** 2 scelte per nodo
-- **Massimo:** 3 scelte per nodo
+- **Minimo:** 3 scelte per nodo
+- **Massimo:** 4 scelte per nodo
 
 ## Depth Constraints (minimo e massimo)
 
-- **Minimo:** 3 passi per completare la storia
-- **Massimo:** 6 passi per completare la storia
+- **Minimo:** 7 passi per completare la storia
+- **Massimo:** 12 passi per completare la storia
 
-In questo mondo di ombre e inganni, il giocatore dovrà navigare tra alleanze pericolose e verità nascoste, per svelare il mistero che avvolge "L'Ombra senza Volto". La nebbia di Eldergloom si farà sempre più fitta, e solo il più astuto potrà illuminare le tenebre.
+Questa storia epica di Elarion invita il giocatore a intraprendere un viaggio attraverso un mondo ricco di magia e mistero, dove l'eroismo può emergere dai luoghi più inaspettati e la luce deve prevalere sull'oscurità.

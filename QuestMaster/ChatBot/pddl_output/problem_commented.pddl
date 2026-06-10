@@ -1,25 +1,31 @@
 ```pddl
-(define (problem quest-medium) ; Definisce il problema chiamato "quest-medium"
-  (:domain keys-doors-simple) ; Specifica il dominio di appartenenza, "keys-doors-simple"
+(define (problem elarion-rescue)
+  (:domain elarion) ; Definisce il dominio di appartenenza del problema
+  
   (:objects
-    ingresso_eldersgloom studio_collezionista collezione_quadri camera_segreta - location ; Definisce le location
-    detective - agent ; Definisce l'agente "detective"
-    chiave_di_bronzo chiave_dorata - key ; Definisce le chiavi
-    porta_principale porta_quadro_scomparso - door ; Definisce le porte
+    arin - hero ; L'eroe del problema
+    queen_elara elder_morghen lord_kael - character ; Personaggi coinvolti nel problema
+    castle_elarion forest_luminara catacombs_morvaan - location ; Luoghi rilevanti per il problema
+    key_arcane - object ; Oggetto chiave per la risoluzione del problema
+    guardiani_delle_rune clan_dei_forgiatori seguaci_dell_ombra - faction ; Fazioni presenti nel problema
   )
+  
   (:init
-    (at detective ingresso_eldersgloom) ; Il detective si trova all'ingresso di Eldersgloom
-    (key-at chiave_di_bronzo ingresso_eldersgloom) ; La chiave di bronzo è all'ingresso di Eldersgloom
-    (key-at chiave_dorata studio_collezionista) ; La chiave dorata è nello studio del collezionista
-    (door-between porta_principale ingresso_eldersgloom studio_collezionista) ; La porta principale collega l'ingresso di Eldersgloom e lo studio del collezionista
-    (door-between porta_quadro_scomparso studio_collezionista collezione_quadri) ; La porta del quadro scomparso collega lo studio del collezionista e la collezione di quadri
-    (locked porta_principale) ; La porta principale è chiusa a chiave
-    (locked porta_quadro_scomparso) ; La porta del quadro scomparso è chiusa a chiave
-    (unlocks chiave_di_bronzo porta_principale) ; La chiave di bronzo apre la porta principale
-    (unlocks chiave_dorata porta_quadro_scomparso) ; La chiave dorata apre la porta del quadro scomparso
+    (at arin castle_elarion) ; Posizione iniziale di Arin
+    (at queen_elara castle_elarion) ; Posizione iniziale della regina Elara
+    (at elder_morghen castle_elarion) ; Posizione iniziale di Elder Morghen
+    (at lord_kael castle_elarion) ; Posizione iniziale di Lord Kael
+    (clear_path castle_elarion forest_luminara) ; Percorso libero tra il castello e la foresta
+    (clear_path forest_luminara catacombs_morvaan) ; Percorso libero tra la foresta e le catacombe
+    (aligned arin clan_dei_forgiatori) ; Arin è allineato con il Clan dei Forgiatori
+    (aligned queen_elara guardiani_delle_rune) ; La regina Elara è allineata con i Guardiani delle Rune
+    (aligned lord_kael seguaci_dell_ombra) ; Lord Kael è allineato con i Seguaci dell'Ombra
+    (not (sigil_intact)) ; Il sigillo non è intatto inizialmente
+    (at key_arcane castle_elarion) ; La chiave arcana si trova nel castello di Elarion
   )
+  
   (:goal
-    (at detective collezione_quadri) ; L'obiettivo è che il detective si trovi nella collezione di quadri
+    (sigil_intact) ; Obiettivo: rendere il sigillo intatto
   )
 )
 ```

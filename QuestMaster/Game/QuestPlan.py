@@ -29,7 +29,7 @@ def save_to_file(content, filename):
         print(f"Errore nel salvataggio del file: {e}")
 
 
-def generate_quest_plan(pddl_content, lore_content):
+def generate_quest_plan(pddl_content, lore_content, plan_content: str = ""):
     prompt = f"""
     Sei un esperto Game Designer e Scrittore Tecnico. 
     Il tuo compito è creare un "File Scenario Guida" (Quest Plan) che servirà come cervello per un gioco testuale interattivo. 
@@ -38,7 +38,13 @@ def generate_quest_plan(pddl_content, lore_content):
     --- INIZIO DATI PDDL (LOGICA) ---
     {pddl_content}
     --- FINE DATI PDDL ---
-
+    plan_section = ""
+        if plan_content:
+            plan_section = f""
+    --- INIZIO PIANO DI SOLUZIONE (Fast Downward) ---
+    {plan_content}
+    --- FINE PIANO ---
+    ""
     --- INIZIO DATI LORE (TRAMA E VINCOLI) ---
     {lore_content}
     --- FINE DATI LORE ---
@@ -68,8 +74,10 @@ def generate_quest_plan(pddl_content, lore_content):
     [Qual è la condizione di vittoria]
 
     ## 5. SEQUENZA DI EVENTI (Suggerita)
-    [Una breve scaletta dei passaggi logici per vincere, derivata dal piano PDDL]
-
+    [Traduci OGNI azione del piano sas_plan in un evento narrativo.
+     Formato: "Passo N: [azione PDDL] → [descrizione narrativa dell'evento]"
+     Questa sequenza deve essere rispettata dal gioco.]
+     
     ## 6. VINCOLI DI GIOCO
     - **MaxDepth:** [Inserisci SOLO il numero intero estratto dalla Lore, es. 12]
     - **Branching:** [Inserisci SOLO il numero intero estratto dalla Lore, es. 3]
@@ -90,12 +98,19 @@ def run_quest_plan_generation():
     BASE_PATH = r"C:\Users\ANGELICA\Desktop\ANGELICA\UNICAL\MAGISTRALE\I ANNO\SECONDO SEMESTRE\INTELLIGENZA ARTIFICIALE\PROGETTO\CODICE\QuestMaster"
     path_domain = os.path.join(BASE_PATH, "ChatBot/pddl_output/domain.pddl")
     path_problem = os.path.join(BASE_PATH, "ChatBot/pddl_output/problem.pddl")
+    plan_readable_path = os.path.join(BASE_PATH, "ChatBot/pddl_output/plan_readable.txt")
     path_lore = os.path.join(BASE_PATH, "Lore/Generated_Lore/Lore.md")
+    plan_content = ""
+    try:
+        plan_content = read_file(plan_readable_path)
+    except SystemExit:
+        print("Nessun file piano trovato, procedo senza.")
+
     domain_content = read_file(path_domain)
     problem_content = read_file(path_problem)
     lore_content = read_file(path_lore)
     full_pddl_content = f"*** DOMAIN PDDL ***\n{domain_content}\n\n*** PROBLEM PDDL ***\n{problem_content}"
-    plan_content = generate_quest_plan(full_pddl_content, lore_content)
+    plan_content = generate_quest_plan(full_pddl_content, lore_content, plan_content)
     output_filename = "quest_plan.md"
     save_to_file(plan_content, output_filename)
     return plan_content
